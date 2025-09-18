@@ -2,4 +2,35 @@
 padding: 0;
 margin: 0;
 }
-header {background-color: #231c1a;}
+header {
+    background-color: #000000;
+     height:80px;
+    width:100%;
+}
+h1 {
+    color: white;
+}
+header ul {
+    position: absolute;
+    right: 5vw;
+    top: 0;
+    line-height: 80px;
+}
+h1 {
+   position: absolute;
+   left: 120px;
+   top: 0;
+   line-height: 80px;
+}
+   
+header li {
+    display: inline;
+    margin-right: 4vw;
+}
+header a {
+    color: white;
+    text-decoration: none;
+}
+header a:hover {
+    text-decoration: underline;
+}
