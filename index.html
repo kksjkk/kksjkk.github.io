@@ -3,24 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>挖掘机民主共和国</title>
+    <title>System_VM_D62E</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-    <h1>挖掘机民主共和国</h1>
-    <nav>
-        <ul>
-            <li><a href="#">关于我们</a></li>
-            <li><a href="#">了解更多</a></li>
-            <li><a href="https://m.bilibili.com/space/3546812044544535">作者信息</a></li>
-        </ul>
-    </nav>
-</header>
-<main>
-   <h2> <progress>1%-100%</progress></h2>
-    <img src="logo.jpg" alt="个人logo">
-    <footer id="contact">©2025版权所有</footer> 
-</main>
+    <header>
+        <div class="header-container">
+            <h1>System_VM_D62E</h1>
+            
+            <!-- 响应式导航 -->
+            <nav class="navbar">
+                <button class="nav-toggle" aria-label="切换菜单">☰</button>
+                <ul class="nav-menu">
+                    <li><a href="#about">关于UP</a></li>
+                    <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank">作者信息</a></li>
+                    <li><button id="theme-toggle" class="theme-btn">🌓 切换主题</button></li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- 阅读进度条 -->
+        <div class="progress-bar"></div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <img src="logo.jpg" alt="个人logo" class="logo lazy-load" data-src="logo.jpg">
+                <h2>欢迎来到 System_VM_D62E官方网页</h2>
+                <p>探索技术与创意的无限可能</p>
+                
+                <!-- 进度指示器 -->
+                <div class="progress-container">
+                    <label for="system-progress">系统加载进度:</label>
+                    <progress id="system-progress" value="75" max="100">75%</progress>
+                    <span class="progress-text">75%</span>
+                </div>
+            </div>
+        </section>
+        
+        <section id="about" class="about-section">
+            <div class="container">
+                <h2>关于UP主</h2>
+                <p>这里可以添加关于UP主的详细介绍、创作方向和技术分享等内容。</p>
+                <div class="features">
+                    <div class="feature-card">
+                        <h3>技术分享</h3>
+                        <p>前沿技术解析与实践经验</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>创意作品</h3>
+                        <p>原创项目与设计思路</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>社区互动</h3>
+                        <p>与粉丝交流分享心得</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="footer-container">
+            <p>&copy; 2025 System_VM_D62E 版权所有</p>
+            <p>联系邮箱: <a href="mailto:3820332398@qq.com">3820332398@qq.com</a></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
