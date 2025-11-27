@@ -7,17 +7,33 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 科幻背景元素 -->
+    <div class="scifi-bg">
+        <div class="grid-lines"></div>
+        <div class="floating-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+    
     <header>
         <div class="header-container">
-            <h1>System_VM_D62E</h1>
+            <h1 class="scifi-title">System_VM_D62E</h1>
             
             <!-- 响应式导航 -->
             <nav class="navbar">
-                <button class="nav-toggle" aria-label="切换菜单">☰</button>
+                <button class="nav-toggle" aria-label="切换菜单">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
                 <ul class="nav-menu">
-                    <li><a href="#about">关于UP</a></li>
-                    <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank">作者信息</a></li>
-                    <li><button id="theme-toggle" class="theme-btn">🌓 切换主题</button></li>
+                    <li><a href="#about" class="scifi-link">关于UP</a></li>
+                    <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" class="scifi-link">作者信息</a></li>
+                    <li><button id="theme-toggle" class="theme-btn scifi-button">🌓 切换主题</button></li>
                 </ul>
             </nav>
         </div>
@@ -29,14 +45,22 @@
     <main>
         <section class="hero">
             <div class="hero-content">
-                <img src="logo.jpg" alt="个人logo" class="logo lazy-load" data-src="http://www.bjjyhx.cn/upload/images/20171012_101053.jpg">
-                <h2>欢迎来到 System_VM_D62E官方网页</h2>
-                <p>探索技术与创意的无限可能</p>
+                <div class="logo-container">
+                    <div class="logo-glow"></div>
+                    <img src="https://pics1.baidu.com/feed/79f0f736afc37931e6c973ea8baf5a4f41a911c2@f_auto?token=666eac13d2aab8d4d632662a0a40ca03&f=png" 
+                         alt="个人logo" 
+                         class="logo lazy-load">
+                </div>
+                <h2 class="scifi-heading">欢迎来到 <span class="highlight">System_VM_D62E</span> 官方网页</h2>
+                <p class="scifi-text">探索技术与创意的无限可能</p>
                 
                 <!-- 进度指示器 -->
                 <div class="progress-container">
-                    <label for="system-progress">系统加载进度:</label>
-                    <progress id="system-progress" value="75" max="100">75%</progress>
+                    <label for="system-progress" class="scifi-label">系统加载进度:</label>
+                    <div class="progress-wrapper">
+                        <progress id="system-progress" value="75" max="100">75%</progress>
+                        <div class="progress-glow"></div>
+                    </div>
                     <span class="progress-text">75%</span>
                 </div>
             </div>
@@ -44,20 +68,26 @@
         
         <section id="about" class="about-section">
             <div class="container">
-                <h2>关于UP主</h2>
-                <p>未完...</p>
+                <h2 class="scifi-heading">关于UP主</h2>
+                <p class="scifi-text">未完...</p>
                 <div class="features">
                     <div class="feature-card">
+                        <div class="card-icon">💻</div>
                         <h3>技术分享</h3>
                         <p>前沿技术解析与实践经验</p>
+                        <div class="card-glow"></div>
                     </div>
                     <div class="feature-card">
+                        <div class="card-icon">🎨</div>
                         <h3>创意作品</h3>
                         <p>原创项目与设计思路</p>
+                        <div class="card-glow"></div>
                     </div>
                     <div class="feature-card">
+                        <div class="card-icon">👥</div>
                         <h3>社区互动</h3>
                         <p>与粉丝交流分享心得</p>
+                        <div class="card-glow"></div>
                     </div>
                 </div>
             </div>
@@ -66,8 +96,8 @@
 
     <footer id="contact">
         <div class="footer-container">
-            <p>&copy; 2025 System_VM_D62E 版权所有</p>
-            <p>联系邮箱: <a href="mailto:3820332398@qq.com">3820332398@qq.com</a></p>
+            <p class="scifi-text">&copy; 2025 System_VM_D62E 版权所有</p>
+            <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
         </div>
     </footer>
 
