@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // 图片懒加载（使用IntersectionObserver优化）
+    // 图片懒加载
     const lazyImages = document.querySelectorAll('.lazy-load');
     
     if ('IntersectionObserver' in window && lazyImages.length > 0) {
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         lazyImages.forEach(img => imageObserver.observe(img));
     } else {
-        // 回退方案：直接加载所有图片
+        // 直接加载所有图片
         lazyImages.forEach(img => {
             if (img.dataset.src) {
                 img.src = img.dataset.src;
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let visitHistory = JSON.parse(localStorage.getItem('visitHistory') || '[]');
         visitHistory.push(visitData);
         
-        // 只保留最近10次访问记录
+        // 保留最近10次访问记录
         if (visitHistory.length > 10) {
             visitHistory = visitHistory.slice(-10);
         }
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 初始化进度条动画（使用RAF优化）
+    // 初始化进度条动画
     const progressElement = document.getElementById('system-progress');
     if (progressElement) {
         let progress = 75;
