@@ -1,11 +1,9 @@
-/* 重置样式 */
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
 }
 
-/* 基础样式 */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
@@ -14,9 +12,12 @@ body {
     transition: all 0.5s ease;
     overflow-x: hidden;
     position: relative;
+    /* 优化渲染性能 */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
 }
 
-/* 科幻背景元素 */
 .scifi-bg {
     position: fixed;
     top: 0;
@@ -25,6 +26,8 @@ body {
     height: 100%;
     z-index: -1;
     pointer-events: none;
+    /* 优化渲染层 */
+    transform: translateZ(0);
 }
 
 .grid-lines {
@@ -38,6 +41,8 @@ body {
         linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
     background-size: 50px 50px;
     animation: gridMove 20s linear infinite;
+    /* 优化动画性能 */
+    will-change: transform;
 }
 
 @keyframes gridMove {
@@ -51,6 +56,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
+    /* 创建新的合成层 */
+    transform: translateZ(0);
 }
 
 .particle {
@@ -58,6 +65,9 @@ body {
     background: rgba(0, 212, 255, 0.5);
     border-radius: 50%;
     animation: float 15s infinite linear;
+    will-change: transform, opacity;
+    /* 优化动画性能 */
+    backface-visibility: hidden;
 }
 
 .particle:nth-child(1) {
@@ -117,7 +127,6 @@ body {
     }
 }
 
-/* 暗色模式 */
 body.dark-mode {
     background: linear-gradient(135deg, #050510 0%, #0f0f1f 50%, #121228 100%);
     color: #e0e0e0;
@@ -137,7 +146,6 @@ body.dark-mode .theme-btn {
     color: #ffffff;
 }
 
-/* 头部样式 */
 header {
     background-color: rgba(0, 0, 0, 0.7);
     height: 80px;
@@ -149,6 +157,8 @@ header {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(0, 212, 255, 0.2);
     transition: all 0.5s ease;
+    /* 优化渲染性能 */
+    transform: translateZ(0);
 }
 
 .header-container {
@@ -187,7 +197,6 @@ header {
     width: 100%;
 }
 
-/* 导航栏样式 */
 .navbar {
     display: flex;
     align-items: center;
@@ -198,77 +207,58 @@ header {
     list-style: none;
     gap: 2rem;
     align-items: center;
+    transition: all 0.3s ease;
 }
 
 .nav-menu li {
     margin: 0;
 }
 
-.scifi-link {
-    color: #e0e0e0;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 200px;
+        background: rgba(0, 0, 0, 0.95);
+        flex-direction: column;
+        padding: 1rem;
+        border-radius: 0 0 0 10px;
+        box-shadow: -2px 5px 10px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(0, 243, 255, 0.2);
+        backdrop-filter: blur(10px);
+        transform: translateX(100%);
+        opacity: 0;
+        transition: all 0.3s ease;
+        /* 优化动画性能 */
+        will-change: transform, opacity;
+    }
+    
+    .nav-menu.active {
+        display: flex;
+        transform: translateX(0);
+        opacity: 1;
+    }
+    
+    .nav-menu li {
+        margin: 0.5rem 0;
+        width: 100%;
+        text-align: center;
+    }
 
-.scifi-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.4), transparent);
-    transition: left 0.5s ease;
-}
+    .nav-menu .scifi-link {
+        display: block;
+        padding: 0.8rem 1rem;
+        width: 100%;
+        text-align: center;
+    }
 
-.scifi-link:hover {
-    color: #00f3ff;
-    text-shadow: 0 0 8px rgba(0, 243, 255, 0.7);
-}
-
-.scifi-link:hover::before {
-    left: 100%;
-}
-
-.scifi-button {
-    background: rgba(0, 243, 255, 0.1);
-    border: 1px solid rgba(0, 243, 255, 0.3);
-    color: #e0e0e0;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.scifi-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.4), transparent);
-    transition: left 0.5s ease;
-}
-
-.scifi-button:hover {
-    background: rgba(0, 243, 255, 0.2);
-    color: #00f3ff;
-    text-shadow: 0 0 8px rgba(0, 243, 255, 0.7);
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
-    transform: translateY(-2px);
-}
-
-.scifi-button:hover::before {
-    left: 100%;
+    .nav-menu .scifi-button {
+        width: 100%;
+        text-align: center;
+        margin-top: 0.5rem;
+    }
 }
 
 .nav-toggle {
@@ -281,6 +271,8 @@ header {
     justify-content: space-between;
     cursor: pointer;
     padding: 0;
+    position: relative;
+    z-index: 1001;
 }
 
 .nav-toggle span {
@@ -290,13 +282,15 @@ header {
     background-color: #00f3ff;
     border-radius: 2px;
     transition: all 0.3s ease;
+    transform-origin: center;
+    /* 优化动画性能 */
+    backface-visibility: hidden;
 }
 
 .nav-toggle:hover span {
     box-shadow: 0 0 8px rgba(0, 243, 255, 0.7);
 }
 
-/* 进度条样式 */
 .progress-bar {
     position: fixed;
     top: 0;
@@ -304,18 +298,24 @@ header {
     height: 3px;
     background: linear-gradient(90deg, #007acc, #00c9ff, #007acc);
     width: 0%;
-    transition: width 0.1s ease;
+    transition: width 0.1s ease, opacity 0.5s ease 0.5s;
     z-index: 9999;
     box-shadow: 0 0 10px rgba(0, 201, 255, 0.7);
+    opacity: 1;
+    /* 优化渲染性能 */
+    transform: translateZ(0);
 }
 
-/* 主要内容区域 */
+.progress-bar.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
 main {
     margin-top: 80px;
     min-height: calc(100vh - 160px);
 }
 
-/* Hero区域 */
 .hero {
     background: radial-gradient(ellipse at center, rgba(10, 20, 40, 0.7) 0%, rgba(5, 10, 20, 0.9) 100%);
     color: white;
@@ -400,6 +400,8 @@ main {
     background: radial-gradient(circle, rgba(0, 243, 255, 0.4) 0%, transparent 70%);
     filter: blur(15px);
     animation: pulseGlow 3s ease-in-out infinite alternate;
+    /* 优化动画性能 */
+    will-change: transform, opacity;
 }
 
 @keyframes pulseGlow {
@@ -417,6 +419,9 @@ main {
     transition: all 0.5s ease;
     position: relative;
     z-index: 1;
+    /* 优化动画性能 */
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 .logo:hover {
@@ -424,7 +429,6 @@ main {
     box-shadow: 0 0 40px rgba(0, 243, 255, 0.8);
 }
 
-/* 进度容器 */
 .progress-container {
     background: rgba(255, 255, 255, 0.05);
     padding: 1.5rem;
@@ -510,7 +514,6 @@ progress::-moz-progress-bar {
     text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
 }
 
-/* 关于区域 */
 .about-section {
     padding: 6rem 0;
     background: rgba(10, 15, 30, 0.7);
@@ -566,7 +569,6 @@ body.dark-mode .about-section > .container > p {
     color: #cccccc;
 }
 
-/* 特性卡片 */
 .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -585,6 +587,10 @@ body.dark-mode .about-section > .container > p {
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(10px);
+    will-change: transform;
+    /* 优化动画性能 */
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 .feature-card::before {
@@ -629,6 +635,8 @@ body.dark-mode .about-section > .container > p {
     margin-bottom: 1rem;
     display: block;
     transition: transform 0.5s ease;
+    /* 优化动画性能 */
+    backface-visibility: hidden;
 }
 
 .feature-card:hover .card-icon {
@@ -655,7 +663,6 @@ body.dark-mode .feature-card p {
     color: #cccccc;
 }
 
-/* 页脚样式 */
 footer {
     background-color: rgba(0, 0, 0, 0.8);
     color: #e0e0e0;
@@ -682,7 +689,6 @@ footer a:hover {
     text-decoration: none;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
     .header-container {
         padding: 0 15px;
