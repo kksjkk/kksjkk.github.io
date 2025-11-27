@@ -207,13 +207,7 @@ header {
 
 .scifi-link {
     color: #e0e0e0;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+   text-decoration: none;
 }
 
 .scifi-link::before {
@@ -297,7 +291,7 @@ header {
     box-shadow: 0 0 8px rgba(0, 243, 255, 0.7);
 }
 
-/* 进度条样式 - 新增渐隐效果 */
+/* 进度条样式 */
 .progress-bar {
     position: fixed;
     top: 0;
