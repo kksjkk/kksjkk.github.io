@@ -1,25 +1,106 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
+    // 使用RAF优化所有动画
+    let lastTime = 0;
+    const vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(let x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = function(callback, element) {
+            const currTime = new Date().getTime();
+            const timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            const id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+    }
+
     // 移动端菜单切换
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
     
     if (navToggle && navMenu) {
         navToggle.addEventListener('click', function() {
-            navMenu.classList.toggle('active');
+            const isActive = navMenu.classList.contains('active');
             
-            // 汉堡菜单动画
-            const spans = this.querySelectorAll('span');
-            if (navMenu.classList.contains('active')) {
-                spans[0].style.transform = 'rotate(45deg) translate(6px, 6px)';
-                spans[1].style.opacity = '0';
-                spans[2].style.transform = 'rotate(-45deg) translate(6px, -6px)';
-            } else {
-                spans[0].style.transform = 'none';
-                spans[1].style.opacity = '1';
-                spans[2].style.transform = 'none';
-            }
+            // 使用RAF优化菜单动画
+            requestAnimationFrame(() => {
+                // 汉堡菜单动画
+                const spans = this.querySelectorAll('span');
+                if (!isActive) {
+                    // 打开菜单
+                    spans[0].style.transform = 'rotate(45deg) translate(6px, 6px)';
+                    spans[1].style.opacity = '0';
+                    spans[2].style.transform = 'rotate(-45deg) translate(6px, -6px)';
+                    navMenu.style.display = 'flex';
+                    // 强制重绘以确保过渡生效
+                    navMenu.offsetHeight;
+                    navMenu.classList.add('active');
+                } else {
+                    // 关闭菜单
+                    spans[0].style.transform = 'none';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'none';
+                    navMenu.classList.remove('active');
+                    // 等待过渡完成后再隐藏
+                    setTimeout(() => {
+                        if (!navMenu.classList.contains('active')) {
+                            navMenu.style.display = 'none';
+                        }
+                    }, 300);
+                }
+            });
         });
+
+        // 点击菜单项时关闭菜单（移动端）
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    requestAnimationFrame(() => {
+                        const spans = navToggle.querySelectorAll('span');
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                        navMenu.classList.remove('active');
+                        setTimeout(() => {
+                            navMenu.style.display = 'none';
+                        }, 300);
+                    });
+                }
+            });
+        });
+    }
+    
+    // 窗口大小改变时重置菜单状态（使用防抖优化）
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            requestAnimationFrame(() => {
+                if (window.innerWidth > 768) {
+                    navMenu.style.display = 'flex';
+                    navMenu.classList.remove('active');
+                    const spans = navToggle.querySelectorAll('span');
+                    spans[0].style.transform = 'none';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'none';
+                } else {
+                    if (!navMenu.classList.contains('active')) {
+                        navMenu.style.display = 'none';
+                    }
+                }
+            });
+        }, 100);
+    });
+
+    // 初始化菜单状态
+    if (window.innerWidth <= 768) {
+        navMenu.style.display = 'none';
     }
     
     // 主题切换功能
@@ -35,31 +116,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // 主题切换事件
     if (themeToggle) {
         themeToggle.addEventListener('click', function() {
-            // 添加切换动画
-            document.body.style.opacity = '0.8';
-            document.body.style.transition = 'opacity 0.3s ease';
-            
-            setTimeout(() => {
-                document.body.classList.toggle('dark-mode');
-                let theme = 'light';
-                let buttonText = '🌓 暗色模式';
+            requestAnimationFrame(() => {
+                // 添加切换动画
+                document.body.style.opacity = '0.8';
+                document.body.style.transition = 'opacity 0.3s ease';
                 
-                if (document.body.classList.contains('dark-mode')) {
-                    theme = 'dark';
-                    buttonText = '☀️ 亮色模式';
-                }
-                
-                localStorage.setItem('theme', theme);
-                themeToggle.textContent = buttonText;
-                
-                // 恢复透明度
-                document.body.style.opacity = '1';
-            }, 300);
+                setTimeout(() => {
+                    document.body.classList.toggle('dark-mode');
+                    let theme = 'light';
+                    let buttonText = '🌓 暗色模式';
+                    
+                    if (document.body.classList.contains('dark-mode')) {
+                        theme = 'dark';
+                        buttonText = '☀️ 亮色模式';
+                    }
+                    
+                    localStorage.setItem('theme', theme);
+                    themeToggle.textContent = buttonText;
+                    
+                    // 恢复透明度
+                    document.body.style.opacity = '1';
+                }, 300);
+            });
         });
     }
     
+    // 使用requestAnimationFrame优化滚动性能
+    let ticking = false;
+    
     // 阅读进度条
-    window.addEventListener('scroll', function() {
+    function updateProgressBar() {
         const winHeight = window.innerHeight;
         const docHeight = document.documentElement.scrollHeight;
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -68,6 +154,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (progressBar) {
             progressBar.style.width = scrollPercent + '%';
+            
+            // 当进度达到100%时，添加隐藏类
+            if (scrollPercent >= 100) {
+                progressBar.classList.add('hidden');
+            } else {
+                progressBar.classList.remove('hidden');
+            }
         }
         
         // 头部背景变化
@@ -79,9 +172,18 @@ document.addEventListener('DOMContentLoaded', function() {
             header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
             header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
         }
+        
+        ticking = false;
+    }
+    
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(updateProgressBar);
+            ticking = true;
+        }
     });
     
-    // 图片懒加载
+    // 图片懒加载（使用IntersectionObserver优化）
     const lazyImages = document.querySelectorAll('.lazy-load');
     
     if ('IntersectionObserver' in window && lazyImages.length > 0) {
@@ -90,24 +192,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     
-                    // 添加淡入效果
-                    img.style.opacity = '0';
-                    img.style.transition = 'opacity 0.5s ease';
-                    
-                    // 设置图片源
-                    if (img.dataset.src) {
-                        img.src = img.dataset.src;
-                    }
-                    
-                    // 移除懒加载类
-                    img.classList.remove('lazy-load');
-                    
-                    // 淡入图片
-                    setTimeout(() => {
-                        img.style.opacity = '1';
-                    }, 100);
-                    
-                    imageObserver.unobserve(img);
+                    requestAnimationFrame(() => {
+                        // 添加淡入效果
+                        img.style.opacity = '0';
+                        img.style.transition = 'opacity 0.5s ease';
+                        
+                        // 设置图片源
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                        }
+                        
+                        // 移除懒加载类
+                        img.classList.remove('lazy-load');
+                        
+                        // 淡入图片
+                        setTimeout(() => {
+                            requestAnimationFrame(() => {
+                                img.style.opacity = '1';
+                            });
+                        }, 100);
+                        
+                        imageObserver.unobserve(img);
+                    });
                 }
             });
         }, {
@@ -169,57 +275,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // 添加鼠标移动效果
+    // 添加鼠标移动效果（优化性能，减少粒子数量）
+    let mouseParticleTimeout;
     document.addEventListener('mousemove', function(e) {
         const particles = document.querySelector('.floating-particles');
         if (!particles) return;
         
-        // 创建跟随鼠标的粒子
-        if (Math.random() > 0.97) {
-            createParticle(e.clientX, e.clientY);
-        }
+        // 使用节流优化粒子创建
+        clearTimeout(mouseParticleTimeout);
+        mouseParticleTimeout = setTimeout(() => {
+            // 创建跟随鼠标的粒子（降低频率）
+            if (Math.random() > 0.98) {
+                createParticle(e.clientX, e.clientY);
+            }
+        }, 16); // 约60fps
     });
     
     function createParticle(x, y) {
-        const particle = document.createElement('div');
-        particle.className = 'particle mouse-particle';
-        particle.style.left = x + 'px';
-        particle.style.top = y + 'px';
-        particle.style.width = Math.random() * 4 + 2 + 'px';
-        particle.style.height = particle.style.width;
-        
-        document.querySelector('.floating-particles').appendChild(particle);
-        
-        // 移除粒子
-        setTimeout(() => {
-            if (particle.parentNode) {
-                particle.parentNode.removeChild(particle);
-            }
-        }, 1000);
+        requestAnimationFrame(() => {
+            const particle = document.createElement('div');
+            particle.className = 'particle mouse-particle';
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.width = Math.random() * 4 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            
+            document.querySelector('.floating-particles').appendChild(particle);
+            
+            // 移除粒子
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 1000);
+        });
     }
     
-    // 添加卡片悬停声音效果（可选）
-    const featureCards = document.querySelectorAll('.feature-card');
-    featureCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            // 可以在这里添加声音效果
-            // 例如: new Audio('hover-sound.mp3').play();
-        });
-    });
-    
-    // 初始化进度条动画
+    // 初始化进度条动画（使用RAF优化）
     const progressElement = document.getElementById('system-progress');
     if (progressElement) {
         let progress = 75;
-        const interval = setInterval(() => {
-            progress += Math.random() * 2;
-            if (progress >= 100) {
-                progress = 100;
-                clearInterval(interval);
+        let lastProgressTime = 0;
+        
+        function animateProgress(timestamp) {
+            if (!lastProgressTime) lastProgressTime = timestamp;
+            const elapsed = timestamp - lastProgressTime;
+            
+            if (elapsed > 200) { // 控制更新频率
+                progress += Math.random() * 2;
+                if (progress >= 100) {
+                    progress = 100;
+                    progressElement.value = progress;
+                    document.querySelector('.progress-text').textContent = Math.round(progress) + '%';
+                    document.querySelector('.progress-glow').style.width = progress + '%';
+                    return;
+                }
+                
+                progressElement.value = progress;
+                document.querySelector('.progress-text').textContent = Math.round(progress) + '%';
+                document.querySelector('.progress-glow').style.width = progress + '%';
+                lastProgressTime = timestamp;
             }
-            progressElement.value = progress;
-            document.querySelector('.progress-text').textContent = Math.round(progress) + '%';
-            document.querySelector('.progress-glow').style.width = progress + '%';
-        }, 200);
+            
+            if (progress < 100) {
+                requestAnimationFrame(animateProgress);
+            }
+        }
+        
+        requestAnimationFrame(animateProgress);
     }
 });
