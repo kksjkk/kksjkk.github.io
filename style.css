@@ -189,6 +189,7 @@ header {
 }
 
 /* 导航栏样式 */
+
 .navbar {
     display: flex;
     align-items: center;
@@ -206,8 +207,9 @@ header {
 }
 
 .scifi-link {
-    color: #e0e0e0;
-   text-decoration: none;
+   color: #e0e0e0;
+    text-decoration: none;
+   你好
 }
 
 .scifi-link::before {
@@ -383,11 +385,15 @@ main {
     }
 }
 
+/* Logo容器修复 - 确保比例正常 */
 .logo-container {
     position: relative;
     display: inline-block;
     margin-bottom: 2rem;
     animation: fadeIn 1s ease 0.4s both;
+    /* 确保容器是正方形 */
+    width: 150px;
+    height: 150px;
 }
 
 .logo-glow {
@@ -409,8 +415,8 @@ main {
 }
 
 .logo {
-    width: 150px;
-    height: 150px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(0, 243, 255, 0.5);
@@ -418,6 +424,8 @@ main {
     transition: all 0.5s ease;
     position: relative;
     z-index: 1;
+    /* 确保图片始终填充容器并保持比例 */
+    display: block;
 }
 
 .logo:hover {
@@ -729,7 +737,8 @@ footer a:hover {
         font-size: 1rem;
     }
     
-    .logo {
+    /* 移动端logo修复 */
+    .logo-container {
         width: 120px;
         height: 120px;
     }
@@ -737,6 +746,11 @@ footer a:hover {
     .logo-glow {
         width: 140px;
         height: 140px;
+    }
+    
+    .logo {
+        width: 100%;
+        height: 100%;
     }
     
     .features {
@@ -759,5 +773,16 @@ footer a:hover {
     
     .feature-card {
         padding: 1.5rem;
+    }
+    
+    /* 超小屏幕logo进一步优化 */
+    .logo-container {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .logo-glow {
+        width: 120px;
+        height: 120px;
     }
 }
