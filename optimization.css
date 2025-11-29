@@ -178,3 +178,17 @@ header {
         font-size: 1.5rem;
     }
 }
+/* 确保锚点跳转时不被固定头部遮挡 */
+#about {
+    scroll-margin-top: 100px; /* 根据头部高度调整，确保内容不被遮挡 */
+}
+
+/* 平滑滚动优化 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 确保所有锚点目标都有适当的间距 */
+section[id] {
+    scroll-margin-top: 80px;
+}
