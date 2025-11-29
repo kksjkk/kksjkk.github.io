@@ -213,4 +213,190 @@
             }, 0);
         });
     }
+
+    // APK下载功能 - 添加到性能优化层
+    function initDownloadButton() {
+        const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
+        const apkUrl = 'https://your-domain.com/app/System_VM_D62E.apk'; // 替换为实际的APK文件URL
+        const apkFilename = 'System_VM_D62E_v1.0.0.apk';
+        
+        downloadButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                optimizedRAF(() => {
+                    startDownload(button, apkUrl, apkFilename);
+                });
+            });
+        });
+    }
+
+    function startDownload(button, url, filename) {
+        // 显示下载进度
+        const progressBar = document.createElement('div');
+        progressBar.className = 'download-progress';
+        button.appendChild(progressBar);
+        
+        // 禁用按钮防止重复点击
+        button.disabled = true;
+        button.style.opacity = '0.8';
+        
+        // 模拟下载进度
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(progressInterval);
+                completeDownload(button, progressBar, url, filename);
+            }
+            progressBar.style.width = progress + '%';
+        }, 100);
+        
+        // 添加下载统计
+        logDownloadEvent();
+    }
+
+    function completeDownload(button, progressBar, url, filename) {
+        // 下载完成动画
+        button.classList.add('download-complete');
+        
+        setTimeout(() => {
+            // 创建隐藏的下载链接
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            
+            // 添加到页面并触发点击
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // 恢复按钮状态
+            setTimeout(() => {
+                button.disabled = false;
+                button.style.opacity = '1';
+                progressBar.remove();
+                button.classList.remove('download-complete');
+                
+                // 显示下载完成消息
+                showDownloadCompleteMessage();
+            }, 1000);
+            
+        }, 600);
+    }
+
+    function logDownloadEvent() {
+        const downloadData = {
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            url: window.location.href
+        };
+        
+        // 保存到localStorage
+        let downloadHistory = JSON.parse(localStorage.getItem('downloadHistory') || '[]');
+        downloadHistory.push(downloadData);
+        
+        // 保留最近20次下载记录
+        if (downloadHistory.length > 20) {
+            downloadHistory = downloadHistory.slice(-20);
+        }
+        
+        localStorage.setItem('downloadHistory', JSON.stringify(downloadHistory));
+        console.log('下载记录:', downloadData);
+    }
+
+    function showDownloadCompleteMessage() {
+        // 创建完成消息
+        const message = document.createElement('div');
+        message.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                color: #00f3ff;
+                padding: 2rem;
+                border-radius: 10px;
+                border: 2px solid rgba(0, 243, 255, 0.5);
+                backdrop-filter: blur(10px);
+                text-align: center;
+                z-index: 10000;
+                box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            ">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                <h3 style="margin-bottom: 0.5rem; color: #00f3ff;">下载完成！</h3>
+                <p style="margin-bottom: 1rem; opacity: 0.8;">APK文件已保存到您的设备</p>
+                <p style="font-size: 0.9rem; opacity: 0.6;">安装后应用功能完整，数据永久保存</p>
+                <button onclick="this.parentElement.parentElement.remove()" 
+                        style="margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(0, 243, 255, 0.2); 
+                               border: 1px solid rgba(0, 243, 255, 0.5); color: #00f3ff; 
+                               border-radius: 5px; cursor: pointer;">
+                    确定
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(message);
+        
+        // 3秒后自动消失
+        setTimeout(() => {
+            if (message.parentElement) {
+                message.remove();
+            }
+        }, 3000);
+    }
+
+    // 在DOM加载完成后初始化下载按钮
+    document.addEventListener('DOMContentLoaded', function() {
+        initDownloadButton();
+    });
 })();
+
+function generateApkUrl() {
+    // 根据用户区域智能选择最快的CDN
+    const userRegion = getUserRegion();
+    const cdnConfig = getOptimalCDN(userRegion);
+    
+    return cdnConfig.url;
+}
+
+function getUserRegion() {
+    // 简单的地理位置检测（基于时区和语言）
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const language = navigator.language;
+    
+    if (timezone.includes('Asia') || language.includes('zh')) {
+        return 'asia';
+    } else if (timezone.includes('Europe')) {
+        return 'europe';
+    } else if (timezone.includes('America')) {
+        return 'america';
+    } else {
+        return 'global';
+    }
+}
+
+function getOptimalCDN(region) {
+    const cdns = {
+        asia: {
+            url: 'https://asia-cdn.systemvm-d62e.com/apk/System_VM_D62E.apk',
+            name: '亚洲CDN'
+        },
+        europe: {
+            url: 'https://eu-cdn.systemvm-d62e.com/apk/System_VM_D62E.apk',
+            name: '欧洲CDN'
+        },
+        america: {
+            url: 'https://us-cdn.systemvm-d62e.com/apk/System_VM_D62E.apk',
+            name: '美洲CDN'
+        },
+        global: {
+            url: 'https://cdn.systemvm-d62e.com/apk/System_VM_D62E.apk',
+            name: '全球CDN'
+        }
+    };
+    
+    return cdns[region] || cdns.global;
+}
