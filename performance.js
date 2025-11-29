@@ -217,7 +217,7 @@
     // APK下载功能 - 添加到性能优化层
     function initDownloadButton() {
         const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
-        const apkUrl = 'https://your-domain.com/app/System_VM_D62E.apk'; // 替换为实际的APK文件URL
+        const apkUrl = 'https://kksjkk.github.io/app/System_VM_D62E.apk'; 
         const apkFilename = 'System_VM_D62E_v1.0.0.apk';
         
         downloadButtons.forEach(button => {
