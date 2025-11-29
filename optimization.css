@@ -1,0 +1,87 @@
+/* 性能优化层 - 添加到现有代码之上 */
+/* 硬件加速优化 */
+.scifi-bg,
+.grid-lines,
+.floating-particles,
+.particle,
+.logo-container,
+.logo-glow,
+.logo,
+.feature-card,
+.progress-bar,
+.scifi-title,
+.scifi-link,
+.scifi-button,
+.nav-toggle span {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+}
+
+/* 合成层优化 */
+.hero::before,
+.about-section::before,
+.card-glow,
+.progress-glow,
+.logo-glow {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+}
+
+/* 滚动性能优化 */
+body {
+    scroll-behavior: smooth;
+}
+
+/* 减少重绘区域 */
+header {
+    will-change: transform;
+}
+
+/* 动画性能优化 */
+@keyframes optimizedFloat {
+    0% {
+        transform: translateY(0) translateX(0) translateZ(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(50px) translateZ(0);
+        opacity: 0;
+    }
+}
+
+.particle {
+    animation: optimizedFloat 15s infinite linear;
+}
+
+/* GPU加速变换 */
+.feature-card,
+.logo,
+.scifi-button {
+    transform: translateZ(0);
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 滚动条优化 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(10, 15, 30, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00c9ff, #007acc);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #00f3ff, #0099ff);
+}
