@@ -98,11 +98,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     });
 
-    // 初始化菜单状态
+// 初始化菜单状态
+function initMenuState() {
+    const navMenu = document.querySelector('.nav-menu');
+    const navToggle = document.querySelector('.nav-toggle');
+    
     if (window.innerWidth <= 768) {
         navMenu.style.display = 'none';
+        // 确保菜单按钮可见
+        if (navToggle) {
+            navToggle.style.display = 'flex';
+            navToggle.style.visibility = 'visible';
+            navToggle.style.opacity = '1';
+        }
+    } else {
+        navMenu.style.display = 'flex';
     }
+}
+
+// 在 DOMContentLoaded 事件中添加：
+document.addEventListener('DOMContentLoaded', function() {
+    // ... 现有代码 ...
     
+    // 初始化菜单状态
+    initMenuState();
+    
+    // ... 现有代码 ...
+});
+
     // 主题切换功能
     const themeToggle = document.getElementById('theme-toggle');
     const currentTheme = localStorage.getItem('theme');
@@ -345,3 +368,22 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(animateProgress);
     }
 });
+
+// 后备检测：确保菜单按钮在移动端可见
+setTimeout(() => {
+    const navToggle = document.querySelector('.nav-toggle');
+    if (window.innerWidth <= 768 && navToggle) {
+        // 多次尝试确保按钮可见
+        const ensureVisible = () => {
+            navToggle.style.display = 'flex';
+            navToggle.style.visibility = 'visible';
+            navToggle.style.opacity = '1';
+        };
+        
+        ensureVisible();
+        // 页面加载完成后再次检查
+        window.addEventListener('load', ensureVisible);
+        // 添加一个延迟检查
+        setTimeout(ensureVisible, 1000);
+    }
+}, 100);
