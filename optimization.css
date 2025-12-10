@@ -234,3 +234,26 @@ button.nav-toggle {
         min-width: 44px;
     }
 }
+/* 添加缺失的fadeIn动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* 添加页面加载动画 */
+body.loaded .hero-content {
+    animation: none;
+}
+
+body.loaded .scifi-heading,
+body.loaded .scifi-text,
+body.loaded .progress-container,
+body.loaded .download-section {
+    animation-play-state: running;
+}
+
+
