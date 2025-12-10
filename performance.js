@@ -52,49 +52,7 @@
         };
     }
     
-    // 高性能滚动处理
-    let scrollTimeout;
-    let ticking = false;
-    
-    function handleScroll() {
-        if (!ticking) {
-            optimizedRAF(() => {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-                const scrollPercent = (scrollTop / docHeight) * 100;
-                
-                // 更新进度条
-                const progressBar = document.querySelector('.progress-bar');
-                if (progressBar) {
-                    progressBar.style.width = scrollPercent + '%';
-                    
-                    // 当进度达到100%时，添加隐藏类
-                    if (scrollPercent >= 100) {
-                        progressBar.classList.add('hidden');
-                    } else {
-                        progressBar.classList.remove('hidden');
-                    }
-                }
-                
-                // 头部背景变化
-                const header = document.querySelector('header');
-                if (header) {
-                    if (scrollTop > 50) {
-                        header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-                        header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.3)';
-                    } else {
-                        header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                        header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
-                    }
-                }
-                
-                ticking = false;
-            });
-            ticking = true;
-        }
-    }
-    
-    window.addEventListener('scroll', throttle(handleScroll, 16));
+    // 移除重复的滚动处理，只保留在script.js中
     
     // 鼠标移动性能优化
     let mouseX = 0, mouseY = 0;
@@ -143,90 +101,39 @@
     }
     
     // 内存优化 - 清理不可见元素
-    setInterval(() => {
+    const cleanupInterval = setInterval(() => {
         const hiddenParticles = document.querySelectorAll('.mouse-particle');
         hiddenParticles.forEach(particle => {
             const rect = particle.getBoundingClientRect();
-            if (rect.bottom < 0 || rect.top > window.innerHeight || 
-                rect.right < 0 || rect.left > window.innerWidth) {
+            if (rect.bottom < -100 || rect.top > window.innerHeight + 100 || 
+                rect.right < -100 || rect.left > window.innerWidth + 100) {
                 particle.remove();
             }
         });
     }, 5000);
     
-    // 图片加载优化
-    function optimizeImageLoading() {
-        const images = document.querySelectorAll('img');
-        images.forEach(img => {
-            if (img.complete) {
-                img.classList.add('loaded');
-            } else {
-                img.addEventListener('load', function() {
-                    this.classList.add('loaded');
-                });
-            }
-        });
-    }
-    
-    // 布局抖动防护
-    let resizeTimeout;
-    window.addEventListener('resize', debounce(function() {
-        optimizedRAF(() => {
-            // 处理resize相关逻辑
-            const navMenu = document.querySelector('.nav-menu');
-            if (window.innerWidth > 768 && navMenu) {
-                navMenu.style.display = 'flex';
-                navMenu.classList.remove('active');
-                const navToggle = document.querySelector('.nav-toggle');
-                if (navToggle) {
-                    const spans = navToggle.querySelectorAll('span');
-                    spans[0].style.transform = 'none';
-                    spans[1].style.opacity = '1';
-                    spans[2].style.transform = 'none';
-                }
-            } else if (window.innerWidth <= 768 && navMenu) {
-                if (!navMenu.classList.contains('active')) {
-                    navMenu.style.display = 'none';
-                }
-            }
-        });
-    }, 250));
-    
     // 页面可见性API优化
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
-            // 页面不可见时降低动画频率
+            // 页面不可见时清除清理间隔以节省资源
+            clearInterval(cleanupInterval);
             document.body.classList.add('page-hidden');
         } else {
+            // 页面可见时重新启动清理
+            if (!cleanupInterval) {
+                setInterval(() => {
+                    const hiddenParticles = document.querySelectorAll('.mouse-particle');
+                    hiddenParticles.forEach(particle => {
+                        const rect = particle.getBoundingClientRect();
+                        if (rect.bottom < -100 || rect.top > window.innerHeight + 100 || 
+                            rect.right < -100 || rect.left > window.innerWidth + 100) {
+                            particle.remove();
+                        }
+                    });
+                }, 5000);
+            }
             document.body.classList.remove('page-hidden');
         }
-    });
-    
-    // 初始化优化
-    document.addEventListener('DOMContentLoaded', function() {
-        optimizeImageLoading();
-        
-        // 初始化菜单状态
-        const navToggle = document.querySelector('.nav-toggle');
-        if (window.innerWidth <= 768 && navToggle) {
-            navToggle.style.display = 'flex';
-            navToggle.style.visibility = 'visible';
-            navToggle.style.opacity = '1';
-            navToggle.style.pointerEvents = 'auto';
-        }
-        
-        // 预加载关键资源
-        const criticalResources = [
-            'https://pics1.baidu.com/feed/79f0f736afc37931e6c973ea8baf5a4f41a911c2@f_auto?token=666eac13d2aab8d4d632662a0a40ca03&f=png'
-        ];
-        
-        criticalResources.forEach(url => {
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.href = url;
-            link.as = 'image';
-            document.head.appendChild(link);
-        });
     });
     
     // 控制台性能监控
@@ -236,9 +143,6 @@
                 const perfData = window.performance.timing;
                 const loadTime = perfData.loadEventEnd - perfData.navigationStart;
                 console.log(`页面加载时间: ${loadTime}ms`);
-                
-                // 页面加载完成动画
-                document.body.classList.add('loaded');
             }, 0);
         });
     }
@@ -247,14 +151,24 @@
     function initDownloadButton() {
         const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
         
+        // 确保按钮存在
+        if (downloadButtons.length === 0) {
+            console.warn('未找到下载按钮');
+            return;
+        }
+        
         downloadButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                optimizedRAF(() => {
-                    startDownload(button);
-                });
-            });
+            // 移除可能已存在的事件监听器
+            button.removeEventListener('click', downloadHandler);
+            button.addEventListener('click', downloadHandler);
+        });
+    }
+
+    function downloadHandler(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        optimizedRAF(() => {
+            startDownload(this);
         });
     }
 
@@ -263,7 +177,13 @@
         const apkUrl = generateApkUrl();
         const apkFilename = 'System_VM_D62E_v1.0.0.apk';
         
-        console.log('开始下载，使用CDN:', apkUrl);
+        console.log('开始下载，使用URL:', apkUrl);
+        
+        // 检查按钮是否已被禁用
+        if (button.disabled) {
+            console.log('下载正在进行中，请稍候...');
+            return;
+        }
         
         // 显示下载进度
         const existingProgress = button.querySelector('.download-progress');
@@ -300,52 +220,70 @@
         // 下载完成动画
         button.classList.add('download-complete');
         
+        // 先显示完成消息，再触发下载
+        showDownloadCompleteMessage();
+        
         setTimeout(() => {
-            // 创建隐藏的下载链接
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.style.display = 'none';
-            
-            // 添加到页面并触发点击
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            try {
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'none';
+                
+                // 添加到页面并触发点击
+                document.body.appendChild(link);
+                link.click();
+                
+                // 延迟移除链接
+                setTimeout(() => {
+                    if (link.parentNode) {
+                        document.body.removeChild(link);
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error('下载失败:', error);
+                alert('下载失败，请稍后重试或右键链接另存为');
+            }
             
             // 恢复按钮状态
             setTimeout(() => {
                 button.disabled = false;
                 button.style.opacity = '1';
                 button.style.cursor = 'pointer';
-                progressBar.remove();
+                if (progressBar.parentNode) {
+                    progressBar.remove();
+                }
                 button.classList.remove('download-complete');
-                
-                // 显示下载完成消息
-                showDownloadCompleteMessage();
             }, 1000);
             
         }, 600);
     }
 
     function logDownloadEvent() {
-        const downloadData = {
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            url: window.location.href
-        };
-        
-        // 保存到localStorage
-        let downloadHistory = JSON.parse(localStorage.getItem('downloadHistory') || '[]');
-        downloadHistory.push(downloadData);
-        
-        // 保留最近20次下载记录
-        if (downloadHistory.length > 20) {
-            downloadHistory = downloadHistory.slice(-20);
+        try {
+            const downloadData = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                url: window.location.href
+            };
+            
+            // 保存到localStorage
+            let downloadHistory = JSON.parse(localStorage.getItem('downloadHistory') || '[]');
+            downloadHistory.push(downloadData);
+            
+            // 保留最近20次下载记录
+            if (downloadHistory.length > 20) {
+                downloadHistory = downloadHistory.slice(-20);
+            }
+            
+            localStorage.setItem('downloadHistory', JSON.stringify(downloadHistory));
+            console.log('下载记录:', downloadData);
+        } catch (error) {
+            console.warn('无法保存下载记录:', error);
         }
-        
-        localStorage.setItem('downloadHistory', JSON.stringify(downloadHistory));
-        console.log('下载记录:', downloadData);
     }
 
     function showDownloadCompleteMessage() {
@@ -397,52 +335,65 @@
 
     // 在DOM加载完成后初始化下载按钮
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('performance.js: 初始化下载按钮');
         initDownloadButton();
     });
 })();
 
 function generateApkUrl() {
-    // 根据用户区域智能选择最快的CDN
-    const userRegion = getUserRegion();
-    const cdnConfig = getOptimalCDN(userRegion);
-    
-    console.log(`检测到用户区域: ${userRegion}, 使用CDN: ${cdnConfig.name}`);
-    return cdnConfig.url;
+    try {
+        // 根据用户区域智能选择最快的CDN
+        const userRegion = getUserRegion();
+        const cdnConfig = getOptimalCDN(userRegion);
+        
+        console.log(`检测到用户区域: ${userRegion}, 使用CDN: ${cdnConfig.name}`);
+        return cdnConfig.url;
+    } catch (error) {
+        console.warn('CDN选择失败，使用备用URL:', error);
+        // 备用URL
+        return 'https://kksjkk.github.io/app/System_VM_D62E.apk';
+    }
 }
 
 function getUserRegion() {
-    // 简单的地理位置检测（基于时区和语言）
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const language = navigator.language;
-    
-    if (timezone.includes('Asia') || language.includes('zh')) {
-        return 'asia';
-    } else if (timezone.includes('Europe')) {
-        return 'europe';
-    } else if (timezone.includes('America')) {
-        return 'america';
-    } else {
+    try {
+        // 简单的地理位置检测（基于时区和语言）
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const language = navigator.language;
+        
+        if (timezone.includes('Asia') || language.includes('zh')) {
+            return 'asia';
+        } else if (timezone.includes('Europe')) {
+            return 'europe';
+        } else if (timezone.includes('America')) {
+            return 'america';
+        } else {
+            return 'global';
+        }
+    } catch (error) {
+        console.warn('无法检测用户区域:', error);
         return 'global';
     }
 }
 
 function getOptimalCDN(region) {
+    // 使用更可靠的CDN配置，添加备用URL
     const cdns = {
         asia: {
-            url: 'https://asia-cdn.systemvm-d62e.com/apk/System_VM_D62E.apk',
-            name: '亚洲CDN'
+            url: 'https://kksjkk.github.io/app/System_VM_D62E.apk',
+            name: 'GitHub Pages'
         },
         europe: {
-            url: 'https://eu-cdn.systemvm-d62e.com/apk/System_VM_D62E.apk',
-            name: '欧洲CDN'
+            url: 'https://kksjkk.github.io/app/System_VM_D62E.apk',
+            name: 'GitHub Pages'
         },
         america: {
-            url: 'https://us-cdn.systemvm-d62e.com/apk/System_VM_D62E.apk',
-            name: '美洲CDN'
+            url: 'https://kksjkk.github.io/app/System_VM_D62E.apk',
+            name: 'GitHub Pages'
         },
         global: {
-            url: 'https://cdn.systemvm-d62e.com/apk/System_VM_D62E.apk',
-            name: '全球CDN'
+            url: 'https://kksjkk.github.io/app/System_VM_D62E.apk',
+            name: 'GitHub Pages'
         }
     };
     
