@@ -41,12 +41,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 强制重绘以确保过渡生效
                     navMenu.offsetHeight;
                     navMenu.classList.add('active');
+                    this.setAttribute('aria-expanded', 'true');
                 } else {
                     // 关闭菜单
                     spans[0].style.transform = 'none';
                     spans[1].style.opacity = '1';
                     spans[2].style.transform = 'none';
                     navMenu.classList.remove('active');
+                    this.setAttribute('aria-expanded', 'false');
                     // 等待过渡完成后再隐藏
                     setTimeout(() => {
                         if (!navMenu.classList.contains('active')) {
@@ -58,8 +60,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // 点击菜单项时关闭菜单（移动端）
-        navMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function() {
+        navMenu.querySelectorAll('a, button').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // 如果是下载按钮，不要关闭菜单
+                if (this.id === 'download-btn' || this.id === 'theme-toggle') {
+                    return;
+                }
+                
                 if (window.innerWidth <= 768) {
                     requestAnimationFrame(() => {
                         const spans = navToggle.querySelectorAll('span');
@@ -67,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         spans[1].style.opacity = '1';
                         spans[2].style.transform = 'none';
                         navMenu.classList.remove('active');
+                        navToggle.setAttribute('aria-expanded', 'false');
                         setTimeout(() => {
                             navMenu.style.display = 'none';
                         }, 300);
@@ -76,55 +84,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 初始化菜单状态
+    if (navToggle && navMenu) {
+        if (window.innerWidth <= 768) {
+            navMenu.style.display = 'none';
+            navToggle.setAttribute('aria-expanded', 'false');
+        } else {
+            navMenu.style.display = 'flex';
+            navToggle.setAttribute('aria-expanded', 'true');
+        }
+    }
+
     // 窗口大小改变时重置菜单状态（使用防抖优化）
     let resizeTimeout;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             requestAnimationFrame(() => {
-                if (window.innerWidth > 768) {
-                    navMenu.style.display = 'flex';
-                    navMenu.classList.remove('active');
-                    const spans = navToggle.querySelectorAll('span');
-                    spans[0].style.transform = 'none';
-                    spans[1].style.opacity = '1';
-                    spans[2].style.transform = 'none';
-                } else {
-                    if (!navMenu.classList.contains('active')) {
-                        navMenu.style.display = 'none';
+                if (navToggle && navMenu) {
+                    if (window.innerWidth > 768) {
+                        navMenu.style.display = 'flex';
+                        navMenu.classList.remove('active');
+                        navToggle.setAttribute('aria-expanded', 'true');
+                        const spans = navToggle.querySelectorAll('span');
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    } else {
+                        navToggle.setAttribute('aria-expanded', 'false');
+                        if (!navMenu.classList.contains('active')) {
+                            navMenu.style.display = 'none';
+                        }
                     }
                 }
             });
         }, 100);
     });
-
-// 初始化菜单状态
-function initMenuState() {
-    const navMenu = document.querySelector('.nav-menu');
-    const navToggle = document.querySelector('.nav-toggle');
-    
-    if (window.innerWidth <= 768) {
-        navMenu.style.display = 'none';
-        // 确保菜单按钮可见
-        if (navToggle) {
-            navToggle.style.display = 'flex';
-            navToggle.style.visibility = 'visible';
-            navToggle.style.opacity = '1';
-        }
-    } else {
-        navMenu.style.display = 'flex';
-    }
-}
-
-// 在 DOMContentLoaded 事件中添加：
-document.addEventListener('DOMContentLoaded', function() {
-    // ... 现有代码 ...
-    
-    // 初始化菜单状态
-    initMenuState();
-    
-    // ... 现有代码 ...
-});
 
     // 主题切换功能
     const themeToggle = document.getElementById('theme-toggle');
@@ -134,6 +129,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentTheme === 'dark') {
         document.body.classList.add('dark-mode');
         if (themeToggle) themeToggle.textContent = '☀️ 亮色模式';
+    } else if (currentTheme === 'light' || currentTheme === null) {
+        document.body.classList.remove('dark-mode');
+        if (themeToggle) themeToggle.textContent = '🌓 暗色模式';
     }
     
     // 主题切换事件
@@ -158,53 +156,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     themeToggle.textContent = buttonText;
                     
                     // 恢复透明度
-                    document.body.style.opacity = '1';
+                    setTimeout(() => {
+                        document.body.style.opacity = '1';
+                    }, 50);
                 }, 300);
             });
         });
     }
-    
-    // 使用requestAnimationFrame优化滚动性能
-    let ticking = false;
-    
-    // 阅读进度条
-    function updateProgressBar() {
-        const winHeight = window.innerHeight;
-        const docHeight = document.documentElement.scrollHeight;
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
-        const progressBar = document.querySelector('.progress-bar');
-        
-        if (progressBar) {
-            progressBar.style.width = scrollPercent + '%';
-            
-            // 当进度达到100%时，添加隐藏类
-            if (scrollPercent >= 100) {
-                progressBar.classList.add('hidden');
-            } else {
-                progressBar.classList.remove('hidden');
-            }
-        }
-        
-        // 头部背景变化
-        const header = document.querySelector('header');
-        if (scrollTop > 50) {
-            header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-            header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.3)';
-        } else {
-            header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
-        }
-        
-        ticking = false;
-    }
-    
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(updateProgressBar);
-            ticking = true;
-        }
-    });
     
     // 图片懒加载
     const lazyImages = document.querySelectorAll('.lazy-load');
@@ -274,9 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
         console.log('访问记录:', visitData);
-        
-        // 添加页面加载完成动画
-        document.body.classList.add('loaded');
     });
     
     // 平滑滚动
@@ -290,49 +245,27 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
                 // 使用平滑滚动
+                const headerHeight = document.querySelector('header').offsetHeight;
                 window.scrollTo({
-                    top: targetElement.offsetTop - 80,
+                    top: targetElement.offsetTop - headerHeight - 20,
                     behavior: 'smooth'
                 });
-            }
-        });
-    });
-    
-    // 添加鼠标移动效果（优化性能，减少粒子数量）
-    let mouseParticleTimeout;
-    document.addEventListener('mousemove', function(e) {
-        const particles = document.querySelector('.floating-particles');
-        if (!particles) return;
-        
-        // 使用节流优化粒子创建
-        clearTimeout(mouseParticleTimeout);
-        mouseParticleTimeout = setTimeout(() => {
-            // 创建跟随鼠标的粒子（降低频率）
-            if (Math.random() > 0.98) {
-                createParticle(e.clientX, e.clientY);
-            }
-        }, 16); // 约60fps
-    });
-    
-    function createParticle(x, y) {
-        requestAnimationFrame(() => {
-            const particle = document.createElement('div');
-            particle.className = 'particle mouse-particle';
-            particle.style.left = x + 'px';
-            particle.style.top = y + 'px';
-            particle.style.width = Math.random() * 4 + 2 + 'px';
-            particle.style.height = particle.style.width;
-            
-            document.querySelector('.floating-particles').appendChild(particle);
-            
-            // 移除粒子
-            setTimeout(() => {
-                if (particle.parentNode) {
-                    particle.parentNode.removeChild(particle);
+                
+                // 移动端关闭菜单
+                if (window.innerWidth <= 768 && navMenu && navMenu.classList.contains('active')) {
+                    const spans = navToggle.querySelectorAll('span');
+                    spans[0].style.transform = 'none';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'none';
+                    navMenu.classList.remove('active');
+                    navToggle.setAttribute('aria-expanded', 'false');
+                    setTimeout(() => {
+                        navMenu.style.display = 'none';
+                    }, 300);
                 }
-            }, 1000);
+            }
         });
-    }
+    });
     
     // 初始化进度条动画
     const progressElement = document.getElementById('system-progress');
@@ -349,14 +282,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (progress >= 100) {
                     progress = 100;
                     progressElement.value = progress;
-                    document.querySelector('.progress-text').textContent = Math.round(progress) + '%';
-                    document.querySelector('.progress-glow').style.width = progress + '%';
+                    const progressText = document.querySelector('.progress-text');
+                    const progressGlow = document.querySelector('.progress-glow');
+                    if (progressText) progressText.textContent = Math.round(progress) + '%';
+                    if (progressGlow) progressGlow.style.width = progress + '%';
                     return;
                 }
                 
                 progressElement.value = progress;
-                document.querySelector('.progress-text').textContent = Math.round(progress) + '%';
-                document.querySelector('.progress-glow').style.width = progress + '%';
+                const progressText = document.querySelector('.progress-text');
+                const progressGlow = document.querySelector('.progress-glow');
+                if (progressText) progressText.textContent = Math.round(progress) + '%';
+                if (progressGlow) progressGlow.style.width = progress + '%';
                 lastProgressTime = timestamp;
             }
             
@@ -367,23 +304,64 @@ document.addEventListener('DOMContentLoaded', function() {
         
         requestAnimationFrame(animateProgress);
     }
+    
+    // 添加键盘导航支持
+    document.addEventListener('keydown', function(e) {
+        // Escape键关闭菜单
+        if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
+            const spans = navToggle.querySelectorAll('span');
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+            navMenu.classList.remove('active');
+            navToggle.setAttribute('aria-expanded', 'false');
+            setTimeout(() => {
+                navMenu.style.display = 'none';
+            }, 300);
+            navToggle.focus();
+        }
+        
+        // Tab键在菜单内循环
+        if (e.key === 'Tab' && navMenu && navMenu.classList.contains('active')) {
+            const focusableElements = navMenu.querySelectorAll('a, button');
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            
+            if (e.shiftKey) { // Shift + Tab
+                if (document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                }
+            } else { // Tab
+                if (document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        }
+    });
+    
+    // 改善可访问性
+    if (navToggle) {
+        navToggle.setAttribute('aria-label', '切换导航菜单');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.setAttribute('aria-controls', 'nav-menu');
+    }
+    
+    if (navMenu) {
+        navMenu.id = 'nav-menu';
+        navMenu.setAttribute('aria-label', '主导航');
+    }
 });
 
 // 后备检测：确保菜单按钮在移动端可见
 setTimeout(() => {
     const navToggle = document.querySelector('.nav-toggle');
     if (window.innerWidth <= 768 && navToggle) {
-        // 多次尝试确保按钮可见
-        const ensureVisible = () => {
-            navToggle.style.display = 'flex';
-            navToggle.style.visibility = 'visible';
-            navToggle.style.opacity = '1';
-        };
-        
-        ensureVisible();
-        // 页面加载完成后再次检查
-        window.addEventListener('load', ensureVisible);
-        // 添加一个延迟检查
-        setTimeout(ensureVisible, 1000);
+        // 确保按钮可见
+        navToggle.style.display = 'flex';
+        navToggle.style.visibility = 'visible';
+        navToggle.style.opacity = '1';
+        navToggle.style.pointerEvents = 'auto';
     }
 }, 100);
