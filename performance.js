@@ -54,42 +54,47 @@
     
     // 高性能滚动处理
     let scrollTimeout;
-    window.addEventListener('scroll', throttle(function() {
-        // 清除之前的定时器
-        clearTimeout(scrollTimeout);
-        
-        // 使用RAF处理滚动
-        optimizedRAF(() => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrollPercent = (scrollTop / docHeight) * 100;
-            
-            // 更新进度条
-            const progressBar = document.querySelector('.progress-bar');
-            if (progressBar) {
-                progressBar.style.width = scrollPercent + '%';
-            }
-            
-            // 头部背景变化
-            const header = document.querySelector('header');
-            if (header) {
-                if (scrollTop > 50) {
-                    header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-                } else {
-                    header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    let ticking = false;
+    
+    function handleScroll() {
+        if (!ticking) {
+            optimizedRAF(() => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (scrollTop / docHeight) * 100;
+                
+                // 更新进度条
+                const progressBar = document.querySelector('.progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = scrollPercent + '%';
+                    
+                    // 当进度达到100%时，添加隐藏类
+                    if (scrollPercent >= 100) {
+                        progressBar.classList.add('hidden');
+                    } else {
+                        progressBar.classList.remove('hidden');
+                    }
                 }
-            }
-        });
-        
-        // 延迟隐藏进度条
-        scrollTimeout = setTimeout(() => {
-            const progressBar = document.querySelector('.progress-bar');
-            if (progressBar && scrollPercent >= 100) {
-                progressBar.classList.add('hidden');
-            }
-        }, 1500);
-        
-    }, 16)); // 约60fps
+                
+                // 头部背景变化
+                const header = document.querySelector('header');
+                if (header) {
+                    if (scrollTop > 50) {
+                        header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+                        header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.3)';
+                    } else {
+                        header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                        header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
+                    }
+                }
+                
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+    
+    window.addEventListener('scroll', throttle(handleScroll, 16));
     
     // 鼠标移动性能优化
     let mouseX = 0, mouseY = 0;
@@ -171,6 +176,18 @@
             const navMenu = document.querySelector('.nav-menu');
             if (window.innerWidth > 768 && navMenu) {
                 navMenu.style.display = 'flex';
+                navMenu.classList.remove('active');
+                const navToggle = document.querySelector('.nav-toggle');
+                if (navToggle) {
+                    const spans = navToggle.querySelectorAll('span');
+                    spans[0].style.transform = 'none';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'none';
+                }
+            } else if (window.innerWidth <= 768 && navMenu) {
+                if (!navMenu.classList.contains('active')) {
+                    navMenu.style.display = 'none';
+                }
             }
         });
     }, 250));
@@ -189,9 +206,18 @@
     document.addEventListener('DOMContentLoaded', function() {
         optimizeImageLoading();
         
+        // 初始化菜单状态
+        const navToggle = document.querySelector('.nav-toggle');
+        if (window.innerWidth <= 768 && navToggle) {
+            navToggle.style.display = 'flex';
+            navToggle.style.visibility = 'visible';
+            navToggle.style.opacity = '1';
+            navToggle.style.pointerEvents = 'auto';
+        }
+        
         // 预加载关键资源
         const criticalResources = [
-            // 添加需要预加载的资源URL
+            'https://pics1.baidu.com/feed/79f0f736afc37931e6c973ea8baf5a4f41a911c2@f_auto?token=666eac13d2aab8d4d632662a0a40ca03&f=png'
         ];
         
         criticalResources.forEach(url => {
@@ -210,6 +236,9 @@
                 const perfData = window.performance.timing;
                 const loadTime = perfData.loadEventEnd - perfData.navigationStart;
                 console.log(`页面加载时间: ${loadTime}ms`);
+                
+                // 页面加载完成动画
+                document.body.classList.add('loaded');
             }, 0);
         });
     }
@@ -217,20 +246,31 @@
     // APK下载功能 - 添加到性能优化层
     function initDownloadButton() {
         const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
-        const apkUrl = 'https://kksjkk.github.io/app/System_VM_D62E.apk'; 
-        const apkFilename = 'System_VM_D62E_v1.0.0.apk';
         
         downloadButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 optimizedRAF(() => {
-                    startDownload(button, apkUrl, apkFilename);
+                    startDownload(button);
                 });
             });
         });
     }
 
-    function startDownload(button, url, filename) {
+    function startDownload(button) {
+        // 使用智能CDN选择
+        const apkUrl = generateApkUrl();
+        const apkFilename = 'System_VM_D62E_v1.0.0.apk';
+        
+        console.log('开始下载，使用CDN:', apkUrl);
+        
         // 显示下载进度
+        const existingProgress = button.querySelector('.download-progress');
+        if (existingProgress) {
+            existingProgress.remove();
+        }
+        
         const progressBar = document.createElement('div');
         progressBar.className = 'download-progress';
         button.appendChild(progressBar);
@@ -238,6 +278,7 @@
         // 禁用按钮防止重复点击
         button.disabled = true;
         button.style.opacity = '0.8';
+        button.style.cursor = 'not-allowed';
         
         // 模拟下载进度
         let progress = 0;
@@ -246,7 +287,7 @@
             if (progress >= 100) {
                 progress = 100;
                 clearInterval(progressInterval);
-                completeDownload(button, progressBar, url, filename);
+                completeDownload(button, progressBar, apkUrl, apkFilename);
             }
             progressBar.style.width = progress + '%';
         }, 100);
@@ -275,6 +316,7 @@
             setTimeout(() => {
                 button.disabled = false;
                 button.style.opacity = '1';
+                button.style.cursor = 'pointer';
                 progressBar.remove();
                 button.classList.remove('download-complete');
                 
@@ -307,15 +349,19 @@
     }
 
     function showDownloadCompleteMessage() {
+        // 防止重复显示消息
+        if (document.querySelector('.download-complete-message')) return;
+        
         // 创建完成消息
         const message = document.createElement('div');
+        message.className = 'download-complete-message';
         message.innerHTML = `
             <div style="
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                background: rgba(0, 0, 0, 0.9);
+                background: rgba(0, 0, 0, 0.95);
                 color: #00f3ff;
                 padding: 2rem;
                 border-radius: 10px;
@@ -324,6 +370,7 @@
                 text-align: center;
                 z-index: 10000;
                 box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+                animation: fadeIn 0.3s ease;
             ">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
                 <h3 style="margin-bottom: 0.5rem; color: #00f3ff;">下载完成！</h3>
@@ -332,7 +379,7 @@
                 <button onclick="this.parentElement.parentElement.remove()" 
                         style="margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(0, 243, 255, 0.2); 
                                border: 1px solid rgba(0, 243, 255, 0.5); color: #00f3ff; 
-                               border-radius: 5px; cursor: pointer;">
+                               border-radius: 5px; cursor: pointer; transition: all 0.3s ease;">
                     确定
                 </button>
             </div>
@@ -359,6 +406,7 @@ function generateApkUrl() {
     const userRegion = getUserRegion();
     const cdnConfig = getOptimalCDN(userRegion);
     
+    console.log(`检测到用户区域: ${userRegion}, 使用CDN: ${cdnConfig.name}`);
     return cdnConfig.url;
 }
 
