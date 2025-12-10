@@ -178,6 +178,7 @@ header {
         font-size: 1.5rem;
     }
 }
+
 /* 确保锚点跳转时不被固定头部遮挡 */
 #about {
     scroll-margin-top: 100px; /* 根据头部高度调整，确保内容不被遮挡 */
@@ -191,4 +192,45 @@ html {
 /* 确保所有锚点目标都有适当的间距 */
 section[id] {
     scroll-margin-top: 80px;
+}
+
+/* 移动端菜单按钮强制显示修复 */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    
+    /* 确保在页面隐藏状态下菜单按钮仍然可见 */
+    .page-hidden .nav-toggle {
+        display: flex !important;
+    }
+}
+
+/* 解决部分浏览器按钮默认样式问题 */
+button.nav-toggle {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+/* 针对iOS Safari的修复 */
+@supports (-webkit-touch-callout: none) {
+    .nav-toggle {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+/* 针对Android Chrome的修复 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .nav-toggle {
+        min-height: 44px; /* 提高可点击区域 */
+        min-width: 44px;
+    }
 }
