@@ -1,5 +1,7 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('script.js: DOM加载完成');
+    
     // 使用RAF优化所有动画
     let lastTime = 0;
     const vendors = ['ms', 'moz', 'webkit', 'o'];
@@ -25,6 +27,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const navMenu = document.querySelector('.nav-menu');
     
     if (navToggle && navMenu) {
+        console.log('初始化菜单系统');
+        
         navToggle.addEventListener('click', function() {
             const isActive = navMenu.classList.contains('active');
             
@@ -39,9 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     spans[2].style.transform = 'rotate(-45deg) translate(6px, -6px)';
                     navMenu.style.display = 'flex';
                     // 强制重绘以确保过渡生效
-                    navMenu.offsetHeight;
+                    void navMenu.offsetHeight;
                     navMenu.classList.add('active');
                     this.setAttribute('aria-expanded', 'true');
+                    console.log('菜单打开');
                 } else {
                     // 关闭菜单
                     spans[0].style.transform = 'none';
@@ -53,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         if (!navMenu.classList.contains('active')) {
                             navMenu.style.display = 'none';
+                            console.log('菜单关闭');
                         }
                     }, 300);
                 }
@@ -62,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 点击菜单项时关闭菜单（移动端）
         navMenu.querySelectorAll('a, button').forEach(item => {
             item.addEventListener('click', function(e) {
-                // 如果是下载按钮，不要关闭菜单
+                // 如果是下载按钮或主题切换按钮，不要关闭菜单
                 if (this.id === 'download-btn' || this.id === 'theme-toggle') {
                     return;
                 }
@@ -85,15 +91,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 初始化菜单状态
-    if (navToggle && navMenu) {
-        if (window.innerWidth <= 768) {
-            navMenu.style.display = 'none';
-            navToggle.setAttribute('aria-expanded', 'false');
-        } else {
-            navMenu.style.display = 'flex';
-            navToggle.setAttribute('aria-expanded', 'true');
+    function initMenuState() {
+        if (navToggle && navMenu) {
+            if (window.innerWidth <= 768) {
+                navMenu.style.display = 'none';
+                navToggle.setAttribute('aria-expanded', 'false');
+                // 确保移动端菜单按钮可见
+                navToggle.style.display = 'flex';
+                navToggle.style.visibility = 'visible';
+                navToggle.style.opacity = '1';
+                navToggle.style.pointerEvents = 'auto';
+            } else {
+                navMenu.style.display = 'flex';
+                navToggle.setAttribute('aria-expanded', 'true');
+                navToggle.style.display = 'none';
+            }
         }
     }
+    
+    initMenuState();
 
     // 窗口大小改变时重置菜单状态（使用防抖优化）
     let resizeTimeout;
@@ -101,22 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             requestAnimationFrame(() => {
-                if (navToggle && navMenu) {
-                    if (window.innerWidth > 768) {
-                        navMenu.style.display = 'flex';
-                        navMenu.classList.remove('active');
-                        navToggle.setAttribute('aria-expanded', 'true');
-                        const spans = navToggle.querySelectorAll('span');
-                        spans[0].style.transform = 'none';
-                        spans[1].style.opacity = '1';
-                        spans[2].style.transform = 'none';
-                    } else {
-                        navToggle.setAttribute('aria-expanded', 'false');
-                        if (!navMenu.classList.contains('active')) {
-                            navMenu.style.display = 'none';
-                        }
-                    }
-                }
+                initMenuState();
             });
         }, 100);
     });
@@ -214,24 +215,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 访问统计
     window.addEventListener('load', function() {
-        const visitData = {
-            url: window.location.href,
-            timestamp: new Date().toISOString(),
-            referrer: document.referrer || '直接访问',
-            userAgent: navigator.userAgent
-        };
-        
-        // 存储到 localStorage
-        let visitHistory = JSON.parse(localStorage.getItem('visitHistory') || '[]');
-        visitHistory.push(visitData);
-        
-        // 保留最近10次访问记录
-        if (visitHistory.length > 10) {
-            visitHistory = visitHistory.slice(-10);
+        try {
+            const visitData = {
+                url: window.location.href,
+                timestamp: new Date().toISOString(),
+                referrer: document.referrer || '直接访问',
+                userAgent: navigator.userAgent
+            };
+            
+            // 存储到 localStorage
+            let visitHistory = JSON.parse(localStorage.getItem('visitHistory') || '[]');
+            visitHistory.push(visitData);
+            
+            // 保留最近10次访问记录
+            if (visitHistory.length > 10) {
+                visitHistory = visitHistory.slice(-10);
+            }
+            
+            localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
+            console.log('访问记录:', visitData);
+        } catch (error) {
+            console.warn('无法保存访问记录:', error);
         }
-        
-        localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
-        console.log('访问记录:', visitData);
     });
     
     // 平滑滚动
@@ -245,7 +250,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
                 // 使用平滑滚动
-                const headerHeight = document.querySelector('header').offsetHeight;
+                const header = document.querySelector('header');
+                const headerHeight = header ? header.offsetHeight : 80;
                 window.scrollTo({
                     top: targetElement.offsetTop - headerHeight - 20,
                     behavior: 'smooth'
@@ -265,6 +271,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    });
+    
+    // 高性能滚动处理（唯一负责滚动进度条）
+    let ticking = false;
+    
+    function updateProgressBar() {
+        const winHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+        const progressBar = document.querySelector('.progress-bar');
+        
+        if (progressBar) {
+            progressBar.style.width = scrollPercent + '%';
+            
+            // 当进度达到100%时，添加隐藏类
+            if (scrollPercent >= 100) {
+                progressBar.classList.add('hidden');
+            } else {
+                progressBar.classList.remove('hidden');
+            }
+        }
+        
+        // 头部背景变化
+        const header = document.querySelector('header');
+        if (scrollTop > 50) {
+            header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+            header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.3)';
+        } else {
+            header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
+        }
+        
+        ticking = false;
+    }
+    
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(updateProgressBar);
+            ticking = true;
+        }
     });
     
     // 初始化进度条动画
@@ -353,15 +400,3 @@ document.addEventListener('DOMContentLoaded', function() {
         navMenu.setAttribute('aria-label', '主导航');
     }
 });
-
-// 后备检测：确保菜单按钮在移动端可见
-setTimeout(() => {
-    const navToggle = document.querySelector('.nav-toggle');
-    if (window.innerWidth <= 768 && navToggle) {
-        // 确保按钮可见
-        navToggle.style.display = 'flex';
-        navToggle.style.visibility = 'visible';
-        navToggle.style.opacity = '1';
-        navToggle.style.pointerEvents = 'auto';
-    }
-}, 100);
