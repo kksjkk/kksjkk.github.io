@@ -400,3 +400,69 @@ document.addEventListener('DOMContentLoaded', function() {
         navMenu.setAttribute('aria-label', '主导航');
     }
 });
+
+// 浏览器兼容性检测和修复
+(function() {
+    'use strict';
+    
+    // 检测浏览器特性
+    const browserFeatures = {
+        transform: typeof document.body.style.transform !== 'undefined' || 
+                  typeof document.body.style.webkitTransform !== 'undefined',
+        animation: typeof document.body.style.animation !== 'undefined' || 
+                  typeof document.body.style.webkitAnimation !== 'undefined',
+        grid: typeof document.body.style.grid !== 'undefined' || 
+              typeof document.body.style.webkitGrid !== 'undefined',
+        flex: typeof document.body.style.flex !== 'undefined' || 
+              typeof document.body.style.webkitFlex !== 'undefined'
+    };
+    
+    // 根据浏览器能力添加类名
+    document.documentElement.className += 
+        (browserFeatures.transform ? '' : ' no-transform') +
+        (browserFeatures.animation ? '' : ' no-animation') +
+        (browserFeatures.grid ? '' : ' no-cssgrid') +
+        (browserFeatures.flex ? '' : ' no-flex');
+    
+    // 针对旧版浏览器的修复
+    if (!browserFeatures.grid) {
+        // 为不支持grid的浏览器添加回退样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .features {
+                display: block;
+                overflow: hidden;
+            }
+            .feature-card {
+                float: left;
+                width: 30%;
+                margin: 1.66%;
+                box-sizing: border-box;
+            }
+            @media (max-width: 768px) {
+                .feature-card {
+                    width: 48%;
+                    margin: 1%;
+                }
+            }
+            @media (max-width: 480px) {
+                .feature-card {
+                    width: 98%;
+                    margin: 1%;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // 修复下载功能在特定浏览器中的问题
+    window.addEventListener('load', function() {
+        // 确保下载按钮在所有浏览器中都能工作
+        const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
+        downloadButtons.forEach(button => {
+            // 移除可能存在的重复事件监听器
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+        });
+    });
+})();
