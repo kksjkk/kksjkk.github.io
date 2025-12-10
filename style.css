@@ -209,7 +209,6 @@ header {
 .scifi-link {
    color: #e0e0e0;
     text-decoration: none;
-   你好
 }
 
 .scifi-link::before {
@@ -278,6 +277,67 @@ header {
     justify-content: space-between;
     cursor: pointer;
     padding: 0;
+    /* 在媒体查询内修改 */
+@media (max-width: 768px) {
+    .header-container {
+        padding: 0 15px;
+    }
+    
+    .scifi-title {
+        font-size: 1.5rem;
+    }
+    
+    /* 确保菜单按钮在移动端显示 */
+    .nav-toggle {
+        display: flex !important; /* 添加 !important 确保显示 */
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    .nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 200px;
+        background: rgba(0, 0, 0, 0.95); /* 加深背景提高可读性 */
+        flex-direction: column;
+        padding: 1rem;
+        border-radius: 0 0 0 10px;
+        box-shadow: -2px 5px 10px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(0, 243, 255, 0.3);
+        backdrop-filter: blur(10px);
+        z-index: 1001; /* 提高层级 */
+    }
+    
+    .nav-menu.active {
+        display: flex;
+    }
+    
+    .nav-menu li {
+        margin: 0.5rem 0;
+    }
+    
+    /* 移动端logo修复 */
+    .logo-container {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .logo-glow {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .logo {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .features {
+        grid-template-columns: 1fr;
+    }
+}
 }
 
 .nav-toggle span {
