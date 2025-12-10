@@ -1,4 +1,6 @@
-/* 性能优化层 - 添加到现有代码之上 */
+[file name]: optimization.css
+[file content begin]
+/* 性能优化层 - 浏览器兼容性修复 */
 /* 硬件加速优化 */
 .scifi-bg,
 .grid-lines,
@@ -13,8 +15,19 @@
 .scifi-link,
 .scifi-button,
 .nav-toggle span {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
     transform: translateZ(0);
+    
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
     backface-visibility: hidden;
+    
+    -webkit-perspective: 1000;
+    -moz-perspective: 1000;
     perspective: 1000;
 }
 
@@ -25,11 +38,17 @@
 .progress-glow,
 .logo-glow {
     will-change: transform, opacity;
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
     transform: translateZ(0);
 }
 
 /* 滚动性能优化 */
 body {
+    -webkit-scroll-behavior: smooth;
+    -moz-scroll-behavior: smooth;
     scroll-behavior: smooth;
 }
 
@@ -39,8 +58,9 @@ header {
 }
 
 /* 动画性能优化 */
-@keyframes optimizedFloat {
+@-webkit-keyframes optimizedFloat {
     0% {
+        -webkit-transform: translateY(0) translateX(0) translateZ(0);
         transform: translateY(0) translateX(0) translateZ(0);
         opacity: 0;
     }
@@ -51,12 +71,34 @@ header {
         opacity: 1;
     }
     100% {
+        -webkit-transform: translateY(-100px) translateX(50px) translateZ(0);
+        transform: translateY(-100px) translateX(50px) translateZ(0);
+        opacity: 0;
+    }
+}
+
+@keyframes optimizedFloat {
+    0% {
+        -webkit-transform: translateY(0) translateX(0) translateZ(0);
+        transform: translateY(0) translateX(0) translateZ(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: translateY(-100px) translateX(50px) translateZ(0);
         transform: translateY(-100px) translateX(50px) translateZ(0);
         opacity: 0;
     }
 }
 
 .particle {
+    -webkit-animation: optimizedFloat 15s infinite linear;
+    -moz-animation: optimizedFloat 15s infinite linear;
     animation: optimizedFloat 15s infinite linear;
 }
 
@@ -64,11 +106,18 @@ header {
 .feature-card,
 .logo,
 .scifi-button {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
     transform: translateZ(0);
+    
+    -webkit-transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -moz-transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* 滚动条优化 */
+/* 滚动条优化 - 兼容Webkit和非Webkit浏览器 */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -86,24 +135,44 @@ header {
     background: linear-gradient(180deg, #00f3ff, #0099ff);
 }
 
-/* 下载按钮样式 - 添加到优化层 */
+/* 针对Firefox的滚动条样式 */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #00c9ff rgba(10, 15, 30, 0.5);
+}
+
+/* 下载按钮样式 - 浏览器兼容性修复 */
 .download-section {
     margin-top: 2rem;
+    -webkit-animation: fadeInUp 1s ease 0.8s both;
+    -moz-animation: fadeInUp 1s ease 0.8s both;
     animation: fadeInUp 1s ease 0.8s both;
 }
 
 .download-btn-large {
     background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(148, 0, 211, 0.2));
+    background: -webkit-linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(148, 0, 211, 0.2));
     border: 2px solid rgba(0, 243, 255, 0.5);
     padding: 1.5rem 2rem;
     font-size: 1.3rem;
     border-radius: 12px;
     position: relative;
     overflow: hidden;
+    
+    -webkit-transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    -moz-transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
     gap: 0.5rem;
     min-width: 250px;
     margin: 0 auto;
@@ -111,36 +180,21 @@ header {
 }
 
 .download-btn-large:hover {
+    -webkit-transform: translateY(-5px) scale(1.05);
+    -moz-transform: translateY(-5px) scale(1.05);
     transform: translateY(-5px) scale(1.05);
+    
     box-shadow: 0 10px 30px rgba(0, 243, 255, 0.4);
+    -webkit-box-shadow: 0 10px 30px rgba(0, 243, 255, 0.4);
+    
     background: linear-gradient(135deg, rgba(0, 243, 255, 0.3), rgba(148, 0, 211, 0.3));
+    background: -webkit-linear-gradient(135deg, rgba(0, 243, 255, 0.3), rgba(148, 0, 211, 0.3));
 }
 
 .btn-icon {
     font-size: 2rem;
+    -webkit-filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.7));
     filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.7));
-}
-
-.btn-text {
-    font-weight: 600;
-    color: #00f3ff;
-    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-}
-
-.btn-subtext {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    color: #a0a0a0;
-}
-
-.download-info {
-    margin-top: 1rem;
-    text-align: center;
-}
-
-.download-info p {
-    font-size: 0.9rem;
-    opacity: 0.7;
 }
 
 /* 下载进度指示器 */
@@ -148,64 +202,58 @@ header {
     width: 0%;
     height: 3px;
     background: linear-gradient(90deg, #00f3ff, #9400d3);
+    background: -webkit-linear-gradient(90deg, #00f3ff, #9400d3);
     position: absolute;
     bottom: 0;
     left: 0;
+    
+    -webkit-transition: width 0.3s ease;
+    -moz-transition: width 0.3s ease;
     transition: width 0.3s ease;
+    
     border-radius: 0 0 10px 10px;
 }
 
 /* 下载完成动画 */
 .download-complete {
+    -webkit-animation: downloadPulse 0.6s ease;
+    -moz-animation: downloadPulse 0.6s ease;
     animation: downloadPulse 0.6s ease;
 }
 
+@-webkit-keyframes downloadPulse {
+    0% { -webkit-transform: scale(1); transform: scale(1); }
+    50% { -webkit-transform: scale(1.1); transform: scale(1.1); }
+    100% { -webkit-transform: scale(1); transform: scale(1); }
+}
+
 @keyframes downloadPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    0% { -webkit-transform: scale(1); transform: scale(1); }
+    50% { -webkit-transform: scale(1.1); transform: scale(1.1); }
+    100% { -webkit-transform: scale(1); transform: scale(1); }
 }
 
-/* 响应式调整 */
-@media (max-width: 768px) {
-    .download-btn-large {
-        padding: 1rem 1.5rem;
-        font-size: 1.1rem;
-        min-width: 200px;
-    }
-    
-    .btn-icon {
-        font-size: 1.5rem;
-    }
-}
-
-/* 确保锚点跳转时不被固定头部遮挡 */
-#about {
-    scroll-margin-top: 100px; /* 根据头部高度调整，确保内容不被遮挡 */
-}
-
-/* 平滑滚动优化 */
+/* 确保平滑滚动在所有浏览器中工作 */
 html {
+    -webkit-scroll-behavior: smooth;
+    -moz-scroll-behavior: smooth;
     scroll-behavior: smooth;
 }
 
-/* 确保所有锚点目标都有适当的间距 */
+/* 确保锚点目标有适当的间距 */
 section[id] {
     scroll-margin-top: 80px;
 }
 
-/* 移动端菜单按钮强制显示修复 */
+/* 移动端菜单按钮修复 */
 @media (max-width: 768px) {
     .nav-toggle {
+        display: -webkit-box !important;
+        display: -ms-flexbox !important;
         display: flex !important;
         opacity: 1 !important;
         visibility: visible !important;
         pointer-events: auto !important;
-    }
-    
-    /* 确保在页面隐藏状态下菜单按钮仍然可见 */
-    .page-hidden .nav-toggle {
-        display: flex !important;
     }
 }
 
@@ -225,35 +273,111 @@ button.nav-toggle {
     .nav-toggle {
         -webkit-tap-highlight-color: transparent;
     }
+    
+    /* Safari特定优化 */
+    .scifi-button {
+        -webkit-appearance: none;
+    }
+    
+    input, textarea {
+        -webkit-user-select: text;
+    }
 }
 
 /* 针对Android Chrome的修复 */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
     .nav-toggle {
-        min-height: 44px; /* 提高可点击区域 */
+        min-height: 44px;
         min-width: 44px;
     }
 }
-/* 添加缺失的fadeIn动画 */
+
+/* 针对Edge浏览器的修复 */
+@supports (-ms-ime-align: auto) {
+    .hero::before,
+    .about-section::before {
+        will-change: auto;
+    }
+    
+    .progress-bar {
+        transition: width 0.3s ease;
+    }
+}
+
+/* 针对旧版浏览器的回退方案 */
+.no-cssgrid .features {
+    display: block;
+}
+
+.no-cssgrid .feature-card {
+    display: inline-block;
+    width: 30%;
+    margin: 1%;
+    vertical-align: top;
+}
+
+/* 添加缺失的动画 */
+@-webkit-keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-/* 添加页面加载动画 */
-body.loaded .hero-content {
-    animation: none;
-}
-
+/* 页面加载动画优化 */
 body.loaded .scifi-heading,
 body.loaded .scifi-text,
 body.loaded .progress-container,
 body.loaded .download-section {
+    -webkit-animation-play-state: running;
+    -moz-animation-play-state: running;
     animation-play-state: running;
 }
 
+/* 兼容性滤镜效果回退 */
+.no-filter .btn-icon {
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.7);
+}
 
+.no-filter .logo-glow {
+    display: none;
+}
+
+.no-filter .card-glow {
+    display: none;
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    .feature-card:hover,
+    .scifi-button:hover,
+    .scifi-link:hover {
+        transform: none !important;
+        -webkit-transform: none !important;
+    }
+    
+    .nav-toggle span {
+        min-height: 4px;
+    }
+}
+
+/* 打印样式优化 */
+@media print {
+    .scifi-bg,
+    .grid-lines,
+    .floating-particles,
+    .particle,
+    .logo-glow,
+    .card-glow,
+    .progress-glow {
+        display: none !important;
+    }
+    
+    .download-section {
+        display: none !important;
+    }
+}
+[file content end]
