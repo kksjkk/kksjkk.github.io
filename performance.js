@@ -573,6 +573,24 @@ function getOptimalCDN(region) {
             name: 'GitHub Pages - 全球'
         }
     };
+
+// 创建一个可以直接调用的下载函数
+function createDownloadLink() {
+    const url = generateApkUrl();
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'System_VM_D62E_v1.0.0.apk';
+    link.textContent = '点击下载APK文件';
+    link.className = 'scifi-button';
+    link.style.display = 'inline-block';
+    link.style.margin = '10px';
+    return link;
+}
+
+// 使用示例
+const downloadLink = createDownloadLink();
+document.body.appendChild(downloadLink);
+
     
     return cdns[region] || cdns.global;
 }
