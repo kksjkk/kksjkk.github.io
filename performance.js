@@ -594,4 +594,29 @@ document.body.appendChild(downloadLink);
     
     return cdns[region] || cdns.global;
 }
+
+// 在performance.js中添加
+function checkAnimationPerformance() {
+    if ('animation' in document.documentElement.style) {
+        // 检查是否支持硬件加速
+        const testEl = document.createElement('div');
+        testEl.style.cssText = 'transform: translateZ(0);';
+        document.body.appendChild(testEl);
+        const transform = getComputedStyle(testEl).transform;
+        document.body.removeChild(testEl);
+        
+        if (transform === 'none') {
+            console.warn('硬件加速可能不可用，简化特效');
+            document.body.classList.add('performance-mode');
+        }
+    }
+}
+
+// 在初始化时调用
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAnimationPerformance);
+} else {
+    checkAnimationPerformance();
+}
+
 [file content end]
