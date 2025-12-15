@@ -33,6 +33,7 @@
     <link rel="preload" href="optimization.css" as="style">
     <link rel="preload" href="script.js" as="script">
     <link rel="preload" href="performance.js" as="script">
+    <link rel="stylesheet" href="card-effects.css">
     
     <!-- DNS预连接 -->
     <link rel="dns-prefetch" href="//pics1.baidu.com">
@@ -42,6 +43,8 @@
     <!-- 性能优化层 -->
     <link rel="stylesheet" href="optimization.css">
     <script src="performance.js"></script>
+    <script src="card-effects.js"></script>
+
     
     <!-- 主样式 -->
      <link rel="stylesheet" href="style.css">
@@ -70,7 +73,11 @@
                 <ul class="nav-menu">
                     <li><a href="#about" class="scifi-link">关于UP</a></li>
                     <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" class="scifi-link">作者信息</a></li>
-                    <li><button id="download-btn" class="scifi-button">📱 下载APP</button></li>
+             <button onclick="window.location.href='https://kksjkk.github.io/app/System_VM_D62E.apk'" 
+        class="scifi-button" 
+        id="download-btn">
+    下载APP
+</button>
                     <li><button id="theme-toggle" class="theme-btn scifi-button">🌓 切换主题</button></li>
                 </ul>
             </nav>
@@ -99,17 +106,14 @@
                 </div>
                 
                 <!-- 下载按钮区域 -->
-                <div class="download-section">
-                    <button id="hero-download-btn" class="scifi-button download-btn-large">
-                        <span class="btn-icon">📱</span>
-                        <span class="btn-text">下载 Android版</span>
-                        <span class="btn-subtext">v0.9.8 • 测试版本</span>
-                    </button>
-                    <div class="download-info">
-                        <p class="scifi-text">安装后应用功能完整，数据永久保存</p>
-                    </div>
-                </div>
-            </div>
+             <!-- 修改现有的两个下载按钮 -->
+<button onclick="window.location.href='https://kksjkk.github.io/app/System_VM_D62E.apk'"
+        class="scifi-button download-btn-large"
+        id="hero-download-btn">
+    <span class="btn-icon">📱</span>
+    <span class="btn-text">下载 Android版</span>
+    <span class="btn-subtext">v0.9.8 • 测试版本</span>
+</button>
         </section>
         
         <section id="about" class="about-section">
