@@ -695,3 +695,48 @@ body.dark-mode .about-section {
         color: #000 !important;
     }
 }
+
+/* ===== 卡片点击动画 ===== */
+.feature-card.click-effect {
+    animation: cardClickPulse 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+}
+
+@keyframes cardClickPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4);
+    }
+    50% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 15px rgba(0, 243, 255, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 243, 255, 0);
+    }
+}
+
+@keyframes cardClickRipple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.5;
+    }
+    100% {
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+    }
+}
+
+/* 确保卡片有足够的z-index */
+.feature-card {
+    z-index: 10;
+    isolation: isolate;
+}
+
+/* 防止特效溢出 */
+.feature-card > * {
+    position: relative;
+    z-index: 20;
+}
