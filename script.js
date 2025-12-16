@@ -15,8 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
         window.requestAnimationFrame = function(callback, element) {
             const currTime = new Date().getTime();
             const timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            const id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
-              timeToCall);
+            const id = window.setTimeout(function() { 
+                callback(currTime + timeToCall); 
+            }, timeToCall);
             lastTime = currTime + timeToCall;
             return id;
         };
@@ -26,77 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
     
-    if (navToggle && navMenu) {
-        console.log('初始化菜单系统');
-        
-        navToggle.addEventListener('click', function() {
-            const isActive = navMenu.classList.contains('active');
-            
-            // 使用RAF优化菜单动画
-            requestAnimationFrame(() => {
-                // 汉堡菜单动画
-                const spans = this.querySelectorAll('span');
-                if (!isActive) {
-                    // 打开菜单
-                    spans[0].style.transform = 'rotate(45deg) translate(6px, 6px)';
-                    spans[1].style.opacity = '0';
-                    spans[2].style.transform = 'rotate(-45deg) translate(6px, -6px)';
-                    navMenu.style.display = 'flex';
-                    // 强制重绘以确保过渡生效
-                    void navMenu.offsetHeight;
-                    navMenu.classList.add('active');
-                    this.setAttribute('aria-expanded', 'true');
-                    console.log('菜单打开');
-                } else {
-                    // 关闭菜单
-                    spans[0].style.transform = 'none';
-                    spans[1].style.opacity = '1';
-                    spans[2].style.transform = 'none';
-                    navMenu.classList.remove('active');
-                    this.setAttribute('aria-expanded', 'false');
-                    // 等待过渡完成后再隐藏
-                    setTimeout(() => {
-                        if (!navMenu.classList.contains('active')) {
-                            navMenu.style.display = 'none';
-                            console.log('菜单关闭');
-                        }
-                    }, 300);
-                }
-            });
-        });
-
-        // 点击菜单项时关闭菜单（移动端）
-        navMenu.querySelectorAll('a, button').forEach(item => {
-            item.addEventListener('click', function(e) {
-                // 如果是下载按钮或主题切换按钮，不要关闭菜单
-                if (this.id === 'download-btn' || this.id === 'theme-toggle') {
-                    return;
-                }
-                
-                if (window.innerWidth <= 768) {
-                    requestAnimationFrame(() => {
-                        const spans = navToggle.querySelectorAll('span');
-                        spans[0].style.transform = 'none';
-                        spans[1].style.opacity = '1';
-                        spans[2].style.transform = 'none';
-                        navMenu.classList.remove('active');
-                        navToggle.setAttribute('aria-expanded', 'false');
-                        setTimeout(() => {
-                            navMenu.style.display = 'none';
-                        }, 300);
-                    });
-                }
-            });
-        });
-    }
-    
     // 初始化菜单状态
     function initMenuState() {
         if (navToggle && navMenu) {
             if (window.innerWidth <= 768) {
                 navMenu.style.display = 'none';
                 navToggle.setAttribute('aria-expanded', 'false');
-                // 确保移动端菜单按钮可见
                 navToggle.style.display = 'flex';
                 navToggle.style.visibility = 'visible';
                 navToggle.style.opacity = '1';
@@ -109,6 +45,85 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // 切换菜单函数
+    function toggleMenu(forceClose = false) {
+        if (!navToggle || !navMenu) return;
+        
+        const isActive = navMenu.classList.contains('active') && !forceClose;
+        const spans = navToggle.querySelectorAll('span');
+        
+        requestAnimationFrame(() => {
+            if (!isActive || forceClose) {
+                // 打开菜单或强制关闭
+                spans[0].style.transform = 'rotate(45deg) translate(6px, 6px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(6px, -6px)';
+                navMenu.style.display = 'flex';
+                
+                // 强制重绘以确保过渡生效
+                void navMenu.offsetHeight;
+                
+                if (!forceClose) {
+                    navMenu.classList.add('active');
+                    navToggle.setAttribute('aria-expanded', 'true');
+                    console.log('菜单打开');
+                }
+            } else {
+                // 关闭菜单
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+                navMenu.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
+                
+                // 等待过渡完成后再隐藏
+                setTimeout(() => {
+                    if (!navMenu.classList.contains('active')) {
+                        navMenu.style.display = 'none';
+                        console.log('菜单关闭');
+                    }
+                }, 300);
+            }
+        });
+    }
+    
+    if (navToggle && navMenu) {
+        console.log('初始化菜单系统');
+        
+        // 确保只绑定一次事件
+        if (!navToggle.hasAttribute('data-menu-initialized')) {
+            navToggle.setAttribute('data-menu-initialized', 'true');
+            
+            navToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleMenu();
+            });
+
+            // 点击菜单项时关闭菜单（移动端）
+            navMenu.querySelectorAll('a, button').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // 如果是下载按钮或主题切换按钮，不要关闭菜单
+                    if (this.id === 'download-btn' || this.id === 'theme-toggle') {
+                        return;
+                    }
+                    
+                    if (window.innerWidth <= 768) {
+                        toggleMenu(true);
+                    }
+                });
+            });
+
+            // 点击页面其他地方关闭菜单
+            document.addEventListener('click', function(e) {
+                if (navMenu.classList.contains('active') && 
+                    !navMenu.contains(e.target) && 
+                    !navToggle.contains(e.target)) {
+                    toggleMenu(true);
+                }
+            });
+        }
+    }
+    
     initMenuState();
 
     // 窗口大小改变时重置菜单状态（使用防抖优化）
@@ -118,25 +133,57 @@ document.addEventListener('DOMContentLoaded', function() {
         resizeTimeout = setTimeout(() => {
             requestAnimationFrame(() => {
                 initMenuState();
+                // 如果窗口变大，确保菜单关闭
+                if (window.innerWidth > 768 && navMenu) {
+                    navMenu.style.display = 'flex';
+                    navMenu.classList.remove('active');
+                    const spans = navToggle.querySelectorAll('span');
+                    spans[0].style.transform = 'none';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'none';
+                }
             });
         }, 100);
     });
 
     // 主题切换功能
     const themeToggle = document.getElementById('theme-toggle');
-    const currentTheme = localStorage.getItem('theme');
+    let currentTheme = localStorage.getItem('theme');
     
     // 应用保存的主题
-    if (currentTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        if (themeToggle) themeToggle.textContent = '☀️ 亮色模式';
-    } else if (currentTheme === 'light' || currentTheme === null) {
-        document.body.classList.remove('dark-mode');
-        if (themeToggle) themeToggle.textContent = '🌓 暗色模式';
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (themeToggle) themeToggle.textContent = '☀️ 亮色模式';
+        } else {
+            document.body.classList.remove('dark-mode');
+            if (themeToggle) themeToggle.textContent = '🌓 暗色模式';
+        }
+    }
+    
+    // 如果没有保存的主题，检测系统偏好
+    if (!currentTheme) {
+        currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        localStorage.setItem('theme', currentTheme);
+    }
+    
+    applyTheme(currentTheme);
+    
+    // 监听系统主题变化
+    if (window.matchMedia) {
+        const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        colorSchemeQuery.addEventListener('change', function(e) {
+            if (!localStorage.getItem('theme')) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                applyTheme(newTheme);
+            }
+        });
     }
     
     // 主题切换事件
-    if (themeToggle) {
+    if (themeToggle && !themeToggle.hasAttribute('data-theme-initialized')) {
+        themeToggle.setAttribute('data-theme-initialized', 'true');
+        
         themeToggle.addEventListener('click', function() {
             requestAnimationFrame(() => {
                 // 添加切换动画
@@ -144,17 +191,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.style.transition = 'opacity 0.3s ease';
                 
                 setTimeout(() => {
+                    const isDarkMode = document.body.classList.contains('dark-mode');
+                    const newTheme = isDarkMode ? 'light' : 'dark';
+                    
                     document.body.classList.toggle('dark-mode');
-                    let theme = 'light';
-                    let buttonText = '🌓 暗色模式';
+                    localStorage.setItem('theme', newTheme);
                     
-                    if (document.body.classList.contains('dark-mode')) {
-                        theme = 'dark';
-                        buttonText = '☀️ 亮色模式';
+                    if (isDarkMode) {
+                        themeToggle.textContent = '🌓 暗色模式';
+                    } else {
+                        themeToggle.textContent = '☀️ 亮色模式';
                     }
-                    
-                    localStorage.setItem('theme', theme);
-                    themeToggle.textContent = buttonText;
                     
                     // 恢复透明度
                     setTimeout(() => {
@@ -166,61 +213,76 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 图片懒加载
-    const lazyImages = document.querySelectorAll('.lazy-load');
-    
-    if ('IntersectionObserver' in window && lazyImages.length > 0) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    
-                    requestAnimationFrame(() => {
-                        // 添加淡入效果
-                        img.style.opacity = '0';
-                        img.style.transition = 'opacity 0.5s ease';
+    function initLazyLoad() {
+        const lazyImages = document.querySelectorAll('.lazy-load');
+        
+        if (!lazyImages.length) return;
+        
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
                         
-                        // 设置图片源
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                        }
-                        
-                        // 移除懒加载类
-                        img.classList.remove('lazy-load');
-                        
-                        // 淡入图片
-                        setTimeout(() => {
-                            requestAnimationFrame(() => {
-                                img.style.opacity = '1';
-                            });
-                        }, 100);
-                        
-                        imageObserver.unobserve(img);
-                    });
+                        requestAnimationFrame(() => {
+                            // 添加淡入效果
+                            img.style.opacity = '0';
+                            img.style.transition = 'opacity 0.5s ease';
+                            
+                            // 设置图片源
+                            if (img.dataset.src) {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                            }
+                            
+                            // 移除懒加载类
+                            img.classList.remove('lazy-load');
+                            
+                            // 淡入图片
+                            setTimeout(() => {
+                                requestAnimationFrame(() => {
+                                    img.style.opacity = '1';
+                                });
+                            }, 100);
+                            
+                            imageObserver.unobserve(img);
+                        });
+                    }
+                });
+            }, {
+                rootMargin: '0px 0px 100px 0px' // 提前100px加载
+            });
+            
+            lazyImages.forEach(img => {
+                // 确保图片有data-src属性
+                if (img.src && !img.dataset.src) {
+                    img.dataset.src = img.src;
+                    img.src = '';
+                }
+                imageObserver.observe(img);
+            });
+        } else {
+            // 直接加载所有图片
+            lazyImages.forEach(img => {
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy-load');
                 }
             });
-        }, {
-            rootMargin: '0px 0px 100px 0px' // 提前100px加载
-        });
-        
-        lazyImages.forEach(img => imageObserver.observe(img));
-    } else {
-        // 直接加载所有图片
-        lazyImages.forEach(img => {
-            if (img.dataset.src) {
-                img.src = img.dataset.src;
-            }
-            img.classList.remove('lazy-load');
-        });
+        }
     }
     
+    initLazyLoad();
+    
     // 访问统计
-    window.addEventListener('load', function() {
+    function trackVisit() {
         try {
             const visitData = {
                 url: window.location.href,
                 timestamp: new Date().toISOString(),
                 referrer: document.referrer || '直接访问',
-                userAgent: navigator.userAgent
+                userAgent: navigator.userAgent.substring(0, 100), // 截断避免过长
+                screen: `${window.screen.width}x${window.screen.height}`
             };
             
             // 存储到 localStorage
@@ -233,48 +295,84 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
-            console.log('访问记录:', visitData);
+            console.log('访问记录已保存');
         } catch (error) {
             console.warn('无法保存访问记录:', error);
         }
-    });
+    }
+    
+    // 延迟记录访问，避免影响页面加载
+    setTimeout(trackVisit, 1000);
     
     // 平滑滚动
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
+    function initSmoothScroll() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            // 跳过外部链接和空链接
+            if (anchor.getAttribute('href') === '#' || anchor.hasAttribute('target')) return;
             
-            const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
-            
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                // 使用平滑滚动
-                const header = document.querySelector('header');
-                const headerHeight = header ? header.offsetHeight : 80;
-                window.scrollTo({
-                    top: targetElement.offsetTop - headerHeight - 20,
-                    behavior: 'smooth'
-                });
+            if (!anchor.hasAttribute('data-scroll-initialized')) {
+                anchor.setAttribute('data-scroll-initialized', 'true');
                 
-                // 移动端关闭菜单
-                if (window.innerWidth <= 768 && navMenu && navMenu.classList.contains('active')) {
-                    const spans = navToggle.querySelectorAll('span');
-                    spans[0].style.transform = 'none';
-                    spans[1].style.opacity = '1';
-                    spans[2].style.transform = 'none';
-                    navMenu.classList.remove('active');
-                    navToggle.setAttribute('aria-expanded', 'false');
-                    setTimeout(() => {
-                        navMenu.style.display = 'none';
-                    }, 300);
-                }
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        // 使用平滑滚动
+                        const header = document.querySelector('header');
+                        const headerHeight = header ? header.offsetHeight : 80;
+                        
+                        // 如果浏览器支持平滑滚动
+                        if ('scrollBehavior' in document.documentElement.style) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - headerHeight - 20,
+                                behavior: 'smooth'
+                            });
+                        } else {
+                            // 降级方案
+                            const targetPosition = targetElement.offsetTop - headerHeight - 20;
+                            const startPosition = window.pageYOffset;
+                            const distance = targetPosition - startPosition;
+                            const duration = 500;
+                            let start = null;
+                            
+                            function step(timestamp) {
+                                if (!start) start = timestamp;
+                                const progress = timestamp - start;
+                                window.scrollTo(0, easeInOutCubic(progress, startPosition, distance, duration));
+                                if (progress < duration) {
+                                    requestAnimationFrame(step);
+                                }
+                            }
+                            
+                            function easeInOutCubic(t, b, c, d) {
+                                t /= d/2;
+                                if (t < 1) return c/2*t*t*t + b;
+                                t -= 2;
+                                return c/2*(t*t*t + 2) + b;
+                            }
+                            
+                            requestAnimationFrame(step);
+                        }
+                        
+                        // 移动端关闭菜单
+                        if (window.innerWidth <= 768 && navMenu && navMenu.classList.contains('active')) {
+                            toggleMenu(true);
+                        }
+                    }
+                });
             }
         });
-    });
+    }
+    
+    initSmoothScroll();
     
     // 高性能滚动处理（唯一负责滚动进度条）
     let ticking = false;
+    let scrollProgressHandler = null;
     
     function updateProgressBar() {
         const winHeight = window.innerHeight;
@@ -284,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const progressBar = document.querySelector('.progress-bar');
         
         if (progressBar) {
-            progressBar.style.width = scrollPercent + '%';
+            progressBar.style.width = Math.min(scrollPercent, 100) + '%';
             
             // 当进度达到100%时，添加隐藏类
             if (scrollPercent >= 100) {
@@ -296,29 +394,48 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 头部背景变化
         const header = document.querySelector('header');
-        if (scrollTop > 50) {
-            header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-            header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.3)';
-        } else {
-            header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
+        if (header) {
+            if (scrollTop > 50) {
+                header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+                header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.3)';
+            } else {
+                header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
+            }
         }
         
         ticking = false;
     }
     
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(updateProgressBar);
-            ticking = true;
+    function initScrollHandlers() {
+        // 移除旧的监听器
+        if (scrollProgressHandler) {
+            window.removeEventListener('scroll', scrollProgressHandler);
         }
-    });
+        
+        scrollProgressHandler = function() {
+            if (!ticking) {
+                requestAnimationFrame(updateProgressBar);
+                ticking = true;
+            }
+        };
+        
+        window.addEventListener('scroll', scrollProgressHandler, { passive: true });
+        
+        // 初始调用一次
+        updateProgressBar();
+    }
+    
+    initScrollHandlers();
     
     // 初始化进度条动画
-    const progressElement = document.getElementById('system-progress');
-    if (progressElement) {
+    function initProgressAnimation() {
+        const progressElement = document.getElementById('system-progress');
+        if (!progressElement) return;
+        
         let progress = 75;
         let lastProgressTime = 0;
+        let animationId = null;
         
         function animateProgress(timestamp) {
             if (!lastProgressTime) lastProgressTime = timestamp;
@@ -333,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const progressGlow = document.querySelector('.progress-glow');
                     if (progressText) progressText.textContent = Math.round(progress) + '%';
                     if (progressGlow) progressGlow.style.width = progress + '%';
+                    cancelAnimationFrame(animationId);
                     return;
                 }
                 
@@ -345,60 +463,89 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (progress < 100) {
-                requestAnimationFrame(animateProgress);
+                animationId = requestAnimationFrame(animateProgress);
             }
         }
         
-        requestAnimationFrame(animateProgress);
+        animationId = requestAnimationFrame(animateProgress);
+        
+        // 提供停止函数
+        return function() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        };
     }
+    
+    let stopProgressAnimation = initProgressAnimation();
     
     // 添加键盘导航支持
-    document.addEventListener('keydown', function(e) {
-        // Escape键关闭菜单
-        if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
-            const spans = navToggle.querySelectorAll('span');
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
-            navMenu.classList.remove('active');
-            navToggle.setAttribute('aria-expanded', 'false');
-            setTimeout(() => {
-                navMenu.style.display = 'none';
-            }, 300);
-            navToggle.focus();
-        }
-        
-        // Tab键在菜单内循环
-        if (e.key === 'Tab' && navMenu && navMenu.classList.contains('active')) {
-            const focusableElements = navMenu.querySelectorAll('a, button');
-            const firstElement = focusableElements[0];
-            const lastElement = focusableElements[focusableElements.length - 1];
+    function initKeyboardNavigation() {
+        document.addEventListener('keydown', function(e) {
+            // Escape键关闭菜单
+            if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
+                toggleMenu(true);
+                if (navToggle) navToggle.focus();
+            }
             
-            if (e.shiftKey) { // Shift + Tab
-                if (document.activeElement === firstElement) {
-                    e.preventDefault();
-                    lastElement.focus();
-                }
-            } else { // Tab
-                if (document.activeElement === lastElement) {
-                    e.preventDefault();
-                    firstElement.focus();
+            // Tab键在菜单内循环
+            if (e.key === 'Tab' && navMenu && navMenu.classList.contains('active')) {
+                const focusableElements = navMenu.querySelectorAll('a, button');
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+                
+                if (e.shiftKey) { // Shift + Tab
+                    if (document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    }
+                } else { // Tab
+                    if (document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
                 }
             }
-        }
-    });
+        });
+    }
+    
+    initKeyboardNavigation();
     
     // 改善可访问性
-    if (navToggle) {
-        navToggle.setAttribute('aria-label', '切换导航菜单');
-        navToggle.setAttribute('aria-expanded', 'false');
-        navToggle.setAttribute('aria-controls', 'nav-menu');
+    function improveAccessibility() {
+        if (navToggle) {
+            navToggle.setAttribute('aria-label', '切换导航菜单');
+            navToggle.setAttribute('aria-expanded', 'false');
+            navToggle.setAttribute('aria-controls', 'nav-menu');
+        }
+        
+        if (navMenu) {
+            navMenu.id = 'nav-menu';
+            navMenu.setAttribute('aria-label', '主导航');
+        }
+        
+        // 为进度条添加aria属性
+        const progressElement = document.getElementById('system-progress');
+        if (progressElement) {
+            progressElement.setAttribute('aria-label', '系统加载进度');
+            progressElement.setAttribute('aria-valuemin', '0');
+            progressElement.setAttribute('aria-valuemax', '100');
+            progressElement.setAttribute('aria-valuenow', '75');
+        }
     }
     
-    if (navMenu) {
-        navMenu.id = 'nav-menu';
-        navMenu.setAttribute('aria-label', '主导航');
-    }
+    improveAccessibility();
+    
+    // 页面卸载前清理
+    window.addEventListener('beforeunload', function() {
+        if (stopProgressAnimation) {
+            stopProgressAnimation();
+        }
+        
+        if (scrollProgressHandler) {
+            window.removeEventListener('scroll', scrollProgressHandler);
+        }
+    });
 });
 
 // 浏览器兼容性检测和修复
@@ -407,52 +554,70 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 检测浏览器特性
     const browserFeatures = {
-        transform: typeof document.body.style.transform !== 'undefined' || 
-                  typeof document.body.style.webkitTransform !== 'undefined',
-        animation: typeof document.body.style.animation !== 'undefined' || 
-                  typeof document.body.style.webkitAnimation !== 'undefined',
-        grid: typeof document.body.style.grid !== 'undefined' || 
-              typeof document.body.style.webkitGrid !== 'undefined',
-        flex: typeof document.body.style.flex !== 'undefined' || 
-              typeof document.body.style.webkitFlex !== 'undefined'
+        transform: 'transform' in document.body.style || 'webkitTransform' in document.body.style,
+        animation: 'animation' in document.body.style || 'webkitAnimation' in document.body.style,
+        grid: 'grid' in document.body.style || 'webkitGrid' in document.body.style,
+        flex: 'flex' in document.body.style || 'webkitFlex' in document.body.style,
+        backdropFilter: 'backdropFilter' in document.body.style || 'webkitBackdropFilter' in document.body.style
     };
     
     // 根据浏览器能力添加类名
-    document.documentElement.className += 
-        (browserFeatures.transform ? '' : ' no-transform') +
-        (browserFeatures.animation ? '' : ' no-animation') +
-        (browserFeatures.grid ? '' : ' no-cssgrid') +
-        (browserFeatures.flex ? '' : ' no-flex');
+    const htmlClass = document.documentElement.className;
+    let newClasses = htmlClass;
+    
+    if (!browserFeatures.transform) newClasses += ' no-transform';
+    if (!browserFeatures.animation) newClasses += ' no-animation';
+    if (!browserFeatures.grid) newClasses += ' no-cssgrid';
+    if (!browserFeatures.flex) newClasses += ' no-flex';
+    if (!browserFeatures.backdropFilter) newClasses += ' no-backdrop-filter';
+    
+    document.documentElement.className = newClasses.trim();
     
     // 针对旧版浏览器的修复
     if (!browserFeatures.grid) {
         // 为不支持grid的浏览器添加回退样式
         const style = document.createElement('style');
+        style.id = 'grid-fallback-style';
         style.textContent = `
             .features {
-                display: block;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
                 overflow: hidden;
             }
             .feature-card {
-                float: left;
-                width: 30%;
-                margin: 1.66%;
+                flex: 0 0 calc(33.333% - 20px);
+                margin: 10px;
                 box-sizing: border-box;
+            }
+            @media (max-width: 992px) {
+                .feature-card {
+                    flex: 0 0 calc(50% - 20px);
+                }
             }
             @media (max-width: 768px) {
                 .feature-card {
-                    width: 48%;
-                    margin: 1%;
-                }
-            }
-            @media (max-width: 480px) {
-                .feature-card {
-                    width: 98%;
-                    margin: 1%;
+                    flex: 0 0 calc(100% - 20px);
                 }
             }
         `;
-        document.head.appendChild(style);
+        
+        // 避免重复添加
+        if (!document.getElementById('grid-fallback-style')) {
+            document.head.appendChild(style);
+        }
+    }
+    
+    // 针对不支持backdrop-filter的浏览器
+    if (!browserFeatures.backdropFilter) {
+        const elements = document.querySelectorAll('.download-message-box');
+        elements.forEach(el => {
+            if (el) {
+                el.style.backgroundColor = 'rgba(0, 0, 0, 0.98)';
+                el.style.backdropFilter = 'none';
+                el.style.webkitBackdropFilter = 'none';
+            }
+        });
     }
     
     // 修复下载功能在特定浏览器中的问题
@@ -460,9 +625,33 @@ document.addEventListener('DOMContentLoaded', function() {
         // 确保下载按钮在所有浏览器中都能工作
         const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
         downloadButtons.forEach(button => {
-            // 移除可能存在的重复事件监听器
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
+            // 如果按钮有内联的onclick事件，确保不会冲突
+            if (button.hasAttribute('onclick')) {
+                const originalOnClick = button.getAttribute('onclick');
+                button.removeAttribute('onclick');
+                
+                // 重新绑定事件
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    try {
+                        // 尝试执行原始onclick
+                        eval(originalOnClick);
+                    } catch (error) {
+                        console.warn('执行原始onclick失败:', error);
+                        // 降级方案
+                        window.location.href = 'https://kksjkk.github.io/app/System_VM_D62E.apk';
+                    }
+                });
+            }
         });
     });
+    
+    // 添加polyfill检测
+    if (!window.requestAnimationFrame) {
+        console.log('浏览器不支持requestAnimationFrame，使用setTimeout模拟');
+    }
+    
+    if (!window.matchMedia) {
+        console.log('浏览器不支持matchMedia，主题切换可能受限');
+    }
 })();
