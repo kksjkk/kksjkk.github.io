@@ -1,0 +1,593 @@
+/* ===== 卡片点击特效系统 ===== */
+
+/* 基础点击动画 */
+.feature-card {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+/* 主点击脉冲动画 */
+@keyframes cyberPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 
+            0 0 0 0 rgba(0, 243, 255, 0.4),
+            0 5px 15px rgba(0, 212, 255, 0.1);
+    }
+    50% {
+        transform: scale(0.97);
+        box-shadow: 
+            0 0 0 15px rgba(0, 243, 255, 0.2),
+            0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 
+            0 0 0 0 rgba(0, 243, 255, 0),
+            0 5px 20px rgba(0, 212, 255, 0.2);
+    }
+}
+
+/* 点击时激活的类 */
+.feature-card.click-active {
+    animation: cyberPulse 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+}
+
+/* 网格扩散效果 */
+@keyframes gridPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+.card-grid-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 243, 255, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.3) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+}
+
+/* 霓虹光晕效果 */
+@keyframes neonGlow {
+    0%, 100% {
+        box-shadow: 
+            0 0 5px #00f3ff,
+            0 0 10px #00f3ff,
+            0 0 20px #00f3ff,
+            inset 0 0 5px rgba(0, 243, 255, 0.3);
+    }
+    50% {
+        box-shadow: 
+            0 0 10px #00f3ff,
+            0 0 20px #00f3ff,
+            0 0 40px #00f3ff,
+            inset 0 0 10px rgba(0, 243, 255, 0.5);
+    }
+}
+
+/* 数据粒子效果 */
+.click-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #00f3ff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100;
+    filter: blur(1px);
+    box-shadow: 0 0 10px #00f3ff;
+}
+
+@keyframes particleBurst {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0.5);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: 
+            translate(
+                calc(var(--tx) * 100px),
+                calc(var(--ty) * 100px)
+            ) 
+            scale(0.2);
+    }
+}
+
+/* 环形波纹效果 */
+.ripple-ring {
+    position: absolute;
+    border: 2px solid #00f3ff;
+    border-radius: 50%;
+    animation: rippleExpand 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+    filter: blur(1px);
+}
+
+@keyframes rippleExpand {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.8;
+        transform: translate(-50%, -50%);
+        border-width: 3px;
+    }
+    100% {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+        transform: translate(-50%, -50%);
+        border-width: 1px;
+    }
+}
+
+/* 扫描线效果 */
+@keyframes scanLine {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        #00f3ff, 
+        transparent
+    );
+    filter: blur(1px);
+    z-index: 2;
+    opacity: 0;
+}
+
+/* 文字分解效果 */
+@keyframes textDeconstruct {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg);
+        text-shadow: 0 0 5px #00f3ff;
+    }
+    50% {
+        opacity: 0.8;
+        text-shadow: 0 0 15px #00f3ff;
+    }
+    100% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg);
+        text-shadow: 0 0 5px #00f3ff;
+    }
+}
+
+.card-text-char {
+    display: inline-block;
+    animation: textDeconstruct 0.8s ease;
+}
+
+/* 图标全息投影 */
+@keyframes hologramIcon {
+    0% {
+        transform: scale(1) rotate(0deg);
+        filter: hue-rotate(0deg) brightness(1);
+    }
+    25% {
+        transform: scale(1.3) rotate(90deg);
+        filter: hue-rotate(90deg) brightness(1.5);
+    }
+    50% {
+        transform: scale(1.1) rotate(180deg);
+        filter: hue-rotate(180deg) brightness(1.2);
+    }
+    75% {
+        transform: scale(1.3) rotate(270deg);
+        filter: hue-rotate(270deg) brightness(1.5);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+        filter: hue-rotate(360deg) brightness(1);
+    }
+}
+
+.card-icon.hologram {
+    animation: hologramIcon 1s ease-in-out;
+}
+
+/* 边框流光效果 */
+@keyframes borderFlow {
+    0% {
+        background-position: -100% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.border-flow {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: inherit;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #00f3ff,
+        #9400d3,
+        #00f3ff,
+        transparent
+    );
+    background-size: 200% 100%;
+    opacity: 0;
+    filter: blur(2px);
+    z-index: -1;
+}
+
+/* 数据矩阵雨效果 */
+@keyframes matrixRain {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.matrix-char {
+    position: absolute;
+    color: #00ff00;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: bold;
+    opacity: 0;
+    text-shadow: 0 0 10px #00ff00;
+    z-index: 1;
+}
+
+/* 能量冲击波效果 */
+@keyframes energyWave {
+    0% {
+        transform: scale(0.1);
+        opacity: 1;
+        border-width: 8px;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+        border-width: 1px;
+    }
+}
+
+.energy-wave {
+    position: absolute;
+    border: 4px solid #00f3ff;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(2px);
+}
+
+/* 音波扩散效果 */
+@keyframes soundWave {
+    0% {
+        transform: scale(0.1);
+        opacity: 1;
+        box-shadow: 
+            0 0 10px #00f3ff,
+            inset 0 0 10px #00f3ff;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+        box-shadow: 
+            0 0 1px #00f3ff,
+            inset 0 0 1px #00f3ff;
+    }
+}
+
+.sound-wave {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* 数字瀑布效果 */
+.digital-fall {
+    position: absolute;
+    color: #00f3ff;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    filter: blur(1px);
+    text-shadow: 0 0 5px #00f3ff;
+}
+
+@keyframes digitalFall {
+    0% {
+        transform: translateY(-50px) rotate(0deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* 脉冲光柱效果 */
+@keyframes lightPillar {
+    0% {
+        transform: translateY(-100%) scaleX(0.1);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100%) scaleX(0.1);
+        opacity: 0;
+    }
+}
+
+.light-pillar {
+    position: absolute;
+    width: 4px;
+    height: 100px;
+    background: linear-gradient(to bottom, 
+        transparent,
+        #00f3ff,
+        transparent
+    );
+    filter: blur(2px);
+    opacity: 0;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+    .click-particle {
+        width: 3px;
+        height: 3px;
+    }
+    
+    .ripple-ring {
+        animation-duration: 0.6s;
+    }
+    
+    .feature-card.click-active {
+        animation: cyberPulse 0.6s ease !important;
+    }
+    
+    /* 移动端减少粒子数量 */
+    .click-particle {
+        display: none;
+    }
+}
+
+/* 性能优化 */
+@media (prefers-reduced-motion: reduce) {
+    .feature-card.click-active {
+        animation: none !important;
+    }
+    
+    .click-particle,
+    .ripple-ring,
+    .scan-line,
+    .matrix-char,
+    .energy-wave,
+    .sound-wave,
+    .digital-fall,
+    .light-pillar {
+        display: none !important;
+    }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+    .click-particle {
+        background: #00ffff;
+    }
+    
+    .ripple-ring {
+        border-color: #00ffff;
+    }
+}
+
+/* ===== 键盘和触摸特效的CSS ===== */
+
+/* 4.2 键盘快捷键相关 */
+@keyframes toastFade {
+    0% {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    15% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    85% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+}
+
+/* 禁用特效时的样式 */
+.effects-disabled .feature-card {
+    animation: none !important;
+}
+
+.effects-disabled .click-particle,
+.effects-disabled .ripple-ring,
+.effects-disabled .scan-line,
+.effects-disabled .matrix-char,
+.effects-disabled .energy-wave,
+.effects-disabled .sound-wave,
+.effects-disabled .digital-fall,
+.effects-disabled .light-pillar {
+    display: none !important;
+}
+
+/* 4.3 触摸手势相关 */
+.touch-active {
+    animation: touchPulse 0.3s ease-out;
+}
+
+@keyframes touchPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.98); }
+    100% { transform: scale(1); }
+}
+
+/* 轨迹粒子淡出 */
+@keyframes fadeOut {
+    0% { opacity: 0.7; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.5); }
+}
+
+.trail-particle {
+    position: fixed !important;
+    z-index: 9998;
+}
+
+/* 充能环特效 */
+.charging-ring {
+    border-color: rgba(255, 215, 0, 0.6) !important;
+    border-width: 3px !important;
+}
+
+/* 同心圆环 */
+.concentric-ring {
+    border-color: rgba(0, 243, 255, 0.4) !important;
+}
+
+/* 文字扫描效果 */
+@keyframes textScan {
+    0% {
+        text-shadow: 0 0 0 rgba(0, 243, 255, 0);
+        color: inherit;
+    }
+    50% {
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.8);
+        color: #00f3ff;
+    }
+    100% {
+        text-shadow: 0 0 0 rgba(0, 243, 255, 0);
+        color: inherit;
+    }
+}
+
+.text-scan {
+    animation: textScan 0.6s ease-out !important;
+}
+
+/* 速度线 */
+@keyframes speedLineFade {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-50%);
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-150%);
+    }
+}
+
+.speed-line {
+    animation: speedLineFade 0.5s ease-out !important;
+}
+
+/* 方向箭头 */
+@keyframes arrowFade {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--angle)) scale(0.5);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(var(--angle)) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--angle)) scale(1.5) translateY(-50px);
+    }
+}
+
+.direction-arrow {
+    animation: arrowFade 0.8s ease-out !important;
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    .feature-card {
+        min-height: 60px;
+        min-width: 60px;
+    }
+    
+    .nav-toggle {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* 减少动画性能开销 */
+@media (max-width: 768px) {
+    .trail-particle,
+    .speed-line,
+    .direction-arrow {
+        display: none;
+    }
+    
+    .touch-active {
+        animation-duration: 0.2s;
+    }
+}
