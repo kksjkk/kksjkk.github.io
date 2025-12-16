@@ -1,5 +1,3 @@
-[file name]: performance.js
-[file content begin]
 // 高级性能优化层（兼容性修复版）
 (function() {
     'use strict';
@@ -226,25 +224,29 @@
         const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
         
         if (downloadButtons.length === 0) {
-            console.warn('未找到下载按钮');
+            console.warn('未找到下载按钮，将在2秒后重试');
+            setTimeout(initDownloadButton, 2000);
             return;
         }
         
         downloadButtons.forEach(button => {
-            // 清除旧事件监听器
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
+            // 确保不会重复绑定事件
+            if (button.hasAttribute('data-download-initialized')) {
+                return;
+            }
             
-            newButton.addEventListener('click', downloadHandler);
-        });
-    }
-
-    function downloadHandler(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        optimizedRAF(() => {
-            startDownload(this);
+            // 克隆并替换按钮以避免重复绑定
+            const newButton = button.cloneNode(true);
+            newButton.setAttribute('data-download-initialized', 'true');
+            
+            // 添加点击事件
+            newButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                startDownload(this);
+            });
+            
+            button.parentNode.replaceChild(newButton, button);
         });
     }
 
@@ -344,7 +346,11 @@
                 } else {
                     document.body.appendChild(link);
                     link.click();
-                    document.body.removeChild(link);
+                    setTimeout(() => {
+                        if (link.parentNode) {
+                            link.parentNode.removeChild(link);
+                        }
+                    }, 100);
                 }
             }
         } catch (error) {
@@ -474,16 +480,44 @@
         document.body.appendChild(message);
         
         // 绑定关闭事件
-        message.querySelector('.download-confirm-btn').addEventListener('click', function() {
-            message.remove();
-        });
+        const confirmBtn = message.querySelector('.download-confirm-btn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function() {
+                if (message.parentElement) {
+                    message.remove();
+                }
+                if (style.parentElement) {
+                    style.remove();
+                }
+            });
+        }
         
         // 3秒后自动消失
         setTimeout(() => {
             if (message.parentElement) {
                 message.remove();
             }
+            if (style.parentElement) {
+                style.remove();
+            }
         }, 3000);
+    }
+
+    // 动画性能检查
+    function checkAnimationPerformance() {
+        if ('animation' in document.documentElement.style) {
+            // 检查是否支持硬件加速
+            const testEl = document.createElement('div');
+            testEl.style.cssText = 'transform: translateZ(0);';
+            document.body.appendChild(testEl);
+            const transform = getComputedStyle(testEl).transform;
+            document.body.removeChild(testEl);
+            
+            if (transform === 'none') {
+                console.warn('硬件加速可能不可用，简化特效');
+                document.body.classList.add('performance-mode');
+            }
+        }
     }
 
     // 初始化所有功能
@@ -494,11 +528,16 @@
         initDownloadButton();
         initPerformanceMonitoring();
         initVisibilityHandler();
+        checkAnimationPerformance();
         
         // 根据浏览器能力选择性初始化
         if (!isSafari || window.innerWidth > 768) {
-            initParticleSystem();
-            initCleanupSystem();
+            try {
+                initParticleSystem();
+                initCleanupSystem();
+            } catch (error) {
+                console.error('粒子系统初始化失败:', error);
+            }
         }
         
         // 针对移动浏览器的优化
@@ -512,7 +551,7 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAll);
     } else {
-        initAll();
+        setTimeout(initAll, 0);
     }
 })();
 
@@ -573,6 +612,9 @@ function getOptimalCDN(region) {
             name: 'GitHub Pages - 全球'
         }
     };
+    
+    return cdns[region] || cdns.global;
+}
 
 // 创建一个可以直接调用的下载函数
 function createDownloadLink() {
@@ -586,37 +628,3 @@ function createDownloadLink() {
     link.style.margin = '10px';
     return link;
 }
-
-// 使用示例
-const downloadLink = createDownloadLink();
-document.body.appendChild(downloadLink);
-
-    
-    return cdns[region] || cdns.global;
-}
-
-// 在performance.js中添加
-function checkAnimationPerformance() {
-    if ('animation' in document.documentElement.style) {
-        // 检查是否支持硬件加速
-        const testEl = document.createElement('div');
-        testEl.style.cssText = 'transform: translateZ(0);';
-        document.body.appendChild(testEl);
-        const transform = getComputedStyle(testEl).transform;
-        document.body.removeChild(testEl);
-        
-        if (transform === 'none') {
-            console.warn('硬件加速可能不可用，简化特效');
-            document.body.classList.add('performance-mode');
-        }
-    }
-}
-
-// 在初始化时调用
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkAnimationPerformance);
-} else {
-    checkAnimationPerformance();
-}
-
-[file content end]
