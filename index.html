@@ -1,21 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 
-<!-- 性能优化层 -->
-<link rel="stylesheet" href="optimization.css">
-<script src="performance.js"></script>
-
-<!-- 预加载关键字体 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<!-- DNS预连接 -->
-<link rel="dns-prefetch" href="//pics1.baidu.com">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System_VM_D62E官方网站</title>
+    
     <!-- 针对不同浏览器的优化 -->
     <!-- 针对Safari -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,26 +18,26 @@
     <!-- 针对百度浏览器 -->
     <meta name="baidu-site-verification" content="codeva-RxYVGyqgJc">
     
-    <!-- 预加载关键资源 -->
-    <link rel="preload" href="style.css" as="style">
-    <link rel="preload" href="optimization.css" as="style">
-    <link rel="preload" href="script.js" as="script">
-    <link rel="preload" href="performance.js" as="script">
-    <link rel="stylesheet" href="card-effects.css">
-    
     <!-- DNS预连接 -->
     <link rel="dns-prefetch" href="//pics1.baidu.com">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     
-    <!-- 性能优化层 -->
-    <link rel="stylesheet" href="optimization.css">
-    <script src="performance.js"></script>
-    <script src="card-effects.js"></script>
-
+    <!-- 预加载关键字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- 主样式 -->
-     <link rel="stylesheet" href="style.css">
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="optimization.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    <link rel="preload" href="performance.js" as="script">
+    <link rel="preload" href="card-effects.js" as="script">
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="optimization.css">
+    <link rel="stylesheet" href="card-effects.css">
 </head>
 <body>
     <div class="scifi-bg">
@@ -73,11 +63,11 @@
                 <ul class="nav-menu">
                     <li><a href="#about" class="scifi-link">关于UP</a></li>
                     <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" class="scifi-link">作者信息</a></li>
-             <button onclick="window.location.href='https://kksjkk.github.io/app/System_VM_D62E.apk'" 
-        class="scifi-button" 
-        id="download-btn">
-    下载APP
-</button>
+                    <li><button onclick="window.location.href='https://kksjkk.github.io/app/System_VM_D62E.apk'" 
+                        class="scifi-button" 
+                        id="download-btn">
+                        下载APP
+                    </button></li>
                     <li><button id="theme-toggle" class="theme-btn scifi-button">🌓 切换主题</button></li>
                 </ul>
             </nav>
@@ -92,7 +82,8 @@
                     <div class="logo-glow"></div>
                     <img src="https://pics1.baidu.com/feed/79f0f736afc37931e6c973ea8baf5a4f41a911c2@f_auto?token=666eac13d2aab8d4d632662a0a40ca03&f=png" 
                          alt="个人logo" 
-                         class="logo lazy-load">
+                         class="logo lazy-load"
+                         data-src="https://pics1.baidu.com/feed/79f0f736afc37931e6c973ea8baf5a4f41a911c2@f_auto?token=666eac13d2aab8d4d632662a0a40ca03&f=png">
                 </div>
                 <h2 class="scifi-heading">欢迎来到 <span class="highlight">System_VM_D62E</span> 官方网页</h2>
                 <p class="scifi-text">探索技术与创意的无限可能</p>
@@ -106,14 +97,14 @@
                 </div>
                 
                 <!-- 下载按钮区域 -->
-             <!-- 修改现有的两个下载按钮 -->
-<button onclick="window.location.href='https://kksjkk.github.io/app/System_VM_D62E.apk'"
-        class="scifi-button download-btn-large"
-        id="hero-download-btn">
-    <span class="btn-icon">📱</span>
-    <span class="btn-text">下载 Android版</span>
-    <span class="btn-subtext">v0.9.8 • 测试版本</span>
-</button>
+                <button onclick="window.location.href='https://kksjkk.github.io/app/System_VM_D62E.apk'"
+                        class="scifi-button download-btn-large"
+                        id="hero-download-btn">
+                    <span class="btn-icon">📱</span>
+                    <span class="btn-text">下载 Android版</span>
+                    <span class="btn-subtext">v0.9.8 • 测试版本</span>
+                </button>
+            </div>
         </section>
         
         <section id="about" class="about-section">
@@ -151,6 +142,9 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- JavaScript文件 -->
+    <script src="performance.js" defer></script>
+    <script src="card-effects.js" defer></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
