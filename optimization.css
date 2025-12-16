@@ -1,5 +1,3 @@
-[file name]: optimization.css
-[file content begin]
 /* 性能优化层 - 浏览器兼容性修复 */
 /* 硬件加速优化 */
 .scifi-bg,
@@ -380,4 +378,3 @@ body.loaded .download-section {
         display: none !important;
     }
 }
-[file content end]
