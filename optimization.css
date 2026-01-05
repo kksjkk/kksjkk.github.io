@@ -253,6 +253,15 @@ section[id] {
         visibility: visible !important;
         pointer-events: auto !important;
     }
+    
+    /* 修复菜单初始化问题 */
+    .nav-toggle.hidden-desktop {
+        display: none !important;
+    }
+    
+    .nav-toggle.visible-mobile {
+        display: flex !important;
+    }
 }
 
 /* 解决部分浏览器按钮默认样式问题 */
@@ -377,4 +386,76 @@ body.loaded .download-section {
     .download-section {
         display: none !important;
     }
+}
+
+/* 修复菜单状态类 */
+.nav-menu.active {
+    display: flex !important;
+}
+
+/* 性能模式类 */
+.performance-mode .click-particle,
+.performance-mode .ripple-ring,
+.performance-mode .matrix-char,
+.performance-mode .energy-wave,
+.performance-mode .sound-wave,
+.performance-mode .digital-fall,
+.performance-mode .light-pillar {
+    display: none !important;
+}
+
+/* 页面隐藏状态 */
+.page-hidden {
+    animation-play-state: paused !important;
+    -webkit-animation-play-state: paused !important;
+}
+
+/* 事件处理标识 */
+[data-download-initialized],
+[data-download-optimized],
+[data-menu-initialized],
+[data-theme-initialized],
+[data-scroll-initialized],
+[data-click-initialized],
+[data-card-index] {
+    /* 标识性样式 */
+}
+
+/* 特效禁用状态 */
+.effects-disabled .feature-card {
+    animation: none !important;
+    -webkit-animation: none !important;
+}
+
+.effects-disabled .click-particle,
+.effects-disabled .ripple-ring,
+.effects-disabled .scan-line,
+.effects-disabled .matrix-char,
+.effects-disabled .energy-wave,
+.effects-disabled .sound-wave,
+.effects-disabled .digital-fall,
+.effects-disabled .light-pillar {
+    display: none !important;
+}
+
+/* 移动优化模式 */
+.mobile-optimized .feature-card {
+    min-height: 60px !important;
+    min-width: 60px !important;
+}
+
+.mobile-optimized .click-particle {
+    display: none !important;
+}
+
+/* 减少动画模式 */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    -webkit-animation-duration: 0.001ms !important;
+    -webkit-animation-iteration-count: 1 !important;
+    -webkit-transition-duration: 0.001ms !important;
 }
