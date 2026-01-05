@@ -198,9 +198,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem('theme', newTheme);
                     
                     if (isDarkMode) {
-                        themeToggle.textContent = '🌓 暗色模式';
-                    } else {
                         themeToggle.textContent = '☀️ 亮色模式';
+                    } else {
+                        themeToggle.textContent = '🌓 暗色模式';
                     }
                     
                     // 恢复透明度
@@ -655,3 +655,107 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('浏览器不支持matchMedia，主题切换可能受限');
     }
 })();
+
+// 添加自适应卡片特效的初始化兼容性处理
+function initAdaptiveCardEffectsCompatibility() {
+    // 等待主页面完全加载
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCardEffects);
+    } else {
+        setTimeout(initCardEffects, 1000);
+    }
+    
+    function initCardEffects() {
+        // 确保不会重复初始化
+        if (window.AdaptiveCardEffects && window.AdaptiveCardEffects.getActiveCard) {
+            console.log('自适应卡片特效已初始化');
+            return;
+        }
+        
+        // 检查卡片是否存在
+        const cards = document.querySelectorAll('.feature-card');
+        if (cards.length === 0) {
+            console.log('未找到卡片元素，等待重试...');
+            setTimeout(initCardEffects, 500);
+            return;
+        }
+        
+        // 如果自适应卡片特效系统未加载，添加回退效果
+        if (typeof window.AdaptiveCardEffects === 'undefined') {
+            console.log('自适应卡片特效系统未加载，使用基础效果');
+            initBasicCardEffects();
+        }
+    }
+    
+    function initBasicCardEffects() {
+        const cards = document.querySelectorAll('.feature-card');
+        let activeCard = null;
+        let clickOutsideHandler = null;
+        
+        // 初始化全局点击监听
+        function initGlobalClick() {
+            clickOutsideHandler = function(event) {
+                const clickedCard = event.target.closest('.feature-card');
+                
+                if (activeCard && !clickedCard) {
+                    resetCard(activeCard);
+                    activeCard = null;
+                }
+            };
+            
+            document.addEventListener('click', clickOutsideHandler);
+        }
+        
+        function activateCard(card) {
+            if (activeCard && activeCard !== card) {
+                resetCard(activeCard);
+            }
+            
+            card.classList.add('active');
+            activeCard = card;
+            
+            setTimeout(() => {
+                card.classList.remove('active');
+            }, 1200);
+        }
+        
+        function resetCard(card) {
+            card.classList.remove('active');
+            card.style.transform = '';
+        }
+        
+        cards.forEach(card => {
+            // 避免重复绑定
+            if (card.hasAttribute('data-basic-effects')) return;
+            
+            card.setAttribute('data-basic-effects', 'true');
+            
+            // 添加基本点击效果
+            card.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // 激活卡片
+                activateCard(this);
+            });
+            
+            // 悬停效果
+            card.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('active')) {
+                    this.style.transform = 'translateY(-8px)';
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('active')) {
+                    this.style.transform = '';
+                }
+            });
+        });
+        
+        // 初始化全局点击监听
+        initGlobalClick();
+    }
+}
+
+// 初始化兼容性处理
+initAdaptiveCardEffectsCompatibility();
