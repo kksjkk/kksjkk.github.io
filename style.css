@@ -1,3 +1,5 @@
+[file name]: style.css
+[file content begin]
 /* ===== 重置和基础样式 ===== */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -412,14 +414,15 @@ progress::-webkit-progress-value {
 /* ===== 特性卡片 ===== */
 .features {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
     gap: 2rem;
     margin-top: 2rem;
+    width: 100%;
 }
 
 .feature-card {
     background: rgba(30, 35, 60, 0.7);
-    padding: 2.5rem 2rem;
+    padding: 1.5rem 1.25rem;
     border-radius: 12px;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -427,14 +430,17 @@ progress::-webkit-progress-value {
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(10px);
-    min-height: 280px;
+    min-height: 180px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    aspect-ratio: 16/9;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .feature-card:hover {
@@ -444,9 +450,10 @@ progress::-webkit-progress-value {
 }
 
 .card-icon {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
     transition: transform 0.3s ease;
+    flex-shrink: 0;
 }
 
 .feature-card:hover .card-icon {
@@ -455,13 +462,24 @@ progress::-webkit-progress-value {
 
 .feature-card h3 {
     color: #00f3ff;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.3rem;
+    line-height: 1.3;
+    text-align: center;
+    font-weight: 600;
+    flex-shrink: 0;
 }
 
 .feature-card p {
     color: #a0a0a0;
-    line-height: 1.6;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    max-width: 90%;
+    margin: 0 auto;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .card-glow {
@@ -470,7 +488,7 @@ progress::-webkit-progress-value {
     left: 0;
     width: 100%;
     height: 100%;
-    border-radius: 12px;
+    border-radius: inherit;
     background: radial-gradient(circle at center, rgba(0, 243, 255, 0.05) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -478,6 +496,200 @@ progress::-webkit-progress-value {
 
 .feature-card:hover .card-glow {
     opacity: 1;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .features {
+        grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+        gap: 1.5rem;
+    }
+    
+    .feature-card {
+        aspect-ratio: 4/3;
+        min-height: 160px;
+        padding: 1.25rem 1rem;
+    }
+    
+    .card-icon {
+        font-size: 2.2rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .features {
+        grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+        gap: 1.25rem;
+    }
+    
+    .feature-card {
+        aspect-ratio: 1; /* 正方形 */
+        min-height: 140px;
+        padding: 1.2rem 0.9rem;
+    }
+    
+    .card-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.4rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.85rem;
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .features {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        max-width: 320px;
+        margin: 2rem auto 0;
+    }
+    
+    .feature-card {
+        aspect-ratio: 16/9;
+        min-height: 120px;
+        padding: 1rem 0.8rem;
+    }
+    
+    .card-icon {
+        font-size: 1.8rem;
+        margin-bottom: 0.4rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+}
+
+/* 大屏幕优化 */
+@media (min-width: 1200px) {
+    .features {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+    
+    .feature-card {
+        aspect-ratio: 16/9;
+        min-height: 200px;
+        padding: 1.75rem 1.5rem;
+    }
+    
+    .card-icon {
+        font-size: 2.8rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.4rem;
+    }
+    
+    .feature-card p {
+        font-size: 1rem;
+    }
+}
+
+/* 超宽屏幕 */
+@media (min-width: 1600px) {
+    .features {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .feature-card {
+        aspect-ratio: 16/9;
+        min-height: 220px;
+        padding: 2rem 1.75rem;
+    }
+    
+    .card-icon {
+        font-size: 3rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.5rem;
+    }
+}
+
+/* 横向屏幕优化 */
+@media (orientation: landscape) and (max-height: 600px) {
+    .features {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .feature-card {
+        aspect-ratio: 4/3;
+        min-height: 140px;
+        padding: 1rem 0.8rem;
+    }
+    
+    .card-icon {
+        font-size: 1.6rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.75rem;
+        line-height: 1.3;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        display: -webkit-box;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+    .features {
+        max-width: 280px;
+    }
+    
+    .feature-card {
+        aspect-ratio: 3/2;
+        min-height: 110px;
+        padding: 0.9rem 0.7rem;
+    }
+    
+    .card-icon {
+        font-size: 1.6rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 0.95rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
 }
 
 /* ===== 下载按钮 ===== */
@@ -740,3 +952,86 @@ body.dark-mode .about-section {
     position: relative;
     z-index: 20;
 }
+/* 在文件末尾添加以下缺失的样式选择器 */
+.hidden-desktop {
+    display: none !important;
+}
+
+.visible-mobile {
+    display: flex !important;
+}
+
+.downloading {
+    opacity: 0.8 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+.download-complete {
+    animation: downloadPulse 0.6s ease !important;
+}
+
+@keyframes downloadPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* 菜单状态修复 */
+@media (max-width: 768px) {
+    .nav-toggle.hidden-desktop {
+        display: none !important;
+    }
+    
+    .nav-toggle.visible-mobile {
+        display: flex !important;
+    }
+}
+
+/* 确保特效元素的层叠顺序 */
+.click-particle,
+.ripple-ring,
+.scan-line,
+.matrix-char,
+.energy-wave,
+.sound-wave,
+.digital-fall,
+.light-pillar {
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* 修复进度条动画 */
+.progress-bar.hidden {
+    opacity: 0 !important;
+    transition: opacity 0.5s ease !important;
+}
+
+/* 确保页面加载状态 */
+body.loaded .scifi-heading,
+body.loaded .scifi-text,
+body.loaded .progress-container {
+    animation-play-state: running !important;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    .mobile-optimized .feature-card {
+        min-height: 240px !important;
+    }
+    
+    .mobile-optimized .click-particle {
+        display: none !important;
+    }
+}
+
+/* 性能模式 */
+.performance-mode .feature-card {
+    animation: none !important;
+}
+
+.reduced-motion * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+}
+[file content end]
