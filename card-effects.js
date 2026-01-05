@@ -1,46 +1,46 @@
-// 卡片点击特效系统
-class CardEffectsSystem {
+// 自适应旋转刷新卡片特效系统
+class AdaptiveRotateRefreshCardEffects {
     constructor() {
         this.cards = document.querySelectorAll('.feature-card');
-        this.soundEnabled = false;
-        this.performanceMode = window.innerWidth <= 768;
         this.isMobile = window.innerWidth <= 768;
-        this.activeEffects = new Set(); // 跟踪活动中的特效
-        this.audioContext = null;
-        this.initialized = false;
+        this.isTablet = window.innerWidth <= 1024 && window.innerWidth > 768;
+        this.activeCards = new Set();
+        this.cardStates = new Map();
+        this.resizeObserver = null;
+        
+        // 自适应配置
         this.config = {
-            particles: !this.isMobile,
-            ripples: true,
-            sounds: !this.isMobile,
-            matrixRain: !this.isMobile && window.innerWidth > 480,
-            maxParticles: this.isMobile ? 8 : 16,
-            animationQuality: this.isMobile ? 'medium' : 'high',
-            colors: {
-                primary: '#00f3ff',
-                secondary: '#9400d3',
-                matrix: '#00ff00'
-            }
+            enableRotation: true,
+            enableRefresh: true,
+            maxRotationAngle: this.getOptimalRotationAngle(),
+            rotationDuration: this.getOptimalDuration(),
+            refreshDuration: 1200,
+            autoAdjust: true
         };
         
         this.init();
     }
     
     init() {
-        if (this.initialized) return;
-        
-        try {
-            this.setupAudioContext();
-            this.setupCards();
-            this.setupPerformanceMode();
-            this.initialized = true;
-            console.log('卡片特效系统初始化完成');
-        } catch (error) {
-            console.error('卡片特效系统初始化失败:', error);
-            // 禁用所有特效
-            this.config.particles = false;
-            this.config.sounds = false;
-            this.config.matrixRain = false;
-        }
+        this.setupCards();
+        this.setupPerformanceMode();
+        this.setupResizeObserver();
+        this.setupViewportListener();
+        console.log('自适应旋转刷新卡片特效系统初始化完成');
+    }
+    
+    getOptimalRotationAngle() {
+        if (window.innerWidth <= 480) return 8;
+        if (window.innerWidth <= 768) return 10;
+        if (window.innerWidth <= 1024) return 12;
+        if (window.innerWidth <= 1440) return 14;
+        return 15; // 大屏幕
+    }
+    
+    getOptimalDuration() {
+        if (window.innerWidth <= 480) return 400;
+        if (window.innerWidth <= 768) return 500;
+        return 600; // 大屏幕
     }
     
     setupCards() {
@@ -50,553 +50,508 @@ class CardEffectsSystem {
         }
         
         this.cards.forEach((card, index) => {
-            // 添加唯一标识
             card.setAttribute('data-card-index', index);
+            card.setAttribute('data-card-id', `card-${index}`);
             
-            // 添加网格覆盖层
-            const gridOverlay = document.createElement('div');
-            gridOverlay.className = 'card-grid-overlay';
-            card.appendChild(gridOverlay);
+            this.cardStates.set(card, {
+                rotated: false,
+                clickCount: 0,
+                lastClickTime: 0
+            });
             
-            // 添加边框流光层
-            const borderFlow = document.createElement('div');
-            borderFlow.className = 'border-flow';
-            card.appendChild(borderFlow);
+            // 应用自适应CSS变量
+            this.applyAdaptiveStyles(card);
             
-            // 添加点击事件
-            this.addCardClickEvent(card);
+            // 包装卡片结构
+            this.wrapCardStructure(card, index);
             
-            // 触摸设备优化
-            this.addTouchEvents(card);
+            // 添加事件
+            this.addCardEvents(card);
         });
     }
     
-    addCardClickEvent(card) {
-        if (card.hasAttribute('data-click-initialized')) return;
+    applyAdaptiveStyles(card) {
+        // 设置自适应旋转角度
+        const rotationAngle = this.getOptimalRotationAngle();
+        card.style.setProperty('--rotation-angle', `${rotationAngle}deg`);
         
-        card.setAttribute('data-click-initialized', 'true');
+        // 设置自适应尺寸
+        const isLandscape = window.innerHeight < window.innerWidth;
+        const isSmallScreen = window.innerWidth <= 480;
         
-        card.addEventListener('click', (e) => {
-            // 防止重复点击
-            if (card.classList.contains('click-active')) return;
-            
-            const cardId = card.getAttribute('data-card-index');
-            if (this.activeEffects.has(cardId)) return;
-            
-            this.activeEffects.add(cardId);
-            this.handleCardClick(e, card);
-            
-            // 一段时间后允许再次点击
-            setTimeout(() => {
-                this.activeEffects.delete(cardId);
-            }, 800);
-        });
+        if (isLandscape && window.innerHeight < 600) {
+            card.style.setProperty('--icon-size', '30px');
+            card.style.setProperty('--font-size-title', '0.9rem');
+            card.style.setProperty('--font-size-text', '0.75rem');
+        } else if (isSmallScreen) {
+            card.style.setProperty('--icon-size', '40px');
+            card.style.setProperty('--font-size-title', '1rem');
+            card.style.setProperty('--font-size-text', '0.8rem');
+        } else {
+            card.style.setProperty('--icon-size', '60px');
+            card.style.setProperty('--font-size-title', '1.3rem');
+            card.style.setProperty('--font-size-text', '0.95rem');
+        }
     }
     
-    addTouchEvents(card) {
-        if (!('ontouchstart' in window)) return;
-        
-        card.addEventListener('touchstart', () => {
-            requestAnimationFrame(() => {
-                card.style.transform = 'scale(0.98)';
-            });
-        }, { passive: true });
-        
-        card.addEventListener('touchend', () => {
-            requestAnimationFrame(() => {
-                card.style.transform = '';
-            });
-        }, { passive: true });
-        
-        card.addEventListener('touchcancel', () => {
-            requestAnimationFrame(() => {
-                card.style.transform = '';
-            });
-        }, { passive: true });
-    }
-    
-    setupAudioContext() {
-        if (this.isMobile) {
-            this.soundEnabled = false;
+    wrapCardStructure(card, index) {
+        // 检查是否已经包装过
+        if (card.querySelector('.card-content')) {
             return;
         }
         
-        try {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            this.soundEnabled = true;
-            
-            // iOS需要用户交互后才能启动音频上下文
-            if (this.audioContext.state === 'suspended') {
-                const resumeAudio = () => {
-                    this.audioContext.resume().then(() => {
-                        console.log('音频上下文已恢复');
-                        document.removeEventListener('click', resumeAudio);
-                        document.removeEventListener('touchstart', resumeAudio);
-                    });
-                };
-                
-                document.addEventListener('click', resumeAudio, { once: true });
-                document.addEventListener('touchstart', resumeAudio, { once: true });
-            }
-        } catch (error) {
-            console.log('音频上下文不可用，禁用音效:', error);
-            this.soundEnabled = false;
-        }
-    }
-    
-    setupPerformanceMode() {
-        if (this.performanceMode) {
-            console.log('移动端性能模式启用，简化特效');
-            document.body.classList.add('mobile-optimized');
+        // 获取原始内容
+        const icon = card.querySelector('.card-icon');
+        const title = card.querySelector('h3');
+        const text = card.querySelector('p');
+        const glow = card.querySelector('.card-glow');
+        
+        if (!icon || !title || !text) return;
+        
+        // 保存原始内容
+        const originalIcon = icon.textContent || icon.innerHTML;
+        const originalTitle = title.textContent;
+        const originalText = text.textContent;
+        
+        // 清空卡片内容
+        card.innerHTML = '';
+        
+        // 创建刷新特效容器
+        const refreshContainer = document.createElement('div');
+        refreshContainer.className = 'card-refresh-container';
+        
+        // 添加刷新扫描线
+        const scanLine = document.createElement('div');
+        scanLine.className = 'refresh-scan-line';
+        refreshContainer.appendChild(scanLine);
+        
+        // 添加刷新网格
+        const refreshGrid = document.createElement('div');
+        refreshGrid.className = 'refresh-grid';
+        refreshContainer.appendChild(refreshGrid);
+        
+        // 添加边框辉光
+        const borderGlow = document.createElement('div');
+        borderGlow.className = 'card-border-glow';
+        refreshContainer.appendChild(borderGlow);
+        
+        // 添加渐变覆盖层
+        const gradientOverlay = document.createElement('div');
+        gradientOverlay.className = 'gradient-overlay';
+        refreshContainer.appendChild(gradientOverlay);
+        
+        // 创建卡片内容容器
+        const cardContent = document.createElement('div');
+        cardContent.className = 'card-content';
+        
+        // 创建图片容器
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'card-image-container';
+        
+        // 创建图标元素
+        const iconElement = document.createElement('div');
+        iconElement.className = 'card-icon';
+        iconElement.innerHTML = originalIcon;
+        imageContainer.appendChild(iconElement);
+        
+        // 创建标题
+        const titleElement = document.createElement('h3');
+        titleElement.textContent = originalTitle;
+        
+        // 创建文本
+        const textElement = document.createElement('p');
+        textElement.textContent = originalText;
+        
+        // 添加刷新计数器
+        const refreshCounter = document.createElement('div');
+        refreshCounter.className = 'refresh-counter';
+        refreshCounter.textContent = '0次';
+        
+        // 组装内容
+        cardContent.appendChild(imageContainer);
+        cardContent.appendChild(titleElement);
+        cardContent.appendChild(textElement);
+        
+        // 如果有辉光效果，添加到刷新容器
+        if (glow) {
+            refreshContainer.appendChild(glow);
         }
         
-        // 检测是否要求减少动画
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            console.log('用户偏好减少动画，禁用特效');
-            this.config.particles = false;
-            this.config.sounds = false;
-            this.config.matrixRain = false;
-            document.body.classList.add('reduced-motion');
+        // 添加到卡片
+        card.appendChild(refreshContainer);
+        card.appendChild(cardContent);
+        card.appendChild(refreshCounter);
+        
+        // 保存原始内容引用
+        card._originalContent = {
+            icon: originalIcon,
+            title: originalTitle,
+            text: originalText
+        };
+    }
+    
+    addCardEvents(card) {
+        if (card.hasAttribute('data-effects-initialized')) return;
+        
+        card.setAttribute('data-effects-initialized', 'true');
+        
+        // 点击事件
+        card.addEventListener('click', (e) => {
+            if (this.activeCards.has(card)) return;
+            
+            // 检查双击
+            const now = Date.now();
+            const cardState = this.cardStates.get(card);
+            const isDoubleClick = (now - cardState.lastClickTime) < 300;
+            
+            if (isDoubleClick) {
+                this.handleDoubleClick(card);
+                return;
+            }
+            
+            cardState.lastClickTime = now;
+            
+            this.activeCards.add(card);
+            this.handleCardClick(e, card);
+            
+            setTimeout(() => {
+                this.activeCards.delete(card);
+            }, this.config.refreshDuration);
+        });
+        
+        // 触摸设备优化
+        if ('ontouchstart' in window) {
+            card.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    card.style.transform = 'scale(0.98)';
+                }
+            }, { passive: true });
+            
+            card.addEventListener('touchend', () => {
+                card.style.transform = '';
+            }, { passive: true });
+            
+            // 防止长按菜单
+            card.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
         }
+        
+        // 悬停效果
+        card.addEventListener('mouseenter', () => {
+            if (!this.activeCards.has(card)) {
+                card.style.transform = 'translateY(-8px)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            if (!this.activeCards.has(card)) {
+                card.style.transform = '';
+            }
+        });
     }
     
     handleCardClick(e, card) {
-        // 标记为激活状态
-        card.classList.add('click-active');
+        const cardState = this.cardStates.get(card);
+        cardState.clickCount++;
         
-        // 计算点击位置
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        // 添加激活状态
+        card.classList.add('active');
         
-        // 批量执行特效
-        const effects = [
-            () => this.createRippleEffect(card, x, y),
-            () => this.createGridPulse(card),
-            () => this.createScanLine(card),
-            () => this.createTextEffect(card),
-            () => this.createIconEffect(card),
-            () => this.createLightPillar(card, x)
-        ];
-        
-        if (this.config.particles) {
-            effects.push(() => this.createParticleBurst(card, x, y));
-        }
-        
-        if (this.config.matrixRain) {
-            effects.push(() => this.createMatrixRain(card));
-        }
-        
-        if (!this.performanceMode) {
-            effects.push(
-                () => this.createEnergyWave(card, x, y),
-                () => this.createSoundWave(card, x, y),
-                () => this.createDigitalFall(card)
-            );
-        }
-        
-        // 激活边框流光
-        effects.push(() => this.activateBorderFlow(card));
-        
-        // 按顺序执行特效
-        effects.forEach((effect, index) => {
+        // 如果是旋转状态，先恢复
+        if (cardState.rotated) {
+            this.rotateBack(card);
+            
             setTimeout(() => {
-                try {
-                    effect();
-                } catch (error) {
-                    console.warn(`特效 ${index} 执行失败:`, error);
-                }
-            }, index * 30);
-        });
-        
-        // 播放音效
-        if (this.config.sounds && this.soundEnabled) {
-            setTimeout(() => {
-                this.playCyberSound(x, y);
-            }, 100);
+                this.rotateImage(card);
+                this.refreshCard(card);
+                this.updateCounter(card);
+            }, 400);
+        } else {
+            // 直接执行特效
+            if (this.config.enableRotation) {
+                this.rotateImage(card);
+            }
+            
+            if (this.config.enableRefresh) {
+                this.refreshCard(card);
+            }
+            
+            this.updateCounter(card);
         }
         
         // 移除激活状态
         setTimeout(() => {
-            card.classList.remove('click-active');
-        }, 800);
+            card.classList.remove('active');
+        }, this.config.refreshDuration);
     }
     
-    createParticleBurst(card, x, y) {
-        if (!this.config.particles || this.performanceMode) return;
+    handleDoubleClick(card) {
+        const cardState = this.cardStates.get(card);
         
-        const particleCount = Math.min(this.config.maxParticles, 16);
-        const particles = [];
+        // 重置点击计数
+        cardState.clickCount = 0;
         
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'click-particle';
-            
-            // 随机角度和距离
-            const angle = (Math.PI * 2 / particleCount) * i + (Math.random() * 0.5 - 0.25);
-            const distance = Math.random() * 60 + 30;
-            
-            // 随机大小和颜色
-            const size = Math.random() * 3 + 2;
-            const hue = 180 + Math.random() * 60; // 蓝绿色系
-            const lightness = 50 + Math.random() * 20;
-            
-            const tx = Math.cos(angle) * distance;
-            const ty = Math.sin(angle) * distance;
-            
-            particle.style.cssText = `
-                left: ${x}px;
-                top: ${y}px;
-                width: ${size}px;
-                height: ${size}px;
-                background: hsl(${hue}, 100%, ${lightness}%);
-                --tx: ${tx};
-                --ty: ${ty};
-                animation: particleBurst ${Math.random() * 300 + 400}ms ease-out forwards;
-                animation-delay: ${Math.random() * 100}ms;
-            `;
-            
-            card.appendChild(particle);
-            particles.push(particle);
+        // 强制恢复旋转
+        if (cardState.rotated) {
+            this.rotateBack(card);
+            cardState.rotated = false;
         }
         
-        // 自动清理
-        setTimeout(() => {
-            particles.forEach(particle => {
-                if (particle && particle.parentNode) {
-                    particle.remove();
-                }
-            });
-        }, 1000);
+        // 显示重置消息
+        this.showResetMessage(card);
+        
+        // 更新计数器
+        this.updateCounter(card);
     }
     
-    createRippleEffect(card, x, y) {
-        if (!this.config.ripples) return;
-        
-        const ripple = document.createElement('div');
-        ripple.className = 'ripple-ring';
-        ripple.style.cssText = `
-            left: ${x}px;
-            top: ${y}px;
-        `;
-        
-        card.appendChild(ripple);
-        setTimeout(() => {
-            if (ripple.parentNode) ripple.remove();
-        }, 1000);
-    }
-    
-    createGridPulse(card) {
-        const gridOverlay = card.querySelector('.card-grid-overlay');
-        if (!gridOverlay) return;
-        
-        gridOverlay.style.animation = 'gridPulse 1s ease-out forwards';
-        
-        setTimeout(() => {
-            gridOverlay.style.animation = '';
-        }, 1000);
-    }
-    
-    createScanLine(card) {
-        const scanLine = document.createElement('div');
-        scanLine.className = 'scan-line';
-        scanLine.style.cssText = `
-            top: ${Math.random() * 80 + 10}%;
-            animation: scanLine 0.6s ease-out forwards;
-        `;
-        
-        card.appendChild(scanLine);
-        setTimeout(() => {
-            if (scanLine.parentNode) scanLine.remove();
-        }, 1000);
-    }
-    
-    createTextEffect(card) {
-        const title = card.querySelector('h3');
-        const text = card.querySelector('p');
-        
-        if (title) {
-            const originalText = title.textContent;
-            const chars = originalText.split('');
+    showResetMessage(card) {
+        const counter = card.querySelector('.refresh-counter');
+        if (counter) {
+            const originalText = counter.textContent;
+            counter.textContent = '已重置';
+            counter.style.color = '#4CAF50';
+            counter.style.fontWeight = 'bold';
             
-            // 保存原始HTML
-            const originalHTML = title.innerHTML;
-            
-            // 清空并添加动画字符
-            title.innerHTML = '';
-            chars.forEach((char, index) => {
-                const span = document.createElement('span');
-                span.className = 'card-text-char';
-                span.textContent = char === ' ' ? '\u00A0' : char;
-                span.style.animationDelay = `${index * 0.05}s`;
-                title.appendChild(span);
-            });
-            
-            // 恢复原始文本
             setTimeout(() => {
-                title.innerHTML = originalHTML;
-            }, 1000);
-        }
-        
-        if (text) {
-            text.style.animation = 'textDeconstruct 0.8s ease';
-            setTimeout(() => {
-                text.style.animation = '';
-            }, 800);
-        }
-    }
-    
-    createIconEffect(card) {
-        const icon = card.querySelector('.card-icon');
-        if (icon) {
-            icon.classList.add('hologram');
-            setTimeout(() => {
-                icon.classList.remove('hologram');
+                counter.textContent = originalText;
+                counter.style.color = '';
+                counter.style.fontWeight = '';
             }, 1000);
         }
     }
     
-    createMatrixRain(card) {
-        if (!this.config.matrixRain || this.performanceMode) return;
+    rotateImage(card) {
+        const cardState = this.cardStates.get(card);
+        const imageContainer = card.querySelector('.card-image-container');
         
-        const chars = '01アあぁｱｧABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const count = Math.floor(Math.random() * 4) + 2;
-        const matrixChars = [];
+        if (!imageContainer) return;
         
-        for (let i = 0; i < count; i++) {
-            const matrixChar = document.createElement('div');
-            matrixChar.className = 'matrix-char';
-            matrixChar.textContent = chars[Math.floor(Math.random() * chars.length)];
-            
-            const duration = Math.random() * 800 + 400;
-            matrixChar.style.cssText = `
-                left: ${Math.random() * 85 + 7.5}%;
-                top: ${Math.random() * 85 + 7.5}%;
-                animation: matrixRain ${duration}ms ease-out forwards;
-                animation-delay: ${i * 80}ms;
-            `;
-            
-            card.appendChild(matrixChar);
-            matrixChars.push(matrixChar);
-            
+        // 移除之前的旋转类
+        card.classList.remove('rotating-back');
+        
+        // 添加旋转效果
+        card.classList.add('rotated');
+        cardState.rotated = true;
+    }
+    
+    rotateBack(card) {
+        const cardState = this.cardStates.get(card);
+        card.classList.remove('rotated');
+        card.classList.add('rotating-back');
+        cardState.rotated = false;
+        
+        setTimeout(() => {
+            card.classList.remove('rotating-back');
+        }, 400);
+    }
+    
+    refreshCard(card) {
+        // 触发扫描线动画
+        const scanLine = card.querySelector('.refresh-scan-line');
+        if (scanLine) {
+            scanLine.style.animation = 'none';
             setTimeout(() => {
-                if (matrixChar.parentNode) matrixChar.remove();
-            }, duration);
+                scanLine.style.animation = `refreshScan ${this.config.refreshDuration}ms ease-out forwards`;
+            }, 10);
+        }
+        
+        // 触发网格动画
+        const refreshGrid = card.querySelector('.refresh-grid');
+        if (refreshGrid) {
+            refreshGrid.style.animation = 'none';
+            setTimeout(() => {
+                refreshGrid.style.animation = `gridFlash ${this.config.refreshDuration}ms ease-out`;
+            }, 10);
+        }
+        
+        // 添加内容刷新效果
+        const cardContent = card.querySelector('.card-content');
+        if (cardContent) {
+            cardContent.style.animation = 'none';
+            setTimeout(() => {
+                cardContent.style.animation = `contentRefresh ${this.config.refreshDuration}ms ease-out`;
+            }, 10);
         }
     }
     
-    createEnergyWave(card, x, y) {
-        if (this.performanceMode) return;
+    updateCounter(card) {
+        const cardState = this.cardStates.get(card);
+        const counter = card.querySelector('.refresh-counter');
         
-        const wave = document.createElement('div');
-        wave.className = 'energy-wave';
-        wave.style.cssText = `
-            left: ${x}px;
-            top: ${y}px;
-            animation: energyWave 1s ease-out forwards;
-        `;
-        
-        card.appendChild(wave);
-        setTimeout(() => {
-            if (wave.parentNode) wave.remove();
-        }, 1000);
-    }
-    
-    createSoundWave(card, x, y) {
-        if (this.performanceMode || !this.config.sounds) return;
-        
-        const waveCount = 2;
-        const waves = [];
-        
-        for (let i = 0; i < waveCount; i++) {
-            const soundWave = document.createElement('div');
-            soundWave.className = 'sound-wave';
-            
-            const delay = i * 150;
-            soundWave.style.cssText = `
-                left: ${x - 50}px;
-                top: ${y - 50}px;
-                animation: soundWave 1s ease-out forwards ${delay}ms;
-            `;
-            
-            card.appendChild(soundWave);
-            waves.push(soundWave);
+        if (counter) {
+            // 显示计数
+            counter.textContent = `${cardState.clickCount}次`;
+            counter.style.animation = 'none';
             
             setTimeout(() => {
-                if (soundWave.parentNode) soundWave.remove();
-            }, 1000 + delay);
-        }
-    }
-    
-    createDigitalFall(card) {
-        if (this.performanceMode) return;
-        
-        const numbers = ['1010', '0101', '1100', '0011', '1001', '0110'];
-        const count = Math.floor(Math.random() * 2) + 1;
-        const digitals = [];
-        
-        for (let i = 0; i < count; i++) {
-            const digital = document.createElement('div');
-            digital.className = 'digital-fall';
-            digital.textContent = numbers[Math.floor(Math.random() * numbers.length)];
+                counter.style.animation = `countUp 0.5s ease-out 0.3s forwards`;
+                counter.style.opacity = '1';
+            }, 10);
             
-            const duration = Math.random() * 600 + 300;
-            digital.style.cssText = `
-                left: ${Math.random() * 75 + 12.5}%;
-                animation: digitalFall ${duration}ms ease-out forwards;
-                animation-delay: ${i * 120}ms;
-            `;
-            
-            card.appendChild(digital);
-            digitals.push(digital);
-            
+            // 5秒后逐渐隐藏
             setTimeout(() => {
-                if (digital.parentNode) digital.remove();
-            }, duration);
-        }
-    }
-    
-    createLightPillar(card, x) {
-        const pillar = document.createElement('div');
-        pillar.className = 'light-pillar';
-        
-        const duration = Math.random() * 500 + 300;
-        pillar.style.cssText = `
-            left: ${x}px;
-            animation: lightPillar ${duration}ms ease-out forwards;
-        `;
-        
-        card.appendChild(pillar);
-        setTimeout(() => {
-            if (pillar.parentNode) pillar.remove();
-        }, duration);
-    }
-    
-    activateBorderFlow(card) {
-        const borderFlow = card.querySelector('.border-flow');
-        if (!borderFlow) return;
-        
-        borderFlow.style.opacity = '1';
-        borderFlow.style.animation = 'borderFlow 1s ease-out forwards';
-        
-        setTimeout(() => {
-            borderFlow.style.opacity = '0';
-            borderFlow.style.animation = '';
-        }, 1000);
-    }
-    
-    playCyberSound(x, y) {
-        if (!this.soundEnabled || !this.audioContext || this.audioContext.state !== 'running') return;
-        
-        try {
-            // 创建振荡器
-            const oscillator = this.audioContext.createOscillator();
-            const gainNode = this.audioContext.createGain();
-            
-            // 连接节点
-            oscillator.connect(gainNode);
-            gainNode.connect(this.audioContext.destination);
-            
-            // 设置音调（根据点击位置变化）
-            const baseFreq = 300 + (x / window.innerWidth) * 400;
-            const endFreq = 150 + (y / window.innerHeight) * 200;
-            
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(baseFreq, this.audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(endFreq, this.audioContext.currentTime + 0.2);
-            
-            // 设置音量包络
-            gainNode.gain.setValueAtTime(0.08, this.audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.4);
-            
-            // 播放声音
-            oscillator.start();
-            oscillator.stop(this.audioContext.currentTime + 0.4);
-            
-            // 清理
-            setTimeout(() => {
-                try {
-                    oscillator.disconnect();
-                    gainNode.disconnect();
-                } catch (e) {
-                    // 忽略清理错误
+                if (counter) {
+                    counter.style.transition = 'opacity 1s ease';
+                    counter.style.opacity = '0.3';
                 }
-            }, 500);
-        } catch (error) {
-            console.log('音效播放失败:', error);
-            this.soundEnabled = false;
+            }, 5000);
         }
     }
     
-    // 清理所有特效
+    setupPerformanceMode() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            console.log('用户偏好减少动画，禁用特效');
+            this.config.enableRotation = false;
+            this.config.enableRefresh = false;
+            document.body.classList.add('reduced-motion');
+        }
+        
+        // 根据设备性能调整
+        if (this.isMobile && 'hardwareConcurrency' in navigator) {
+            const cores = navigator.hardwareConcurrency;
+            if (cores < 4) {
+                this.config.autoAdjust = false;
+                this.config.maxRotationAngle = 8;
+                this.config.rotationDuration = 300;
+            }
+        }
+    }
+    
+    setupResizeObserver() {
+        if ('ResizeObserver' in window) {
+            this.resizeObserver = new ResizeObserver((entries) => {
+                entries.forEach(entry => {
+                    const card = entry.target;
+                    if (card.classList.contains('feature-card')) {
+                        this.applyAdaptiveStyles(card);
+                    }
+                });
+            });
+            
+            this.cards.forEach(card => {
+                this.resizeObserver.observe(card);
+            });
+        }
+    }
+    
+    setupViewportListener() {
+        window.addEventListener('resize', () => {
+            // 更新配置
+            this.config.maxRotationAngle = this.getOptimalRotationAngle();
+            this.config.rotationDuration = this.getOptimalDuration();
+            
+            // 更新所有卡片的CSS变量
+            this.cards.forEach(card => {
+                this.applyAdaptiveStyles(card);
+            });
+        });
+    }
+    
+    // 清理方法
     cleanup() {
-        this.activeEffects.clear();
-        
-        if (this.audioContext && this.audioContext.state !== 'closed') {
-            try {
-                this.audioContext.close();
-            } catch (error) {
-                console.log('音频上下文关闭失败:', error);
+        this.activeCards.clear();
+        this.cards.forEach(card => {
+            card.classList.remove('active', 'rotated', 'rotating-back');
+            
+            // 重置旋转
+            const imageContainer = card.querySelector('.card-image-container');
+            if (imageContainer) {
+                imageContainer.style.transform = 'rotate(0deg) scale(1)';
             }
+            
+            // 隐藏计数器
+            const counter = card.querySelector('.refresh-counter');
+            if (counter) {
+                counter.style.opacity = '0';
+            }
+        });
+        
+        // 清理ResizeObserver
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
         }
+    }
+    
+    // 手动触发卡片刷新
+    triggerCardRefresh(cardIndex) {
+        if (cardIndex >= 0 && cardIndex < this.cards.length) {
+            const card = this.cards[cardIndex];
+            this.handleCardClick({ clientX: 0, clientY: 0 }, card);
+        }
+    }
+    
+    // 获取卡片状态
+    getCardState(cardIndex) {
+        if (cardIndex >= 0 && cardIndex < this.cards.length) {
+            const card = this.cards[cardIndex];
+            return this.cardStates.get(card);
+        }
+        return null;
     }
 }
 
-// 初始化卡片特效系统
-let cardEffectsSystem = null;
+// 初始化自适应旋转刷新卡片特效系统
+let adaptiveRotateRefreshCardEffects = null;
 
-function initCardEffects() {
+function initAdaptiveRotateRefreshCardEffects() {
     try {
-        // 检查是否支持必要特性
-        if (!document.querySelectorAll || !window.requestAnimationFrame) {
-            console.log('浏览器不支持必要特性，禁用卡片特效');
-            return;
-        }
+        if (!document.querySelectorAll) return;
         
-        // 等待DOM完全加载
+        const init = () => {
+            adaptiveRotateRefreshCardEffects = new AdaptiveRotateRefreshCardEffects();
+        };
+        
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                cardEffectsSystem = new CardEffectsSystem();
-            });
+            document.addEventListener('DOMContentLoaded', init);
         } else {
-            cardEffectsSystem = new CardEffectsSystem();
+            init();
         }
         
-        // 页面卸载时清理
         window.addEventListener('beforeunload', () => {
-            if (cardEffectsSystem) {
-                cardEffectsSystem.cleanup();
+            if (adaptiveRotateRefreshCardEffects) {
+                adaptiveRotateRefreshCardEffects.cleanup();
             }
         });
     } catch (error) {
-        console.error('卡片特效初始化失败:', error);
+        console.error('自适应旋转刷新卡片特效初始化失败:', error);
     }
 }
 
-// 开始初始化
-initCardEffects();
+// 导出配置和API
+const ADAPTIVE_ROTATE_REFRESH_CONFIG = {
+    enableRotation: true,
+    enableRefresh: true,
+    autoAdjust: true
+};
 
-// 性能监控（可选）
-if ('performance' in window && window.PerformanceObserver) {
-    try {
-        const perfObserver = new PerformanceObserver((list) => {
-            for (const entry of list.getEntries()) {
-                if (entry.name.includes('Animation')) {
-                    console.log(`动画性能: ${entry.duration.toFixed(2)}ms`);
-                }
-            }
-        });
-        
-        perfObserver.observe({ entryTypes: ['animation'] });
-    } catch (error) {
-        console.log('性能监控不可用:', error);
+// 自动初始化
+initAdaptiveRotateRefreshCardEffects();
+
+// 提供手动控制方法
+window.AdaptiveCardEffects = {
+    init: initAdaptiveRotateRefreshCardEffects,
+    config: ADAPTIVE_ROTATE_REFRESH_CONFIG,
+    getInstance: () => adaptiveRotateRefreshCardEffects,
+    triggerRefresh: function(cardIndex) {
+        if (adaptiveRotateRefreshCardEffects) {
+            adaptiveRotateRefreshCardEffects.triggerCardRefresh(cardIndex);
+        }
+    },
+    resetAll: function() {
+        if (adaptiveRotateRefreshCardEffects) {
+            adaptiveRotateRefreshCardEffects.cleanup();
+        }
+    },
+    updateConfig: function(newConfig) {
+        if (adaptiveRotateRefreshCardEffects) {
+            Object.assign(adaptiveRotateRefreshCardEffects.config, newConfig);
+        }
+    },
+    getCardState: function(cardIndex) {
+        if (adaptiveRotateRefreshCardEffects) {
+            return adaptiveRotateRefreshCardEffects.getCardState(cardIndex);
+        }
+        return null;
     }
-}
-
-// 导出配置（如果需要）
-const CARD_EFFECTS_CONFIG = {
-    particles: true,
-    ripples: true,
-    sounds: true,
-    matrixRain: true
 };
