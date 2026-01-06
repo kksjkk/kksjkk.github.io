@@ -1,5 +1,4 @@
 // 高级性能优化层（兼容性修复版） - 修复版
-// 添加手表端优化支持
 (function() {
     'use strict';
     
@@ -10,13 +9,6 @@
     const isVia = /ViaBrowser/i.test(navigator.userAgent);
     const isBaidu = /baidubrowser|BIDUBrowser/i.test(navigator.userAgent);
     const isSogou = /SogouMobileBrowser/i.test(navigator.userAgent);
-    
-    // === 手表端检测 ===
-    const isWatch = 
-        (window.innerWidth <= 400 && window.innerHeight <= 600) ||
-        (window.innerWidth <= 600 && window.innerHeight <= 400) ||
-        /Watch|Wearable|Wrist/i.test(navigator.userAgent);
-    // === 手表端检测结束 ===
     
     // 事件管理器 - 防止重复绑定
     class EventManager {
@@ -141,12 +133,6 @@
     let mouseMoveHandler = null;
     
     function initParticleSystem() {
-        // 手表端禁用粒子系统
-        if (isWatch) {
-            console.log('手表端禁用粒子系统');
-            return;
-        }
-        
         // 只在支持transform的浏览器中启用粒子
         if (typeof document.body.style.transform === 'undefined' && 
             typeof document.body.style.webkitTransform === 'undefined') {
@@ -331,66 +317,6 @@
         }
     }
 
-    // === 手表端优化函数 ===
-    function optimizeForWatch() {
-        console.log('检测到手表设备，启用优化模式');
-        
-        // 禁用所有粒子效果
-        const particles = document.querySelector('.floating-particles');
-        if (particles) {
-            particles.style.display = 'none';
-        }
-        
-        // 禁用网格动画
-        const gridLines = document.querySelector('.grid-lines');
-        if (gridLines) {
-            gridLines.style.animation = 'none';
-        }
-        
-        // 添加性能优化类
-        document.body.classList.add('performance-mode', 'reduced-motion', 'watch-mode');
-        
-        // 减少动画复杂度
-        const allElements = document.querySelectorAll('*');
-        allElements.forEach(el => {
-            if (el.style.animation) {
-                el.style.animation = 'none';
-            }
-            if (el.style.transition) {
-                el.style.transition = 'none';
-            }
-        });
-        
-        // 优化图片加载
-        const images = document.querySelectorAll('img');
-        images.forEach(img => {
-            if (img.classList.contains('lazy-load')) {
-                // 直接加载关键图片
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy-load');
-                }
-            }
-        });
-        
-        // 简化事件处理
-        document.addEventListener('touchstart', function(e) {
-            // 阻止多点触控
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-        
-        // 优化滚动性能
-        document.addEventListener('scroll', function() {
-            // 简化滚动处理
-        }, { passive: true });
-        
-        // 添加手表端样式类
-        document.documentElement.classList.add('watch-device');
-    }
-    // === 手表端优化函数结束 ===
-
     // 初始化所有功能
     function initAll() {
         console.log('初始化性能优化层...');
@@ -400,13 +326,6 @@
             console.log('主脚本已初始化，优化层跳过重复功能');
             return;
         }
-        
-        // === 手表端特殊处理 ===
-        if (isWatch) {
-            optimizeForWatch();
-            return;
-        }
-        // === 手表端处理结束 ===
         
         // 初始化基础功能
         initPerformanceMonitoring();
