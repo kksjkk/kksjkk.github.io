@@ -1,18 +1,10 @@
 /**
  * 自适应卡片特效系统 - 无计数器版本
  * 增加点击其他地方恢复角度功能
- * 添加手表端支持
  */
 
 (function() {
     'use strict';
-    
-    // === 手表端检测 ===
-    const isWatchDevice = 
-        (window.innerWidth <= 400 && window.innerHeight <= 600) ||
-        (window.innerWidth <= 600 && window.innerHeight <= 400) ||
-        navigator.userAgent.match(/Watch|Wearable|Wrist/i);
-    // === 手表端检测结束 ===
     
     // 全局变量
     let activeCard = null;
@@ -60,70 +52,12 @@
         card.setAttribute('data-card-initialized', 'true');
         card.setAttribute('data-card-index', index);
         
-        // === 手表端简化处理 ===
-        if (isWatchDevice) {
-            setupWatchCardEvents(card);
-            return;
-        }
-        // === 手表端处理结束 ===
-        
         // 包装卡片结构
         wrapCardStructure(card);
         
         // 添加事件监听器
         setupCardEvents(card);
     }
-    
-    // === 手表端卡片事件处理 ===
-    function setupWatchCardEvents(card) {
-        let lastTapTime = 0;
-        let tapTimeout = null;
-        
-        // 简化点击事件 - 只使用单击
-        card.addEventListener('click', function(e) {
-            e.stopPropagation();
-            
-            const now = Date.now();
-            
-            // 防抖处理
-            if (now - lastTapTime < 500) {
-                return;
-            }
-            lastTapTime = now;
-            
-            // 清除之前的超时
-            if (tapTimeout) clearTimeout(tapTimeout);
-            
-            // 如果已经有激活的卡片，先恢复它
-            if (activeCard && activeCard !== this) {
-                resetWatchCard(activeCard);
-            }
-            
-            // 激活当前卡片
-            this.classList.add('active');
-            activeCard = this;
-            
-            // 自动恢复
-            tapTimeout = setTimeout(() => {
-                this.classList.remove('active');
-            }, 1000);
-        });
-        
-        // 手表端不使用悬停效果
-        card.style.cursor = 'default';
-    }
-    
-    function resetWatchCard(card) {
-        if (!card) return;
-        card.classList.remove('active');
-        card.style.transform = '';
-        
-        // 如果这是当前激活的卡片，清空引用
-        if (activeCard === card) {
-            activeCard = null;
-        }
-    }
-    // === 手表端事件处理结束 ===
     
     function wrapCardStructure(card) {
         // 检查是否已经包装过
@@ -283,28 +217,17 @@
             document.removeEventListener('click', clickOutsideHandler);
         }
         
-        // === 手表端使用简化的点击处理 ===
-        if (isWatchDevice) {
-            clickOutsideHandler = function(event) {
-                const clickedCard = event.target.closest('.feature-card');
-                
-                if (activeCard && !clickedCard) {
-                    activeCard.classList.remove('active');
-                    activeCard = null;
-                }
-            };
-        } else {
-            // 正常设备的点击处理
-            clickOutsideHandler = function(event) {
-                const clickedCard = event.target.closest('.feature-card');
-                
-                if (activeCard && !clickedCard) {
-                    resetCard(activeCard);
-                    activeCard = null;
-                }
-            };
-        }
-        // === 手表端点击处理结束 ===
+        // 创建新的全局点击监听器
+        clickOutsideHandler = function(event) {
+            // 检查点击的是否是卡片
+            const clickedCard = event.target.closest('.feature-card');
+            
+            // 如果有激活的卡片且点击的不是卡片
+            if (activeCard && !clickedCard) {
+                resetCard(activeCard);
+                activeCard = null;
+            }
+        };
         
         // 添加全局点击监听
         document.addEventListener('click', clickOutsideHandler);
@@ -351,11 +274,7 @@
     window.AdaptiveCardEffects = window.AdaptiveCardEffects || {
         resetActiveCard: function() {
             if (activeCard) {
-                if (isWatchDevice) {
-                    resetWatchCard(activeCard);
-                } else {
-                    resetCard(activeCard);
-                }
+                resetCard(activeCard);
                 activeCard = null;
             }
         },
@@ -364,11 +283,7 @@
         },
         resetAllCards: function() {
             document.querySelectorAll('.feature-card').forEach(card => {
-                if (isWatchDevice) {
-                    resetWatchCard(card);
-                } else {
-                    resetCard(card);
-                }
+                resetCard(card);
             });
             activeCard = null;
         }
