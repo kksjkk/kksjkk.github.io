@@ -2,6 +2,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('script.js: DOM加载完成');
     
+    // 标记主脚本已初始化
+    document.body.setAttribute('data-main-script-initialized', 'true');
+    
     // 使用RAF优化所有动画
     let lastTime = 0;
     const vendors = ['ms', 'moz', 'webkit', 'o'];
