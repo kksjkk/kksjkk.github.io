@@ -1,5 +1,3 @@
-[file name]: style.css
-[file content begin]
 /* ===== 重置和基础样式 ===== */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -1034,4 +1032,3 @@ body.loaded .progress-container {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
 }
-[file content end]
