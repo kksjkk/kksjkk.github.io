@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>System_VM_D62E官方网站</title>
     
     <!-- 针对不同浏览器的优化 -->
@@ -14,6 +14,10 @@
     <!-- 针对Android -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a0a1a">
+    
+    <!-- 针对智能手表 -->
+    <meta name="apple-mobile-web-app-title" content="SystemVM">
+    <meta name="application-name" content="SystemVM">
     
     <!-- 针对百度浏览器 -->
     <meta name="baidu-site-verification" content="codeva-RxYVGyqgJc">
@@ -34,6 +38,9 @@
     <link rel="preload" href="script.js" as="script">
     <link rel="preload" href="performance.js" as="script">
     <link rel="preload" href="adaptive-card-system.js" as="script">
+    
+    <!-- PWA manifest (手表端支持) -->
+    <link rel="manifest" href="manifest.json">
     
     <!-- 样式文件 -->
     <link rel="stylesheet" href="style.css">
@@ -129,10 +136,50 @@
             0%, 100% { opacity: 0; transform: translateY(10px); }
             20%, 80% { opacity: 0.8; transform: translateY(0); }
         }
+        
+        /* 手表端基础样式优化 */
+        @media (max-width: 400px) and (max-height: 600px) {
+            .click-outside-hint {
+                bottom: 60px !important;
+                right: 10px !important;
+                left: 10px !important;
+                width: auto !important;
+                font-size: 0.7rem !important;
+                padding: 6px 8px !important;
+            }
+            
+            .watch-hint {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                background: rgba(0, 243, 255, 0.1);
+                border: 1px solid rgba(0, 243, 255, 0.3);
+                color: #00f3ff;
+                padding: 6px 8px;
+                border-radius: 8px;
+                font-size: 0.7rem;
+                text-align: center;
+                z-index: 10000;
+                backdrop-filter: blur(5px);
+                animation: watchPulse 2s infinite;
+                display: none;
+            }
+            
+            @keyframes watchPulse {
+                0%, 100% { opacity: 0.5; }
+                50% { opacity: 0.8; }
+            }
+        }
     </style>
 </head>
 
 <body data-main-script-initialized="false">
+    <!-- 手表端提示 -->
+    <div class="watch-hint" id="watch-hint">
+        💡 手表优化模式已启用
+    </div>
+    
     <!-- 科幻背景效果 -->
     <div class="scifi-bg">
         <div class="grid-lines"></div>
@@ -149,7 +196,8 @@
     <div class="click-outside-hint" id="click-hint">
         正在缓冲中...
     </div>
-        <!-- 头部导航 -->
+    
+    <!-- 头部导航 -->
     <header>
         <div class="header-container">
             <h1 class="scifi-title">System_VM_D62E</h1>
@@ -259,7 +307,7 @@
             <p class="scifi-text">&copy; 2025 System_VM_D62E 版权所有</p>
             <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
             <p class="scifi-text" style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">
-                本站已优化支持：Chrome、Firefox、Safari、Edge、百度浏览器、Via浏览器、夸克浏览器
+                本站已优化支持：Chrome、Firefox、Safari、Edge、百度浏览器、Via浏览器、夸克浏览器、智能手表
             </p>
         </div>
     </footer>
@@ -280,6 +328,25 @@
         (function() {
             // 立即设置加载状态
             document.body.setAttribute('data-page-loaded', 'false');
+            
+            // 手表端检测
+            const isWatchDevice = 
+                (window.innerWidth <= 400 && window.innerHeight <= 600) ||
+                (window.innerWidth <= 600 && window.innerHeight <= 400) ||
+                navigator.userAgent.match(/Watch|Wearable|Wrist/i);
+            
+            // 手表端提示
+            if (isWatchDevice) {
+                setTimeout(function() {
+                    const watchHint = document.getElementById('watch-hint');
+                    if (watchHint) {
+                        watchHint.style.display = 'block';
+                        setTimeout(function() {
+                            watchHint.style.display = 'none';
+                        }, 3000);
+                    }
+                }, 1000);
+            }
             
             // 页面完全加载后
             window.addEventListener('load', function() {
@@ -331,6 +398,11 @@
                 // 检测低性能设备
                 if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
                     html.classList.add('low-performance');
+                }
+                
+                // 检测手表设备
+                if (isWatchDevice) {
+                    html.classList.add('watch-device');
                 }
             }
             
