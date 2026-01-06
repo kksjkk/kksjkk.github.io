@@ -34,18 +34,11 @@
     <!-- 预加载关键资源 -->
     <link rel="preload" href="style.css" as="style">
     <link rel="preload" href="optimization.css" as="style">
-    <link rel="preload" href="adaptive-card-styles.css" as="style">
     <link rel="preload" href="script.js" as="script">
-    <link rel="preload" href="performance.js" as="script">
-    <link rel="preload" href="adaptive-card-system.js" as="script">
-    
-    <!-- PWA manifest (手表端支持) -->
-    <link rel="manifest" href="manifest.json">
     
     <!-- 样式文件 -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="optimization.css">
-    <link rel="stylesheet" href="adaptive-card-styles.css">
     
     <!-- 针对旧浏览器的回退样式 -->
     <style>
@@ -74,47 +67,7 @@
             }
         }
         
-        /* 性能回退样式 */
-        .performance-mode .feature-card {
-            animation: none !important;
-        }
-        
-        /* 加载状态占位符 */
-        .logo.lazy-load {
-            background: linear-gradient(90deg, #0a0a1a 0%, #1a1a2e 50%, #0a0a1a 100%);
-            background-size: 200% 100%;
-            animation: loadingShimmer 1.5s infinite linear;
-        }
-        
-        @keyframes loadingShimmer {
-            0% {
-                background-position: -200% 0;
-            }
-            100% {
-                background-position: 200% 0;
-            }
-        }
-        
-        /* 卡片恢复动画优化 */
-        .feature-card.rotating-back {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-        }
-        
-        .feature-card.rotating-back:hover {
-            transform: none !important;
-            animation: none !important;
-        }
-        
-        .feature-card.rotating-back:hover .card-icon {
-            animation: none !important;
-        }
-        
-        .feature-card.rotating-back:hover .card-border-glow,
-        .feature-card.rotating-back:hover .gradient-overlay {
-            opacity: 0 !important;
-        }
-        
-        /* 全局点击恢复功能提示 */
+        /* 全局提示 */
         .click-outside-hint {
             position: fixed;
             bottom: 20px;
@@ -147,36 +100,34 @@
                 font-size: 0.7rem !important;
                 padding: 6px 8px !important;
             }
-            
-            .watch-hint {
-                position: fixed;
-                top: 10px;
-                left: 10px;
-                right: 10px;
-                background: rgba(0, 243, 255, 0.1);
-                border: 1px solid rgba(0, 243, 255, 0.3);
-                color: #00f3ff;
-                padding: 6px 8px;
-                border-radius: 8px;
-                font-size: 0.7rem;
-                text-align: center;
-                z-index: 10000;
-                backdrop-filter: blur(5px);
-                animation: watchPulse 2s infinite;
-                display: none;
-            }
-            
-            @keyframes watchPulse {
-                0%, 100% { opacity: 0.5; }
-                50% { opacity: 0.8; }
-            }
+        }
+        
+        /* 页面加载完成状态 */
+        body.loaded {
+            opacity: 1 !important;
+        }
+        
+        /* 确保内容可见 */
+        main {
+            opacity: 1 !important;
+        }
+        
+        /* 简化卡片特效 */
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+        }
+        
+        .feature-card.active {
+            transform: translateY(-8px) !important;
+            box-shadow: 0 15px 30px rgba(0, 212, 255, 0.2) !important;
+            border-color: rgba(0, 243, 255, 0.4) !important;
         }
     </style>
 </head>
 
-<body data-main-script-initialized="false">
+<body>
     <!-- 手表端提示 -->
-    <div class="watch-hint" id="watch-hint">
+    <div class="watch-hint" id="watch-hint" style="display: none;">
         💡 手表优化模式已启用
     </div>
     
@@ -210,7 +161,7 @@
                 <ul class="nav-menu" id="nav-menu">
                     <li><a href="#about" class="scifi-link">关于UP</a></li>
                     <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" rel="noopener" class="scifi-link">作者信息</a></li>
-                    <li><button class="scifi-button download-btn-main" id="download-btn" data-download-initialized="true">
+                    <li><button class="scifi-button download-btn-main" id="download-btn">
                         下载APP
                     </button></li>
                     <li><button id="theme-toggle" class="theme-btn scifi-button">🌓 暗色模式</button></li>
@@ -227,10 +178,9 @@
                 <!-- Logo区域 -->
                 <div class="logo-container">
                     <div class="logo-glow"></div>
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iIzBhMGEyMiIvPjwvc3ZnPg==" 
-                         data-src="https://pics1.baidu.com/feed/79f0f736afc37931e6c973ea8baf5a4f41a911c2@f_auto?token=666eac13d2aab8d4d632662a0a40ca03&f=png" 
+                    <img src="https://via.placeholder.com/150/0a0a22/ffffff?text=System_VM" 
                          alt="System_VM_D62E Logo" 
-                         class="logo lazy-load"
+                         class="logo"
                          width="150"
                          height="150">
                 </div>
@@ -243,16 +193,15 @@
                 <div class="progress-container">
                     <label for="system-progress" class="scifi-label">系统加载进度:</label>
                     <div class="progress-wrapper">
-                        <progress id="system-progress" value="75" max="100" aria-label="系统加载进度">75%</progress>
+                        <progress id="system-progress" max="100" aria-label="系统加载进度"></progress>
                         <div class="progress-glow"></div>
                     </div>
-                    <span class="progress-text">75%</span>
+                    <span class="progress-text" id="progress-text">0%</span>
                 </div>
                 
                 <!-- 主下载按钮 -->
                 <button class="scifi-button download-btn-large hero-download-btn" 
                         id="hero-download-btn"
-                        data-download-initialized="true"
                         aria-label="下载 Android 版本应用">
                     <span class="btn-icon">📱</span>
                     <span class="btn-text">下载 Android版</span>
@@ -312,162 +261,270 @@
         </div>
     </footer>
 
-    <!-- JavaScript文件 -->
-    <!-- 性能优化层 -->
-    <script src="performance.js" defer></script>
-    
-    <!-- 自适应卡片特效系统 -->
-    <script src="adaptive-card-system.js" defer></script>
-    
-    <!-- 主脚本 -->
-    <script src="script.js" defer></script>
-    
-    <!-- 内联脚本确保兼容性 -->
+    <!-- 简化脚本文件 -->
     <script>
-        // 确保页面加载状态
+        // 简化的主脚本 - 确保页面立即可用
         (function() {
-            // 立即设置加载状态
-            document.body.setAttribute('data-page-loaded', 'false');
+            'use strict';
             
-            // 手表端检测
-            const isWatchDevice = 
-                (window.innerWidth <= 400 && window.innerHeight <= 600) ||
-                (window.innerWidth <= 600 && window.innerHeight <= 400) ||
-                navigator.userAgent.match(/Watch|Wearable|Wrist/i);
+            console.log('简化版脚本启动...');
             
-            // 手表端提示
-            if (isWatchDevice) {
-                setTimeout(function() {
-                    const watchHint = document.getElementById('watch-hint');
-                    if (watchHint) {
-                        watchHint.style.display = 'block';
-                        setTimeout(function() {
-                            watchHint.style.display = 'none';
-                        }, 3000);
-                    }
-                }, 1000);
-            }
+            // 立即标记页面为已加载
+            document.body.classList.add('loaded');
+            document.body.style.opacity = '1';
             
-            // 页面完全加载后
-            window.addEventListener('load', function() {
-                document.body.setAttribute('data-page-loaded', 'true');
-                document.body.classList.add('loaded');
-                
-                // 显示功能提示
-                setTimeout(function() {
-                    const hint = document.getElementById('click-hint');
-                    if (hint) {
-                        hint.style.display = 'block';
-                        setTimeout(function() {
-                            hint.style.display = 'none';
-                        }, 3000);
-                    }
-                }, 1000);
-                
-                // 触发自定义事件
-                const event = new CustomEvent('pageFullyLoaded', {
-                    detail: { timestamp: new Date().toISOString() }
-                });
-                window.dispatchEvent(event);
+            // 立即显示所有内容
+            document.querySelectorAll('main, header, footer').forEach(el => {
+                el.style.opacity = '1';
+                el.style.visibility = 'visible';
             });
             
-            // 浏览器兼容性检测
-            function detectBrowserCompatibility() {
-                const features = {
-                    cssGrid: 'grid' in document.createElement('div').style,
-                    flexbox: 'flex' in document.createElement('div').style,
-                    transform: 'transform' in document.createElement('div').style,
-                    animation: 'animation' in document.createElement('div').style,
-                    backdropFilter: 'backdropFilter' in document.createElement('div').style || 
-                                  'webkitBackdropFilter' in document.createElement('div').style
-                };
+            // 简单的手表检测
+            const isWatch = window.innerWidth <= 400 && window.innerHeight <= 600;
+            if (isWatch) {
+                document.documentElement.classList.add('watch-device');
+                console.log('手表设备检测');
+            }
+            
+            // 立即开始进度条动画
+            function animateProgressBar() {
+                const progressBar = document.querySelector('.progress-bar');
+                const systemProgress = document.getElementById('system-progress');
+                const progressText = document.getElementById('progress-text');
                 
-                // 添加浏览器能力类
-                const html = document.documentElement;
-                if (!features.cssGrid) html.classList.add('no-cssgrid');
-                if (!features.flexbox) html.classList.add('no-flexbox');
-                if (!features.transform) html.classList.add('no-transform');
-                if (!features.animation) html.classList.add('no-animation');
-                if (!features.backdropFilter) html.classList.add('no-backdrop-filter');
-                
-                // 检测移动设备
-                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                    html.classList.add('mobile-device');
-                }
-                
-                // 检测低性能设备
-                if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
-                    html.classList.add('low-performance');
-                }
-                
-                // 检测手表设备
-                if (isWatchDevice) {
-                    html.classList.add('watch-device');
+                if (progressBar && systemProgress && progressText) {
+                    let progress = 0;
+                    const targetProgress = 100;
+                    const duration = 1500;
+                    const startTime = Date.now();
+                    
+                    function updateProgress() {
+                        const currentTime = Date.now();
+                        const elapsed = currentTime - startTime;
+                        
+                        if (elapsed < duration) {
+                            progress = (elapsed / duration) * targetProgress;
+                            requestAnimationFrame(updateProgress);
+                        } else {
+                            progress = targetProgress;
+                        }
+                        
+                        // 更新所有进度显示
+                        const roundedProgress = Math.min(Math.round(progress), 100);
+                        
+                        progressBar.style.width = roundedProgress + '%';
+                        progressBar.setAttribute('aria-valuenow', roundedProgress);
+                        systemProgress.value = roundedProgress;
+                        progressText.textContent = roundedProgress + '%';
+                        
+                        // 头部进度条
+                        const headerProgress = document.querySelector('header .progress-bar');
+                        if (headerProgress) {
+                            headerProgress.style.width = roundedProgress + '%';
+                        }
+                    }
+                    
+                    requestAnimationFrame(updateProgress);
                 }
             }
             
-            // 立即执行兼容性检测
-            detectBrowserCompatibility();
-            
-            // 全局点击恢复功能增强
-            function enhanceClickOutsideFeature() {
-                let lastActiveCard = null;
-                let showHintTimeout = null;
+            // 初始化下载按钮
+            function initDownloadButtons() {
+                const downloadButtons = ['download-btn', 'hero-download-btn']
+                    .map(id => document.getElementById(id))
+                    .filter(btn => btn);
                 
-                // 监听卡片激活事件
-                document.addEventListener('cardActivated', function(e) {
-                    if (e.detail && e.detail.card) {
-                        lastActiveCard = e.detail.card;
+                downloadButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
                         
-                        // 显示提示
-                        if (showHintTimeout) clearTimeout(showHintTimeout);
-                        const hint = document.getElementById('click-hint');
-                        if (hint) {
-                            hint.style.display = 'block';
-                            showHintTimeout = setTimeout(function() {
-                                hint.style.display = 'none';
-                            }, 2000);
+                        const confirmDownload = confirm("即将下载 System_VM_D62E Android 测试版 v0.9.8\n是否继续？");
+                        
+                        if (confirmDownload) {
+                            // 简单按钮反馈
+                            button.style.transform = 'scale(0.95)';
+                            setTimeout(() => {
+                                button.style.transform = '';
+                                alert("下载功能演示：在实际部署中，这里会开始下载文件。\n\n当前版本：v0.9.8 (测试版)\n支持系统：Android 8.0+");
+                            }, 200);
                         }
+                    });
+                });
+            }
+            
+            // 初始化卡片点击效果
+            function initCardEffects() {
+                const cards = document.querySelectorAll('.feature-card');
+                let activeCard = null;
+                
+                cards.forEach(card => {
+                    card.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        
+                        // 移除之前激活的卡片
+                        if (activeCard && activeCard !== this) {
+                            activeCard.classList.remove('active');
+                        }
+                        
+                        // 切换当前卡片状态
+                        this.classList.toggle('active');
+                        activeCard = this.classList.contains('active') ? this : null;
+                    });
+                });
+                
+                // 点击页面其他区域恢复卡片
+                document.addEventListener('click', function(e) {
+                    if (activeCard && !activeCard.contains(e.target)) {
+                        activeCard.classList.remove('active');
+                        activeCard = null;
+                    }
+                });
+            }
+            
+            // 初始化主题切换
+            function initThemeToggle() {
+                const themeToggle = document.getElementById('theme-toggle');
+                if (!themeToggle) return;
+                
+                // 应用保存的主题
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    themeToggle.textContent = '☀️ 亮色模式';
+                }
+                
+                themeToggle.addEventListener('click', function() {
+                    const isDark = document.body.classList.contains('dark-mode');
+                    
+                    if (isDark) {
+                        document.body.classList.remove('dark-mode');
+                        themeToggle.textContent = '🌓 暗色模式';
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        document.body.classList.add('dark-mode');
+                        themeToggle.textContent = '☀️ 亮色模式';
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            }
+            
+            // 初始化移动端菜单
+            function initMobileMenu() {
+                const navToggle = document.querySelector('.nav-toggle');
+                const navMenu = document.querySelector('.nav-menu');
+                
+                if (!navToggle || !navMenu) return;
+                
+                // 设置初始状态
+                if (window.innerWidth <= 768) {
+                    navMenu.style.display = 'none';
+                }
+                
+                navToggle.addEventListener('click', function() {
+                    const isVisible = navMenu.style.display === 'flex';
+                    
+                    if (isVisible) {
+                        navMenu.style.display = 'none';
+                        navToggle.setAttribute('aria-expanded', 'false');
+                    } else {
+                        navMenu.style.display = 'flex';
+                        navToggle.setAttribute('aria-expanded', 'true');
                     }
                 });
                 
-                // 监听卡片重置事件
-                document.addEventListener('cardReset', function() {
-                    lastActiveCard = null;
+                // 点击菜单项关闭菜单（移动端）
+                navMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            navMenu.style.display = 'none';
+                            navToggle.setAttribute('aria-expanded', 'false');
+                        }
+                    });
                 });
             }
             
-            // 初始化增强功能
-            enhanceClickOutsideFeature();
-        })();
-        
-        // 卡片功能提示
-        function showCardFunctionHint() {
-            const cards = document.querySelectorAll('.feature-card');
-            if (cards.length > 0) {
-                // 添加首次点击提示
-                let hasShownHint = localStorage.getItem('cardHintShown');
-                if (!hasShownHint) {
-                    setTimeout(function() {
+            // 初始化平滑滚动
+            function initSmoothScroll() {
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        const targetId = this.getAttribute('href');
+                        if (targetId === '#') return;
+                        
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            e.preventDefault();
+                            
+                            const header = document.querySelector('header');
+                            const headerHeight = header ? header.offsetHeight : 80;
+                            const targetPosition = targetElement.offsetTop - headerHeight;
+                            
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
+            }
+            
+            // 滚动进度条
+            function initScrollProgress() {
+                window.addEventListener('scroll', function() {
+                    const winHeight = window.innerHeight;
+                    const docHeight = document.documentElement.scrollHeight;
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+                    const progressBar = document.querySelector('.progress-bar');
+                    
+                    if (progressBar) {
+                        progressBar.style.width = Math.min(scrollPercent, 100) + '%';
+                    }
+                });
+            }
+            
+            // 初始化所有功能
+            function initAll() {
+                console.log('初始化基本功能...');
+                
+                // 立即执行的
+                animateProgressBar();
+                initCardEffects();
+                initThemeToggle();
+                initMobileMenu();
+                
+                // 延迟执行的
+                setTimeout(() => {
+                    initDownloadButtons();
+                    initSmoothScroll();
+                    initScrollProgress();
+                    
+                    // 显示页面加载完成
+                    document.body.classList.add('page-loaded');
+                    
+                    // 显示提示（仅第一次）
+                    const hasShownHint = localStorage.getItem('hintShown');
+                    if (!hasShownHint) {
                         const hint = document.getElementById('click-hint');
                         if (hint) {
                             hint.style.display = 'block';
-                            setTimeout(function() {
+                            setTimeout(() => {
                                 hint.style.display = 'none';
+                                localStorage.setItem('hintShown', 'true');
                             }, 3000);
                         }
-                        localStorage.setItem('cardHintShown', 'true');
-                    }, 2000);
-                }
+                    }
+                }, 100);
             }
-        }
-        
-        // 页面加载完成后显示提示
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', showCardFunctionHint);
-        } else {
-            setTimeout(showCardFunctionHint, 500);
-        }
+            
+            // DOM加载完成后初始化
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAll);
+            } else {
+                initAll();
+            }
+            
+        })();
     </script>
 </body>
 </html>
