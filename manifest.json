@@ -1,0 +1,32 @@
+{
+  "name": "System_VM_D62E",
+  "short_name": "SystemVM",
+  "description": "System_VM_D62E 官方网站 - 手表优化版",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#0a0a1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIGZpbGw9IiMwYTBhMjIiLz48cGF0aCBkPSJNOTYgMzJMMTI4IDY0SDY0TDk2IDMyWiIgZmlsbD0iIzAwZjNmZiIvPjwvc3ZnPg==",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMwYTBhMjIiLz48cGF0aCBkPSJNMjU2IDY0TDM4NCAxOTJIMTI4TDI1NiA2NFoiIGZpbGw9IiMwMGYzZmYiLz48L3N2Zz4=",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCA3MiA3MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIGZpbGw9IiMwYTBhMjIiLz48cGF0aCBkPSJNMzYgMTJMNCA0MkgxMkwzNiAxMloiIGZpbGw9IiMwMGYzZmYiLz48L3N2Zz4=",
+      "sizes": "72x72",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9IiMwYTBhMjIiLz48cGF0aCBkPSJNNDggMTZMMzIgMzJIMTZMNDggMTZaIiBmaWxsPSIjMDBmM2ZmIi8+PC9zdmc+",
+      "sizes": "96x96",
+      "type": "image/svg+xml"
+    }
+  ]
+}
