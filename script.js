@@ -2,13 +2,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('script.js: DOM加载完成');
     
-    // === 手表端检测 ===
-    const isWatchDevice = 
-        (window.innerWidth <= 400 && window.innerHeight <= 600) ||
-        (window.innerWidth <= 600 && window.innerHeight <= 400) ||
-        navigator.userAgent.match(/Watch|Wearable|Wrist/i);
-    // === 手表端检测结束 ===
-    
     // 标记主脚本已初始化
     document.body.setAttribute('data-main-script-initialized', 'true');
     
@@ -104,20 +97,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!navToggle.hasAttribute('data-menu-initialized')) {
             navToggle.setAttribute('data-menu-initialized', 'true');
             
-            // === 手表端菜单优化 ===
-            if (isWatchDevice) {
-                // 手表端简化菜单
-                navToggle.style.display = 'none'; // 隐藏菜单按钮
-                navMenu.style.display = 'flex'; // 直接显示菜单
-                
-                // 简化菜单项
-                navMenu.querySelectorAll('a, button').forEach(item => {
-                    item.style.padding = '12px 15px';
-                    item.style.fontSize = '0.9rem';
-                });
-            } else {
-                // 正常设备菜单处理
-                navToggle.addEventListener('click', function(e) { e.stopPropagation();
+            navToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
                 toggleMenu();
             });
 
@@ -208,23 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         themeToggle.addEventListener('click', function() {
             requestAnimationFrame(() => {
-                // === 手表端简化切换 ===
-                if (isWatchDevice) {
-                    const isDarkMode = document.body.classList.contains('dark-mode');
-                    document.body.classList.toggle('dark-mode');
-                    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
-                    
-                    if (isDarkMode) {
-                        themeToggle.textContent = '☀️';
-                        themeToggle.title = '亮色模式';
-                    } else {
-                        themeToggle.textContent = '🌓';
-                        themeToggle.title = '暗色模式';
-                    }
-                    return;
-                }
-                // === 手表端处理结束 ===
-                
                 // 添加切换动画
                 document.body.style.opacity = '0.8';
                 document.body.style.transition = 'opacity 0.3s ease';
@@ -360,17 +324,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     const targetElement = document.querySelector(targetId);
                     if (targetElement) {
-                        // === 手表端使用更简单的滚动 ===
-                        if (isWatchDevice) {
-                            targetElement.scrollIntoView({ 
-                                behavior: 'smooth', 
-                                block: 'start',
-                                inline: 'nearest'
-                            });
-                            return;
-                        }
-                        // === 手表端处理结束 ===
-                        
                         // 使用平滑滚动
                         const header = document.querySelector('header');
                         const headerHeight = header ? header.offsetHeight : 80;
@@ -482,17 +435,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function initProgressAnimation() {
         const progressElement = document.getElementById('system-progress');
         if (!progressElement) return;
-        
-        // === 手表端简化动画 ===
-        if (isWatchDevice) {
-            progressElement.value = 100;
-            const progressText = document.querySelector('.progress-text');
-            const progressGlow = document.querySelector('.progress-glow');
-            if (progressText) progressText.textContent = '100%';
-            if (progressGlow) progressGlow.style.width = '100%';
-            return function() {}; // 空停止函数
-        }
-        // === 手表端处理结束 ===
         
         let progress = 75;
         let lastProgressTime = 0;
@@ -753,23 +695,13 @@ function initAdaptiveCardEffectsCompatibility() {
         let activeCard = null;
         let clickOutsideHandler = null;
         
-        // 手表端检测
-        const isWatch = 
-            (window.innerWidth <= 400 && window.innerHeight <= 600) ||
-            (window.innerWidth <= 600 && window.innerHeight <= 400) ||
-            navigator.userAgent.match(/Watch|Wearable|Wrist/i);
-        
         // 初始化全局点击监听
         function initGlobalClick() {
             clickOutsideHandler = function(event) {
                 const clickedCard = event.target.closest('.feature-card');
                 
                 if (activeCard && !clickedCard) {
-                    if (isWatch) {
-                        activeCard.classList.remove('active');
-                    } else {
-                        resetCard(activeCard);
-                    }
+                    resetCard(activeCard);
                     activeCard = null;
                 }
             };
@@ -779,11 +711,7 @@ function initAdaptiveCardEffectsCompatibility() {
         
         function activateCard(card) {
             if (activeCard && activeCard !== card) {
-                if (isWatch) {
-                    activeCard.classList.remove('active');
-                } else {
-                    resetCard(activeCard);
-                }
+                resetCard(activeCard);
             }
             
             card.classList.add('active');
@@ -805,18 +733,6 @@ function initAdaptiveCardEffectsCompatibility() {
             
             card.setAttribute('data-basic-effects', 'true');
             
-            // 手表端简化效果
-            if (isWatch) {
-                card.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    activateCard(this);
-                });
-                
-                card.style.cursor = 'default';
-                return;
-            }
-            
-            // 正常设备效果
             // 添加基本点击效果
             card.addEventListener('click', function(e) {
                 e.stopPropagation();
