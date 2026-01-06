@@ -1,4 +1,4 @@
-/* 自适应卡片特效系统 - 手表端优化*/
+/* 自适应卡片特效系统 - 无计数器版本 */
 
 /* 基础卡片优化 */
 .feature-card {
@@ -478,65 +478,4 @@
 .feature-card.rotating-back:hover .card-border-glow,
 .feature-card.rotating-back:hover .gradient-overlay {
     opacity: 0 !important;
-}
-
-/* ===== 手表端卡片特效优化 ===== */
-@media (max-width: 400px) and (max-height: 600px),
-       (max-width: 600px) and (max-height: 400px) {
-    /* 简化卡片特效 */
-    .feature-card {
-        transition: none !important;
-        animation: none !important;
-        transform: none !important;
-    }
-    
-    .feature-card.active {
-        animation: none !important;
-        border-color: rgba(0, 243, 255, 0.5) !important;
-        background: rgba(0, 243, 255, 0.05) !important;
-    }
-    
-    .feature-card.active .card-image-container {
-        animation: none !important;
-        transform: none !important;
-    }
-    
-    .feature-card.active .refresh-scan-line,
-    .feature-card.active .refresh-grid {
-        animation: none !important;
-        opacity: 0 !important;
-    }
-    
-    /* 简化悬停效果 */
-    .feature-card:hover {
-        animation: none !important;
-        transform: none !important;
-    }
-    
-    .feature-card:hover .card-icon {
-        animation: none !important;
-        transform: none !important;
-    }
-    
-    .feature-card:hover .card-border-glow,
-    .feature-card:hover .gradient-overlay {
-        opacity: 0 !important;
-    }
-    
-    /* 简化内容容器 */
-    .card-content {
-        transition: none !important;
-        animation: none !important;
-    }
-    
-    .card-content h3,
-    .card-content p {
-        animation: none !important;
-        transition: none !important;
-    }
-    
-    /* 移除不必要的容器 */
-    .card-refresh-container {
-        display: none !important;
-    }
 }
