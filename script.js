@@ -3,29 +3,19 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('script.js: DOM加载完成');
     
     // 标记主脚本已初始化
+    window.mainScriptInitialized = true;
     document.body.setAttribute('data-main-script-initialized', 'true');
     
-    // 使用RAF优化所有动画
-    let lastTime = 0;
-    const vendors = ['ms', 'moz', 'webkit', 'o'];
-    for(let x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    // 检查是否有性能层已初始化，避免重复
+    if (window.performanceLayerInitialized) {
+        console.log('性能层已初始化，跳过部分功能');
     }
-
+    
+    // 统一的requestAnimationFrame兼容性处理
     if (!window.requestAnimationFrame) {
-        window.requestAnimationFrame = function(callback, element) {
-            const currTime = new Date().getTime();
-            const timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            const id = window.setTimeout(function() { 
-                callback(currTime + timeToCall); 
-            }, timeToCall);
-            lastTime = currTime + timeToCall;
-            return id;
-        };
+        initRAF();
     }
-
+    
     // 移动端菜单切换
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
@@ -90,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 菜单系统初始化
     if (navToggle && navMenu) {
         console.log('初始化菜单系统');
         
@@ -140,10 +131,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (window.innerWidth > 768 && navMenu) {
                     navMenu.style.display = 'flex';
                     navMenu.classList.remove('active');
-                    const spans = navToggle.querySelectorAll('span');
-                    spans[0].style.transform = 'none';
-                    spans[1].style.opacity = '1';
-                    spans[2].style.transform = 'none';
+                    if (navToggle) {
+                        const spans = navToggle.querySelectorAll('span');
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    }
                 }
             });
         }, 100);
@@ -175,12 +168,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // 监听系统主题变化
     if (window.matchMedia) {
         const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        colorSchemeQuery.addEventListener('change', function(e) {
-            if (!localStorage.getItem('theme')) {
-                const newTheme = e.matches ? 'dark' : 'light';
-                applyTheme(newTheme);
-            }
-        });
+        try {
+            // 新的API
+            colorSchemeQuery.addEventListener('change', function(e) {
+                if (!localStorage.getItem('theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(newTheme);
+                }
+            });
+        } catch (e) {
+            // 旧的API
+            colorSchemeQuery.addListener(function(e) {
+                if (!localStorage.getItem('theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(newTheme);
+                }
+            });
+        }
     }
     
     // 主题切换事件
@@ -482,6 +486,81 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let stopProgressAnimation = initProgressAnimation();
     
+    // 下载功能处理（主脚本统一处理）
+    function initDownloadButtons() {
+        const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
+        
+        if (downloadButtons.length === 0) {
+            setTimeout(initDownloadButtons, 1000);
+            return;
+        }
+        
+        downloadButtons.forEach(button => {
+            // 避免重复绑定
+            if (button.hasAttribute('data-download-main-initialized')) {
+                return;
+            }
+            
+            button.setAttribute('data-download-main-initialized', 'true');
+            
+            // 移除可能存在的其他事件处理器
+            button.replaceWith(button.cloneNode(true));
+            const newButton = document.getElementById(button.id);
+            
+            newButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('主脚本处理下载请求');
+                
+                // 显示下载进度
+                this.classList.add('downloading');
+                const progressBar = this.querySelector('.download-progress') || document.createElement('div');
+                if (!progressBar.classList.contains('download-progress')) {
+                    progressBar.className = 'download-progress';
+                    this.appendChild(progressBar);
+                }
+                
+                progressBar.style.width = '0%';
+                
+                // 模拟下载进度
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    progressBar.style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        
+                        // 添加完成动画
+                        this.classList.remove('downloading');
+                        this.classList.add('download-complete');
+                        
+                        // 实际下载
+                        setTimeout(() => {
+                            const link = document.createElement('a');
+                            link.href = 'https://kksjkk.github.io/app/System_VM_D62E.apk';
+                            link.download = 'System_VM_D62E.apk';
+                            link.target = '_blank';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            // 移除完成动画
+                            setTimeout(() => {
+                                this.classList.remove('download-complete');
+                                progressBar.style.width = '0%';
+                            }, 1000);
+                        }, 500);
+                    }
+                }, 100);
+            });
+        });
+    }
+    
+    // 延迟初始化下载按钮，确保其他脚本不会干扰
+    setTimeout(initDownloadButtons, 500);
+    
     // 添加键盘导航支持
     function initKeyboardNavigation() {
         document.addEventListener('keydown', function(e) {
@@ -548,12 +627,49 @@ document.addEventListener('DOMContentLoaded', function() {
         if (scrollProgressHandler) {
             window.removeEventListener('scroll', scrollProgressHandler);
         }
+        
+        // 清理全局标记
+        window.mainScriptInitialized = false;
     });
 });
+
+// requestAnimationFrame兼容性处理函数
+function initRAF() {
+    let lastTime = 0;
+    const vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(let x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = function(callback) {
+            const currTime = new Date().getTime();
+            const timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            const id = window.setTimeout(function() { 
+                callback(currTime + timeToCall); 
+            }, timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+        
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+    }
+}
 
 // 浏览器兼容性检测和修复
 (function() {
     'use strict';
+    
+    // 避免重复检测
+    if (window.browserFeaturesDetected) {
+        return;
+    }
+    
+    window.browserFeaturesDetected = true;
     
     // 检测浏览器特性
     const browserFeatures = {
@@ -613,54 +729,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 针对不支持backdrop-filter的浏览器
     if (!browserFeatures.backdropFilter) {
-        const elements = document.querySelectorAll('.download-message-box');
-        elements.forEach(el => {
-            if (el) {
-                el.style.backgroundColor = 'rgba(0, 0, 0, 0.98)';
-                el.style.backdropFilter = 'none';
-                el.style.webkitBackdropFilter = 'none';
-            }
-        });
-    }
-    
-    // 修复下载功能在特定浏览器中的问题
-    window.addEventListener('load', function() {
-        // 确保下载按钮在所有浏览器中都能工作
-        const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
-        downloadButtons.forEach(button => {
-            // 如果按钮有内联的onclick事件，确保不会冲突
-            if (button.hasAttribute('onclick')) {
-                const originalOnClick = button.getAttribute('onclick');
-                button.removeAttribute('onclick');
-                
-                // 重新绑定事件
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    try {
-                        // 尝试执行原始onclick
-                        eval(originalOnClick);
-                    } catch (error) {
-                        console.warn('执行原始onclick失败:', error);
-                        // 降级方案
-                        window.location.href = 'https://kksjkk.github.io/app/System_VM_D62E.apk';
-                    }
-                });
-            }
-        });
-    });
-    
-    // 添加polyfill检测
-    if (!window.requestAnimationFrame) {
-        console.log('浏览器不支持requestAnimationFrame，使用setTimeout模拟');
-    }
-    
-    if (!window.matchMedia) {
-        console.log('浏览器不支持matchMedia，主题切换可能受限');
+        setTimeout(() => {
+            const elements = document.querySelectorAll('.download-message-box');
+            elements.forEach(el => {
+                if (el) {
+                    el.style.backgroundColor = 'rgba(0, 0, 0, 0.98)';
+                    el.style.backdropFilter = 'none';
+                    el.style.webkitBackdropFilter = 'none';
+                }
+            });
+        }, 100);
     }
 })();
 
 // 添加自适应卡片特效的初始化兼容性处理
 function initAdaptiveCardEffectsCompatibility() {
+    // 避免重复初始化
+    if (window.cardEffectsCompatibilityInitialized) {
+        return;
+    }
+    
+    window.cardEffectsCompatibilityInitialized = true;
+    
     // 等待主页面完全加载
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initCardEffects);
@@ -695,8 +785,19 @@ function initAdaptiveCardEffectsCompatibility() {
         let activeCard = null;
         let clickOutsideHandler = null;
         
+        // 避免重复初始化
+        if (cards.length === 0 || window.basicCardEffectsInitialized) {
+            return;
+        }
+        
+        window.basicCardEffectsInitialized = true;
+        
         // 初始化全局点击监听
         function initGlobalClick() {
+            if (clickOutsideHandler) {
+                document.removeEventListener('click', clickOutsideHandler);
+            }
+            
             clickOutsideHandler = function(event) {
                 const clickedCard = event.target.closest('.feature-card');
                 
@@ -757,8 +858,25 @@ function initAdaptiveCardEffectsCompatibility() {
         
         // 初始化全局点击监听
         initGlobalClick();
+        
+        // 页面卸载时清理
+        window.addEventListener('beforeunload', function() {
+            if (clickOutsideHandler) {
+                document.removeEventListener('click', clickOutsideHandler);
+            }
+        });
     }
 }
 
 // 初始化兼容性处理
-initAdaptiveCardEffectsCompatibility();
+if (!window.cardEffectsCompatibilityInitialized) {
+    initAdaptiveCardEffectsCompatibility();
+}
+
+// 只在特定情况下阻止默认行为
+if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
+    // 允许小幅度的滚动，只在明显越界时阻止
+    if (Math.abs(deltaY) > 30) {
+        e.preventDefault();
+    }
+}
