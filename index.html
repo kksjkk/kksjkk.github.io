@@ -783,6 +783,31 @@
                 }, 1000);
             });
         })();
+
+// 在 index.html 的 <script> 标签中添加
+document.addEventListener('DOMContentLoaded', function() {
+    // 等待所有资源加载完成
+    window.addEventListener('load', function() {
+        // 确保卡片系统已初始化
+        if (window.AdaptiveCardEffects) {
+            console.log('卡片特效系统已加载');
+            
+            // 测试卡片功能
+            const cards = document.querySelectorAll('.feature-card');
+            console.log(`找到 ${cards.length} 张卡片`);
+            
+            // 添加测试按钮（可选，用于调试）
+            if (cards.length > 0) {
+                const testCard = cards[0];
+                setTimeout(() => {
+                    // 自动测试第一张卡片（仅用于调试）
+                    // window.AdaptiveCardEffects.triggerCardEffect(testCard);
+                }, 2000);
+            }
+        }
+    });
+});
+
     </script>
 </body>
 </html>
