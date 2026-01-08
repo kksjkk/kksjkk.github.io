@@ -7,15 +7,10 @@
     <title>System_VM_D62E官方网站</title>
     
     <!-- 针对不同浏览器的优化 -->
-    <!-- 针对Safari -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- 针对Android -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a0a1a">
-    
-    <!-- 针对百度浏览器 -->
     <meta name="baidu-site-verification" content="codeva-RxYVGyqgJc">
     
     <!-- DNS预连接 -->
@@ -23,26 +18,79 @@
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     
-    <!-- 预加载关键字体 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
     <!-- 预加载关键资源 -->
-    <link rel="preload" href="style.css" as="style">
-    <link rel="preload" href="optimization.css" as="style">
+    <link rel="preload" href="style-optimized.css" as="style">
     <link rel="preload" href="adaptive-card-styles.css" as="style">
-    <link rel="preload" href="script.js" as="script">
     <link rel="preload" href="performance.js" as="script">
     <link rel="preload" href="adaptive-card-system.js" as="script">
+    <link rel="preload" href="script.js" as="script">
     
-    <!-- 样式文件 -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="optimization.css">
+    <!-- 样式文件（修复后的合并版本） -->
+    <link rel="stylesheet" href="style-optimized.css">
     <link rel="stylesheet" href="adaptive-card-styles.css">
     
-    <!-- 针对旧浏览器的回退样式 -->
+    <!-- 针对4张卡片的优化样式 -->
     <style>
-        /* 基础回退样式 */
+        /* 针对4张卡片的布局优化 */
+        @media (min-width: 1024px) and (max-width: 1199px) {
+            .features {
+                grid-template-columns: repeat(2, minmax(300px, 1fr));
+            }
+        }
+        
+        @media (min-width: 1200px) and (max-width: 1399px) {
+            .features {
+                grid-template-columns: repeat(2, minmax(350px, 1fr));
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            .features {
+                grid-template-columns: repeat(2, minmax(400px, 1fr));
+            }
+        }
+        
+        /* 移动端4张卡片优化 */
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: repeat(2, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+            
+            .feature-card {
+                min-height: 200px;
+                padding: 1.2rem 0.8rem;
+            }
+            
+            .card-icon {
+                font-size: 2rem;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .feature-card p {
+                font-size: 0.85rem;
+                line-height: 1.4;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .features {
+                grid-template-columns: 1fr;
+                max-width: 320px;
+                margin: 2rem auto 0;
+            }
+            
+            .feature-card {
+                min-height: 180px;
+                padding: 1.5rem 1rem;
+            }
+        }
+        
+        /* 保持原有的基础回退样式 */
         .no-cssgrid .features {
             display: flex;
             flex-wrap: wrap;
@@ -51,7 +99,7 @@
         }
         
         .no-cssgrid .feature-card {
-            flex: 0 0 calc(33.333% - 1.5rem);
+            flex: 0 0 calc(50% - 1.5rem);
             min-width: 280px;
         }
         
@@ -67,12 +115,7 @@
             }
         }
         
-        /* 性能回退样式 */
-        .performance-mode .feature-card {
-            animation: none !important;
-        }
-        
-        /* 加载状态占位符 */
+        /* 其他现有样式保持不变... */
         .logo.lazy-load {
             background: linear-gradient(90deg, #0a0a1a 0%, #1a1a2e 50%, #0a0a1a 100%);
             background-size: 200% 100%;
@@ -88,26 +131,6 @@
             }
         }
         
-        /* 卡片恢复动画优化 */
-        .feature-card.rotating-back {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-        }
-        
-        .feature-card.rotating-back:hover {
-            transform: none !important;
-            animation: none !important;
-        }
-        
-        .feature-card.rotating-back:hover .card-icon {
-            animation: none !important;
-        }
-        
-        .feature-card.rotating-back:hover .card-border-glow,
-        .feature-card.rotating-back:hover .gradient-overlay {
-            opacity: 0 !important;
-        }
-        
-        /* 全局点击恢复功能提示 */
         .click-outside-hint {
             position: fixed;
             bottom: 20px;
@@ -123,11 +146,45 @@
             backdrop-filter: blur(5px);
             animation: fadeInOut 3s ease-in-out;
             display: none;
+            pointer-events: none;
         }
         
         @keyframes fadeInOut {
             0%, 100% { opacity: 0; transform: translateY(10px); }
             20%, 80% { opacity: 0.8; transform: translateY(0); }
+        }
+        
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+        
+        .performance-mode .feature-card {
+            animation: none !important;
+        }
+        
+        .page-hidden {
+            animation-play-state: paused !important;
+        }
+        
+        html {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        body {
+            overscroll-behavior-y: none;
+        }
+        
+        .scrollable-content {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -146,14 +203,20 @@
     </div>
     
     <!-- 全局提示 -->
-    <div class="click-outside-hint" id="click-hint">
-        正在缓冲中...
+    <div class="click-outside-hint" id="click-hint" role="status" aria-live="polite">
+        新增卡片优化和系统支持补丁（版本：8.1.0.4.12）
     </div>
-        <!-- 头部导航 -->
+    
+    <!-- 屏幕阅读器专用提示 -->
+    <div class="visually-hidden" id="screen-reader-hint">
+        这是一个科技风格的个人项目展示页面，包含卡片交互特效
+    </div>
+    
+    <!-- 头部导航 -->
     <header>
         <div class="header-container">
             <h1 class="scifi-title">System_VM_D62E</h1>
-            <nav class="navbar">
+            <nav class="navbar" aria-label="主导航">
                 <button class="nav-toggle" aria-label="切换菜单" aria-expanded="false" aria-controls="nav-menu">
                     <span></span>
                     <span></span>
@@ -162,7 +225,7 @@
                 <ul class="nav-menu" id="nav-menu">
                     <li><a href="#about" class="scifi-link">关于UP</a></li>
                     <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" rel="noopener" class="scifi-link">作者信息</a></li>
-                    <li><button class="scifi-button download-btn-main" id="download-btn" data-download-initialized="true">
+                    <li><button class="scifi-button download-btn-main" id="download-btn">
                         下载APP
                     </button></li>
                     <li><button id="theme-toggle" class="theme-btn scifi-button">🌓 暗色模式</button></li>
@@ -173,8 +236,8 @@
     </header>
 
     <!-- 主内容区域 -->
-    <main>
-        <section class="hero">
+    <main class="scrollable-content">
+        <section class="hero" aria-label="欢迎区域">
             <div class="hero-content">
                 <!-- Logo区域 -->
                 <div class="logo-container">
@@ -184,7 +247,8 @@
                          alt="System_VM_D62E Logo" 
                          class="logo lazy-load"
                          width="150"
-                         height="150">
+                         height="150"
+                         loading="lazy">
                 </div>
                 
                 <!-- 标题和描述 -->
@@ -202,24 +266,26 @@
                 </div>
                 
                 <!-- 主下载按钮 -->
-                <button class="scifi-button download-btn-large hero-download-btn" 
-                        id="hero-download-btn"
-                        data-download-initialized="true"
-                        aria-label="下载 Android 版本应用">
-                    <span class="btn-icon">📱</span>
-                    <span class="btn-text">下载 Android版</span>
-                    <span class="btn-subtext">v0.9.8 • 测试版本</span>
-                </button>
+                <div class="download-section">
+                    <button class="scifi-button download-btn-large hero-download-btn" 
+                            id="hero-download-btn"
+                            aria-label="下载 Android 版本应用">
+                        <span class="btn-icon">📱</span>
+                        <span class="btn-text">下载 Android版</span>
+                        <span class="btn-subtext">v0.9.8 • 测试版本</span>
+                        <div class="download-progress"></div>
+                    </button>
+                </div>
             </div>
         </section>
         
         <!-- 关于UP主区域 -->
-        <section id="about" class="about-section">
+        <section id="about" class="about-section" aria-label="关于UP主">
             <div class="container">
                 <h2 class="scifi-heading">关于UP主</h2>
                 <p class="scifi-text">根据 2026年1月4日晚上统计，up的粉丝是1975人，视频播放14.2万，134条弹幕，3231条评论，6660个点赞。代表作：《全网最全的Windows网页版，你值得拥有！！！》，最新稿件：《不就是C盘满了吗，又耐我何？小白有救了！！！》，粉丝团名称：D云团。</p>
                 
-                <!-- 特性卡片区域 -->
+                <!-- 特性卡片区域 - 现在有4张卡片 -->
                 <div class="features">
                     <div class="feature-card" role="button" tabindex="0" aria-label="技术分享卡片" data-card-type="tech">
                         <div class="card-icon">💻</div>
@@ -241,12 +307,27 @@
                         <p>与粉丝交流分享心得</p>
                         <div class="card-glow"></div>
                     </div>
+                    
+                    <!-- 新增的第四张卡片 - 系统优化 -->
+                    <div class="feature-card" role="button" tabindex="0" aria-label="系统优化卡片" data-card-type="optimization">
+                        <div class="card-icon">⚡</div>
+                        <h3>系统优化</h3>
+                        <p>性能调优与用户体验提升</p>
+                        <div class="card-glow"></div>
+                    </div>
+                </div>
+                
+                <!-- 卡片说明 -->
+                <div style="margin-top: 3rem; text-align: center; opacity: 0.7;">
+                    <p class="scifi-text" style="font-size: 0.9rem;">
+                        共 <span style="color: #00f3ff; font-weight: bold;">4</span> 张特效卡片，点击体验交互效果
+                    </p>
                 </div>
             </div>
         </section>
         
         <!-- 功能提示区域 -->
-        <section class="hint-section" style="padding: 1rem; text-align: center; opacity: 0.7;">
+        <section class="hint-section" style="padding: 1rem; text-align: center; opacity: 0.7;" aria-label="操作提示">
             <p class="scifi-text" style="font-size: 0.9rem;">
                 💡 提示：点击卡片体验特效，点击其他地方恢复原状
             </p>
@@ -254,30 +335,35 @@
     </main>
 
     <!-- 页脚 -->
-    <footer id="contact">
+    <footer id="contact" aria-label="联系信息">
         <div class="footer-container">
             <p class="scifi-text">&copy; 2025 System_VM_D62E 版权所有</p>
             <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
             <p class="scifi-text" style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">
                 本站已优化支持：Chrome、Firefox、Safari、Edge、百度浏览器、Via浏览器、夸克浏览器
             </p>
+            <p class="scifi-text" style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.4;">
+                当前时间：<span id="current-time"></span>
+            </p>
         </div>
     </footer>
 
-    <!-- JavaScript文件 -->
-    <!-- 性能优化层 -->
-    <script src="performance.js" defer></script>
-    
-    <!-- 自适应卡片特效系统 -->
+    <!-- JavaScript文件（优化后的加载顺序） -->
+    <!-- 1. 首先加载自适应卡片系统 -->
     <script src="adaptive-card-system.js" defer></script>
     
-    <!-- 主脚本 -->
+    <!-- 2. 然后加载性能监控层 -->
+    <script src="performance.js" defer></script>
+    
+    <!-- 3. 最后加载主脚本（控制器） -->
     <script src="script.js" defer></script>
     
-    <!-- 内联脚本确保兼容性 -->
+    <!-- 内联脚本确保兼容性和核心功能 -->
     <script>
         // 确保页面加载状态
         (function() {
+            'use strict';
+            
             // 立即设置加载状态
             document.body.setAttribute('data-page-loaded', 'false');
             
@@ -285,6 +371,27 @@
             window.addEventListener('load', function() {
                 document.body.setAttribute('data-page-loaded', 'true');
                 document.body.classList.add('loaded');
+                
+                // 更新当前时间
+                function updateTime() {
+                    const now = new Date();
+                    const timeElement = document.getElementById('current-time');
+                    if (timeElement) {
+                        timeElement.textContent = now.toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+                    }
+                }
+                
+                // 初始更新时间
+                updateTime();
+                // 每分钟更新一次时间
+                setInterval(updateTime, 60000);
                 
                 // 显示功能提示
                 setTimeout(function() {
@@ -302,6 +409,11 @@
                     detail: { timestamp: new Date().toISOString() }
                 });
                 window.dispatchEvent(event);
+                
+                // 性能监控标记
+                if (window.performance && window.performance.mark) {
+                    window.performance.mark('pageFullyLoaded');
+                }
             });
             
             // 浏览器兼容性检测
@@ -312,7 +424,9 @@
                     transform: 'transform' in document.createElement('div').style,
                     animation: 'animation' in document.createElement('div').style,
                     backdropFilter: 'backdropFilter' in document.createElement('div').style || 
-                                  'webkitBackdropFilter' in document.createElement('div').style
+                                  'webkitBackdropFilter' in document.createElement('div').style,
+                    intersectionObserver: 'IntersectionObserver' in window,
+                    matchMedia: 'matchMedia' in window
                 };
                 
                 // 添加浏览器能力类
@@ -322,80 +436,353 @@
                 if (!features.transform) html.classList.add('no-transform');
                 if (!features.animation) html.classList.add('no-animation');
                 if (!features.backdropFilter) html.classList.add('no-backdrop-filter');
+                if (!features.intersectionObserver) html.classList.add('no-intersection-observer');
+                if (!features.matchMedia) html.classList.add('no-match-media');
                 
                 // 检测移动设备
-                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                if (isMobile) {
                     html.classList.add('mobile-device');
+                }
+                
+                // 检测触摸设备
+                const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                if (isTouchDevice) {
+                    html.classList.add('touch-device');
                 }
                 
                 // 检测低性能设备
                 if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
                     html.classList.add('low-performance');
                 }
+                
+                console.log('浏览器特性检测:', features);
             }
             
             // 立即执行兼容性检测
             detectBrowserCompatibility();
             
-            // 全局点击恢复功能增强
-            function enhanceClickOutsideFeature() {
-                let lastActiveCard = null;
-                let showHintTimeout = null;
-                
-                // 监听卡片激活事件
-                document.addEventListener('cardActivated', function(e) {
-                    if (e.detail && e.detail.card) {
-                        lastActiveCard = e.detail.card;
-                        
-                        // 显示提示
-                        if (showHintTimeout) clearTimeout(showHintTimeout);
-                        const hint = document.getElementById('click-hint');
-                        if (hint) {
-                            hint.style.display = 'block';
-                            showHintTimeout = setTimeout(function() {
-                                hint.style.display = 'none';
-                            }, 2000);
-                        }
+            // 卡片功能提示
+            function showCardFunctionHint() {
+                const cards = document.querySelectorAll('.feature-card');
+                if (cards.length > 0) {
+                    console.log(`检测到 ${cards.length} 张特效卡片`);
+                    
+                    // 添加首次点击提示
+                    let hasShownHint = localStorage.getItem('cardHintShown');
+                    if (!hasShownHint) {
+                        setTimeout(function() {
+                            const hint = document.getElementById('click-hint');
+                            if (hint) {
+                                hint.textContent = `💡 点击${cards.length}张卡片体验交互特效`;
+                                hint.style.display = 'block';
+                                setTimeout(function() {
+                                    hint.style.display = 'none';
+                                }, 3000);
+                            }
+                            localStorage.setItem('cardHintShown', 'true');
+                        }, 2000);
                     }
-                });
+                }
+            }
+            
+            // 基础错误处理
+            window.addEventListener('error', function(event) {
+                console.error('全局错误:', event.message, 'at', event.filename + ':' + event.lineno);
                 
-                // 监听卡片重置事件
-                document.addEventListener('cardReset', function() {
-                    lastActiveCard = null;
+                // 显示用户友好的错误提示
+                if (!document.getElementById('error-toast')) {
+                    const errorToast = document.createElement('div');
+                    errorToast.id = 'error-toast';
+                    errorToast.style.cssText = `
+                        position: fixed;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: rgba(255, 50, 50, 0.9);
+                        color: white;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        z-index: 10000;
+                        display: none;
+                    `;
+                    errorToast.textContent = '发生了一些小问题，正在自动修复...';
+                    document.body.appendChild(errorToast);
+                    
+                    setTimeout(() => {
+                        errorToast.style.display = 'block';
+                        setTimeout(() => {
+                            errorToast.style.display = 'none';
+                        }, 3000);
+                    }, 100);
+                }
+            });
+            
+            // Promise错误处理
+            window.addEventListener('unhandledrejection', function(event) {
+                console.warn('未处理的Promise拒绝:', event.reason);
+            });
+            
+            // 页面加载完成后显示提示
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(showCardFunctionHint, 500);
+                });
+            } else {
+                setTimeout(showCardFunctionHint, 500);
+            }
+            
+            // 防止表单重复提交（如果有表单的话）
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.tagName === 'FORM') {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                        }, 3000);
+                    }
+                }
+            });
+            
+            // 改进的触摸事件处理 - 修复页顶页脚滑动问题
+            let lastTouchY = 0;
+            let isScrolling = false;
+            
+            // touchstart 事件
+            document.addEventListener('touchstart', function(e) {
+                lastTouchY = e.touches[0].clientY;
+                isScrolling = false;
+            }, { passive: true });
+            
+            // touchmove 事件 - 修复页顶页脚无法滑动问题
+            document.addEventListener('touchmove', function(e) {
+                // 如果目标元素是表单元素、可编辑元素或有特定类名，允许滚动
+                const target = e.target;
+                if (target.tagName === 'INPUT' || 
+                    target.tagName === 'TEXTAREA' || 
+                    target.isContentEditable ||
+                    target.closest('.scrollable-content')) {
+                    return;
+                }
+                
+                const touch = e.touches[0];
+                const deltaY = touch.clientY - lastTouchY;
+                lastTouchY = touch.clientY;
+                
+                // 检查是否在页面边缘
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight;
+                const clientHeight = document.documentElement.clientHeight;
+                
+                const isAtTop = scrollTop <= 0;
+                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                
+                // 标记正在滚动
+                isScrolling = true;
+                
+                // 只在特定情况下阻止默认行为
+                if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
+                    // 允许小幅度的滚动，只在明显越界时阻止
+                    if (Math.abs(deltaY) > 30) {
+                        e.preventDefault();
+                    }
+                }
+            }, { passive: false });
+            
+            // touchend 事件
+            document.addEventListener('touchend', function() {
+                isScrolling = false;
+            }, { passive: true });
+            
+            // 防止双击放大 - 改进版本
+            let lastTouchEndTime = 0;
+            document.addEventListener('touchend', function(e) {
+                const now = Date.now();
+                if (now - lastTouchEndTime < 300 && e.touches.length === 0) {
+                    e.preventDefault();
+                }
+                lastTouchEndTime = now;
+            }, { passive: false });
+            
+            // 为所有按钮添加加载状态
+            document.addEventListener('click', function(e) {
+                const button = e.target.closest('button');
+                if (button && !button.hasAttribute('disabled')) {
+                    // 添加短暂的活动状态
+                    button.classList.add('button-active');
+                    setTimeout(() => {
+                        button.classList.remove('button-active');
+                    }, 300);
+                }
+            });
+            
+            // 键盘导航支持
+            document.addEventListener('keydown', function(e) {
+                // 空格键滚动
+                if (e.key === ' ' || e.key === 'Spacebar') {
+                    // 只有当焦点不在可输入元素上时才滚动
+                    const activeElement = document.activeElement;
+                    if (!activeElement || 
+                        (activeElement.tagName !== 'INPUT' && 
+                         activeElement.tagName !== 'TEXTAREA' && 
+                         !activeElement.isContentEditable)) {
+                        e.preventDefault();
+                        window.scrollBy({
+                            top: window.innerHeight * 0.8,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+                
+                // Home键回到顶部
+                if (e.key === 'Home') {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // End键到底部
+                if (e.key === 'End') {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: document.documentElement.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Page Up/Down 键
+                if (e.key === 'PageUp') {
+                    e.preventDefault();
+                    window.scrollBy({
+                        top: -window.innerHeight * 0.9,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                if (e.key === 'PageDown') {
+                    e.preventDefault();
+                    window.scrollBy({
+                        top: window.innerHeight * 0.9,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+            
+            // 网络状态监控
+            if (navigator.connection) {
+                const connection = navigator.connection;
+                connection.addEventListener('change', function() {
+                    const speed = connection.effectiveType;
+                    console.log('网络类型:', speed);
+                    
+                    // 根据网络状况调整加载策略
+                    if (speed.includes('2g') || speed.includes('slow-2g')) {
+                        document.body.classList.add('slow-network');
+                    } else {
+                        document.body.classList.remove('slow-network');
+                    }
                 });
             }
             
-            // 初始化增强功能
-            enhanceClickOutsideFeature();
-        })();
-        
-        // 卡片功能提示
-        function showCardFunctionHint() {
-            const cards = document.querySelectorAll('.feature-card');
-            if (cards.length > 0) {
-                // 添加首次点击提示
-                let hasShownHint = localStorage.getItem('cardHintShown');
-                if (!hasShownHint) {
-                    setTimeout(function() {
-                        const hint = document.getElementById('click-hint');
-                        if (hint) {
-                            hint.style.display = 'block';
-                            setTimeout(function() {
-                                hint.style.display = 'none';
-                            }, 3000);
+            // 电池状态监控（如果支持）
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(function(battery) {
+                    // 低电量模式
+                    if (battery.level < 0.2) {
+                        document.body.classList.add('low-battery');
+                    }
+                    
+                    battery.addEventListener('levelchange', function() {
+                        if (battery.level < 0.2) {
+                            document.body.classList.add('low-battery');
+                        } else {
+                            document.body.classList.remove('low-battery');
                         }
-                        localStorage.setItem('cardHintShown', 'true');
-                    }, 2000);
-                }
+                    });
+                });
             }
-        }
-        
-        // 页面加载完成后显示提示
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', showCardFunctionHint);
-        } else {
-            setTimeout(showCardFunctionHint, 500);
-        }
+            
+            // 滚动性能优化
+            let scrollTimeout;
+            window.addEventListener('scroll', function() {
+                // 清除之前的超时
+                if (scrollTimeout) {
+                    clearTimeout(scrollTimeout);
+                }
+                
+                // 设置新超时
+                scrollTimeout = setTimeout(function() {
+                    // 滚动停止后的操作
+                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                    
+                    // 滚动到顶部时优化性能
+                    if (scrollTop < 100) {
+                        document.body.classList.add('scrolled-to-top');
+                    } else {
+                        document.body.classList.remove('scrolled-to-top');
+                    }
+                    
+                    // 滚动到底部时优化性能
+                    const scrollHeight = document.documentElement.scrollHeight;
+                    const clientHeight = document.documentElement.clientHeight;
+                    if (scrollTop + clientHeight >= scrollHeight - 50) {
+                        document.body.classList.add('scrolled-to-bottom');
+                    } else {
+                        document.body.classList.remove('scrolled-to-bottom');
+                    }
+                }, 100);
+            }, { passive: true });
+            
+            // 初始滚动状态检测
+            setTimeout(function() {
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                if (scrollTop === 0) {
+                    document.body.classList.add('scrolled-to-top');
+                }
+            }, 100);
+            
+            // 改进的iOS橡皮筋效果处理
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+                // 针对iOS的优化
+                document.addEventListener('touchmove', function(e) {
+                    const target = e.target;
+                    const scrollable = target.closest('.scrollable-content, .scrollable');
+                    
+                    // 如果是在可滚动区域内，使用更宽松的策略
+                    if (scrollable) {
+                        const scrollTop = scrollable.scrollTop;
+                        const scrollHeight = scrollable.scrollHeight;
+                        const clientHeight = scrollable.clientHeight;
+                        
+                        const isAtTop = scrollTop <= 0;
+                        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                        
+                        if ((isAtTop || isAtBottom) && scrollable === document.documentElement) {
+                            // 允许正常的滚动
+                            return;
+                        }
+                    }
+                }, { passive: true });
+            }
+            
+            // 监听卡片特效系统加载
+            document.addEventListener('DOMContentLoaded', function() {
+                // 等待自适应卡片系统加载
+                setTimeout(function() {
+                    const cards = document.querySelectorAll('.feature-card');
+                    console.log(`特效卡片系统已加载，共 ${cards.length} 张卡片`);
+                    
+                    // 为每张卡片添加数据属性
+                    cards.forEach((card, index) => {
+                        card.setAttribute('data-card-id', `card-${index + 1}`);
+                    });
+                }, 1000);
+            });
+        })();
     </script>
 </body>
 </html>
