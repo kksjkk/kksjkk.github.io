@@ -1,0 +1,973 @@
+/* ===== 重置和基础样式 ===== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Firefox 滚动条样式 */
+    scrollbar-width: thin;
+    scrollbar-color: #00c9ff rgba(10, 15, 30, 0.5);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #e0e0e0;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+    transition: background 0.5s ease;
+    overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
+}
+
+body.dark-mode {
+    background: linear-gradient(135deg, #050510 0%, #0f0f1f 50%, #121228 100%);
+    color: #ffffff;
+}
+
+/* ===== 性能优化样式 ===== */
+.scifi-bg,
+.grid-lines,
+.floating-particles,
+.particle,
+.logo-container,
+.feature-card,
+.scifi-button,
+.progress-container {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000;
+    -webkit-perspective: 1000;
+}
+
+/* 硬件加速优化 */
+.scifi-bg,
+.grid-lines,
+.floating-particles,
+.particle,
+.logo-container,
+.logo-glow,
+.logo,
+.feature-card,
+.progress-bar,
+.scifi-title,
+.scifi-link,
+.scifi-button,
+.nav-toggle span {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+    
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+    backface-visibility: hidden;
+    
+    -webkit-perspective: 1000;
+    -moz-perspective: 1000;
+    perspective: 1000;
+}
+
+/* ===== 背景元素 ===== */
+.scifi-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
+}
+
+.grid-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridMove 30s linear infinite;
+}
+
+@keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.floating-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(0, 212, 255, 0.4);
+    border-radius: 50%;
+    animation: optimizedFloat 15s infinite linear;
+}
+
+@keyframes optimizedFloat {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(50px);
+        opacity: 0;
+    }
+}
+
+/* ===== 头部和导航 ===== */
+header {
+    background: rgba(0, 0, 0, 0.85);
+    height: 80px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 20px rgba(0, 212, 255, 0.15);
+    will-change: transform;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 20px;
+}
+
+.scifi-title {
+    color: #00f3ff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    align-items: center;
+}
+
+.scifi-link {
+    color: #e0e0e0;
+    text-decoration: none;
+    position: relative;
+    transition: all 0.3s ease;
+    padding: 0.5rem 0;
+}
+
+.scifi-link:hover {
+    color: #00f3ff;
+}
+
+.scifi-button {
+    background: rgba(0, 243, 255, 0.15);
+    border: 1px solid rgba(0, 243, 255, 0.4);
+    color: #e0e0e0;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+    font-weight: 500;
+}
+
+.scifi-button:hover {
+    background: rgba(0, 243, 255, 0.25);
+    color: #00f3ff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 243, 255, 0.2);
+}
+
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    cursor: pointer;
+    padding: 6px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 24px;
+    height: 3px;
+    background: #00f3ff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* ===== 进度条 ===== */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #007acc, #00c9ff);
+    width: 0%;
+    z-index: 9999;
+    transition: width 0.15s ease;
+    opacity: 1;
+}
+
+.progress-bar.hidden {
+    opacity: 0 !important;
+    transition: opacity 0.5s ease !important;
+}
+
+/* ===== 主要内容区域 ===== */
+main {
+    margin-top: 80px;
+    min-height: calc(100vh - 160px);
+    position: relative;
+    z-index: 1;
+}
+
+.hero {
+    padding: 4rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 50%);
+    z-index: -1;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.scifi-heading {
+    font-size: 2.5rem;
+    margin: 1.5rem 0;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+    animation: fadeInUp 0.8s ease;
+}
+
+.highlight {
+    color: #00f3ff;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+.scifi-text {
+    font-size: 1.1rem;
+    margin: 1rem 0;
+    opacity: 0.9;
+    animation: fadeInUp 0.8s ease 0.2s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Logo容器 ===== */
+.logo-container {
+    position: relative;
+    display: inline-block;
+    width: 150px;
+    height: 150px;
+    margin: 1rem auto;
+    animation: fadeIn 1s ease;
+}
+
+.logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 243, 255, 0.2) 0%, transparent 70%);
+    filter: blur(15px);
+    animation: pulseGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.95); }
+    100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+.logo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(0, 243, 255, 0.3);
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+    border-color: rgba(0, 243, 255, 0.6);
+}
+
+/* ===== 进度容器 ===== */
+.progress-container {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 243, 255, 0.1);
+    max-width: 400px;
+    margin: 2rem auto;
+    animation: fadeInUp 0.8s ease 0.4s both;
+}
+
+.scifi-label {
+    display: block;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    color: #00f3ff;
+}
+
+.progress-wrapper {
+    position: relative;
+    margin: 1rem 0;
+}
+
+progress {
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: none;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+progress::-webkit-progress-bar {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+}
+
+progress::-webkit-progress-value {
+    background: linear-gradient(90deg, #00c9ff, #007acc);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.progress-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 75%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(0, 201, 255, 0.2), transparent);
+    border-radius: 6px;
+    filter: blur(3px);
+}
+
+.progress-text {
+    display: block;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-weight: 600;
+    color: #00f3ff;
+}
+
+/* ===== 关于区域 ===== */
+.about-section {
+    padding: 4rem 2rem;
+    background: rgba(10, 15, 30, 0.7);
+    position: relative;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.about-section h2 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    color: #e0e0e0;
+}
+
+.about-section > .container > p {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+    color: #a0a0a0;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    line-height: 1.8;
+}
+
+/* ===== 特性卡片 ===== */
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.feature-card {
+    background: rgba(30, 35, 60, 0.7);
+    padding: 1.5rem 1.25rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid rgba(0, 243, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    aspect-ratio: 16/9;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 10;
+    isolation: isolate;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(0, 243, 255, 0.4);
+    box-shadow: 0 15px 30px rgba(0, 212, 255, 0.15);
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.feature-card:hover .card-icon {
+    transform: scale(1.1);
+}
+
+.feature-card h3 {
+    color: #00f3ff;
+    margin-bottom: 0.75rem;
+    font-size: 1.3rem;
+    line-height: 1.3;
+    text-align: center;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.feature-card p {
+    color: #a0a0a0;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    max-width: 90%;
+    margin: 0 auto;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: radial-gradient(circle at center, rgba(0, 243, 255, 0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-card:hover .card-glow {
+    opacity: 1;
+}
+
+/* ===== 下载按钮区域 ===== */
+.download-section {
+    margin-top: 2rem;
+    animation: fadeInUp 1s ease 0.8s both;
+}
+
+.download-btn-large {
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(148, 0, 211, 0.2));
+    border: 2px solid rgba(0, 243, 255, 0.5);
+    color: #e0e0e0;
+    padding: 1.2rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 260px;
+    margin: 2rem auto;
+}
+
+.download-btn-large:hover {
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.25), rgba(148, 0, 211, 0.25));
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 243, 255, 0.2);
+}
+
+.btn-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 0 5px rgba(0, 243, 255, 0.5));
+}
+
+.btn-subtext {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.download-progress {
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, #00f3ff, #9400d3);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s ease;
+    border-radius: 0 0 10px 10px;
+}
+
+.downloading {
+    opacity: 0.8 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+.download-complete {
+    animation: downloadPulse 0.6s ease !important;
+}
+
+@keyframes downloadPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* ===== 页脚 ===== */
+footer {
+    background: rgba(0, 0, 0, 0.9);
+    color: #e0e0e0;
+    padding: 3rem 2rem;
+    text-align: center;
+    border-top: 1px solid rgba(0, 243, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+footer a {
+    color: #00f3ff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+footer a:hover {
+    text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+}
+
+/* ===== 滚动条样式 ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(10, 15, 30, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 201, 255, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 243, 255, 0.7);
+}
+
+/* ===== 卡片点击动画 ===== */
+.feature-card.click-effect {
+    animation: cardClickPulse 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+}
+
+@keyframes cardClickPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4);
+    }
+    50% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 15px rgba(0, 243, 255, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 243, 255, 0);
+    }
+}
+
+/* ===== 响应式设计 ===== */
+@media (max-width: 768px) {
+    html { font-size: 15px; }
+    
+    .header-container { padding: 0 15px; }
+    
+    .nav-toggle {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    
+    .nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 220px;
+        background: rgba(0, 0, 0, 0.95);
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1rem;
+        border-radius: 0 0 0 10px;
+        border: 1px solid rgba(0, 243, 255, 0.2);
+        backdrop-filter: blur(20px);
+        z-index: 1001;
+    }
+    
+    .nav-menu.active {
+        display: flex;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .hero {
+        padding: 3rem 1rem;
+    }
+    
+    .scifi-heading {
+        font-size: 2rem;
+    }
+    
+    .logo-container {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .logo-glow {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .features {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .feature-card {
+        padding: 2rem 1.5rem;
+        min-height: 240px;
+    }
+    
+    .about-section {
+        padding: 3rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    html { font-size: 14px; }
+    
+    .scifi-heading {
+        font-size: 1.8rem;
+    }
+    
+    .logo-container {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .logo-glow {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .progress-container {
+        padding: 1.2rem;
+    }
+    
+    .download-btn-large {
+        min-width: 220px;
+        padding: 1rem 1.5rem;
+    }
+}
+
+/* 在 style-optimized.css 的响应式设计部分添加 */
+
+/* 确保4张卡片在桌面端正常显示 */
+@media (min-width: 1024px) {
+    .features {
+        grid-template-columns: repeat(2, minmax(300px, 1fr));
+    }
+}
+
+@media (min-width: 1200px) {
+    .features {
+        grid-template-columns: repeat(2, minmax(350px, 1fr));
+    }
+}
+
+@media (min-width: 1400px) {
+    .features {
+        grid-template-columns: repeat(2, minmax(400px, 1fr));
+    }
+}
+
+/* ===== 暗色模式适配 ===== */
+body.dark-mode header {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+body.dark-mode .feature-card {
+    background: rgba(30, 30, 60, 0.8);
+}
+
+body.dark-mode .about-section {
+    background: rgba(5, 10, 20, 0.8);
+}
+
+/* ===== 浏览器兼容性修复 ===== */
+
+/* 旧版浏览器回退样式 */
+.no-cssgrid .features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.no-cssgrid .feature-card {
+    flex: 0 0 calc(33.333% - 1.5rem);
+    min-width: 280px;
+}
+
+@media (max-width: 992px) {
+    .no-cssgrid .feature-card {
+        flex: 0 0 calc(50% - 1.5rem);
+    }
+}
+
+@media (max-width: 768px) {
+    .no-cssgrid .feature-card {
+        flex: 0 0 100%;
+    }
+}
+
+/* 滤镜效果回退 */
+.no-filter .btn-icon {
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.7);
+}
+
+.no-filter .logo-glow {
+    display: none;
+}
+
+.no-filter .card-glow {
+    display: none;
+}
+
+/* 减少动画模式 */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    -webkit-animation-duration: 0.001ms !important;
+    -webkit-animation-iteration-count: 1 !important;
+    -webkit-transition-duration: 0.001ms !important;
+}
+
+/* 性能模式 */
+.performance-mode .feature-card {
+    animation: none !important;
+    transform: none !important;
+}
+
+.performance-mode .particle {
+    display: none !important;
+}
+
+.performance-mode .logo-glow {
+    animation: none !important;
+}
+
+/* 移动设备触摸优化 */
+@media (hover: none) and (pointer: coarse) {
+    .feature-card:hover,
+    .scifi-button:hover,
+    .scifi-link:hover {
+        transform: none !important;
+    }
+    
+    .nav-toggle span {
+        min-height: 4px;
+    }
+}
+
+/* iOS Safari 优化 */
+@supports (-webkit-touch-callout: none) {
+    .nav-toggle {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .scifi-button {
+        -webkit-appearance: none;
+    }
+}
+
+/* 页面可见性优化 */
+.page-hidden {
+    animation-play-state: paused !important;
+    -webkit-animation-play-state: paused !important;
+}
+
+/* 加载状态 */
+body.loaded .scifi-heading,
+body.loaded .scifi-text,
+body.loaded .progress-container {
+    animation-play-state: running !important;
+}
+
+/* 打印样式 */
+@media print {
+    .scifi-bg,
+    .grid-lines,
+    .floating-particles,
+    .logo-glow,
+    .progress-glow,
+    .card-glow {
+        display: none !important;
+    }
+    
+    header {
+        position: static !important;
+        background: #fff !important;
+    }
+    
+    body {
+        background: #fff !important;
+        color: #000 !important;
+    }
+    
+    .download-section {
+        display: none !important;
+    }
+}
+
+/* 锚点滚动偏移 */
+section[id] {
+    scroll-margin-top: 80px;
+}
+
+/* 隐藏类 */
+.hidden-desktop {
+    display: none !important;
+}
+
+.visible-mobile {
+    display: flex !important;
+}
+
+/* 添加这些样式到 style-optimized.css 或内联样式中 */
+html {
+    -webkit-overflow-scrolling: touch; /* 启用平滑滚动 */
+}
+
+body {
+    overscroll-behavior-y: none; /* 防止过度滚动 */
+}
+
+.scrollable-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
