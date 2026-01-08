@@ -1,366 +1,470 @@
-// 高级性能优化层（兼容性修复版） - 修复版
+// 高级性能优化层（兼容性修复版） - 重构版
+// 专注于性能监控和浏览器兼容性，不处理业务逻辑
+
 (function() {
     'use strict';
     
-    // 使用更安全的浏览器检测
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const isEdge = /Edg/i.test(navigator.userAgent);
-    const isChrome = /Chrome/i.test(navigator.userAgent) && !/Edg/i.test(navigator.userAgent);
-    const isVia = /ViaBrowser/i.test(navigator.userAgent);
-    const isBaidu = /baidubrowser|BIDUBrowser/i.test(navigator.userAgent);
-    const isSogou = /SogouMobileBrowser/i.test(navigator.userAgent);
+    // 标记性能层已初始化
+    window.performanceLayerInitialized = true;
     
-    // 事件管理器 - 防止重复绑定
-    class EventManager {
-        constructor() {
-            this.registry = new Map();
-        }
-        
-        add(element, event, handler, options = {}) {
-            if (!this.registry.has(element)) {
-                this.registry.set(element, new Map());
-            }
-            
-            const elementEvents = this.registry.get(element);
-            if (!elementEvents.has(event)) {
-                elementEvents.set(event, new Set());
-            }
-            
-            // 检查是否已经绑定过
-            if (elementEvents.get(event).has(handler)) {
-                return;
-            }
-            
-            elementEvents.get(event).add(handler);
-            element.addEventListener(event, handler, options);
-        }
-        
-        remove(element, event, handler) {
-            if (this.registry.has(element)) {
-                const elementEvents = this.registry.get(element);
-                if (elementEvents.has(event)) {
-                    const handlers = elementEvents.get(event);
-                    if (handlers.has(handler)) {
-                        element.removeEventListener(event, handler);
-                        handlers.delete(handler);
-                    }
-                }
-            }
-        }
-        
-        clearElement(element) {
-            if (this.registry.has(element)) {
-                const elementEvents = this.registry.get(element);
-                elementEvents.forEach((handlers, event) => {
-                    handlers.forEach(handler => {
-                        element.removeEventListener(event, handler);
-                    });
-                });
-                this.registry.delete(element);
-            }
-        }
+    // 检查主脚本是否已初始化，避免功能冲突
+    if (window.mainScriptInitialized) {
+        console.log('主脚本已初始化，性能层将专注于监控');
     }
     
-    const eventManager = new EventManager();
+    // 浏览器检测 - 仅用于性能优化决策
+    const browserInfo = {
+        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+        isEdge: /Edg/i.test(navigator.userAgent),
+        isChrome: /Chrome/i.test(navigator.userAgent) && !/Edg/i.test(navigator.userAgent),
+        isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+        isLowPerformance: navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4
+    };
     
-    // 修复Safari和其他浏览器的requestAnimationFrame兼容性
-    const optimizedRAF = (function() {
-        const vendors = ['ms', 'moz', 'webkit', 'o'];
-        for(let x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-            window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-                                       || window[vendors[x]+'CancelRequestAnimationFrame'];
+    // 性能监控数据
+    const perfData = {
+        loadTimes: {},
+        memoryUsage: null,
+        animationFrameRate: 60,
+        domReadyTime: null,
+        loadCompleteTime: null
+    };
+    
+    // 帧率监控
+    let lastFrameTime = performance.now();
+    let frameCount = 0;
+    let fps = 60;
+    
+    function updateFPS() {
+        const now = performance.now();
+        frameCount++;
+        
+        if (now >= lastFrameTime + 1000) {
+            fps = Math.round((frameCount * 1000) / (now - lastFrameTime));
+            frameCount = 0;
+            lastFrameTime = now;
+            
+            // 低帧率警告
+            if (fps < 30 && !document.body.classList.contains('low-fps-warning')) {
+                console.warn(`低帧率检测: ${fps} FPS`);
+                // 可以在这里添加低帧率优化，但避免与主脚本冲突
+            }
         }
         
-        if (!window.requestAnimationFrame) {
-            let lastTime = 0;
-            return function(callback) {
-                const currTime = new Date().getTime();
-                const timeToCall = Math.max(0, 16 - (currTime - lastTime));
-                const id = window.setTimeout(function() { 
-                    callback(currTime + timeToCall); 
-                }, timeToCall);
-                lastTime = currTime + timeToCall;
-                return id;
+        requestAnimationFrame(updateFPS);
+    }
+    
+    // 页面加载时间监控
+    function monitorLoadTimes() {
+        if (performance && performance.timing) {
+            const timing = performance.timing;
+            
+            perfData.loadTimes = {
+                dns: timing.domainLookupEnd - timing.domainLookupStart,
+                tcp: timing.connectEnd - timing.connectStart,
+                ttfb: timing.responseStart - timing.requestStart,
+                domReady: timing.domContentLoadedEventEnd - timing.navigationStart,
+                pageLoad: timing.loadEventEnd - timing.navigationStart,
+                firstPaint: performance.getEntriesByType('paint').find(p => p.name === 'first-paint')?.startTime || null,
+                firstContentfulPaint: performance.getEntriesByType('paint').find(p => p.name === 'first-contentful-paint')?.startTime || null
             };
-        }
-        return window.requestAnimationFrame.bind(window);
-    })();
-    
-    // 兼容性更好的节流函数
-    function throttle(func, limit) {
-        let inThrottle;
-        let lastFunc;
-        let lastRan;
-        return function() {
-            const context = this;
-            const args = arguments;
-            if (!inThrottle) {
-                func.apply(context, args);
-                lastRan = Date.now();
-                inThrottle = true;
-            } else {
-                clearTimeout(lastFunc);
-                lastFunc = setTimeout(function() {
-                    if ((Date.now() - lastRan) >= limit) {
-                        func.apply(context, args);
-                        lastRan = Date.now();
-                    }
-                }, limit - (Date.now() - lastRan));
+            
+            console.log('页面加载性能数据:', perfData.loadTimes);
+            
+            // 如果加载时间过长，应用性能优化
+            if (perfData.loadTimes.pageLoad > 3000) {
+                applyHeavyOptimizations();
             }
-        };
+        }
     }
     
-    // 防抖函数
-    function debounce(func, wait, immediate) {
-        let timeout;
-        return function() {
-            const context = this;
-            const args = arguments;
-            const later = function() {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
+    // 内存监控（如果支持）
+    function monitorMemory() {
+        if (performance && performance.memory) {
+            const memory = performance.memory;
+            perfData.memoryUsage = {
+                usedJSHeapSize: Math.round(memory.usedJSHeapSize / 1048576), // MB
+                totalJSHeapSize: Math.round(memory.totalJSHeapSize / 1048576), // MB
+                jsHeapSizeLimit: Math.round(memory.jsHeapSizeLimit / 1048576) // MB
             };
-            const callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
-        };
+            
+            // 高内存使用警告
+            if (perfData.memoryUsage.usedJSHeapSize > 100) {
+                console.warn(`高内存使用: ${perfData.memoryUsage.usedJSHeapSize}MB`);
+            }
+        }
     }
     
-    // 浏览器兼容的粒子系统
-    let cleanupInterval = null;
-    let mouseMoveHandler = null;
+    // 重度性能优化
+    function applyHeavyOptimizations() {
+        console.log('应用重度性能优化');
+        
+        // 简化动画
+        document.body.classList.add('performance-mode');
+        
+        // 减少粒子数量
+        const particles = document.querySelectorAll('.particle');
+        if (particles.length > 10) {
+            for (let i = 10; i < particles.length; i++) {
+                particles[i].style.display = 'none';
+            }
+        }
+        
+        // 禁用部分特效
+        const style = document.createElement('style');
+        style.id = 'heavy-optimizations';
+        style.textContent = `
+            .performance-mode .particle {
+                display: none !important;
+            }
+            .performance-mode .feature-card {
+                animation: none !important;
+                transform: none !important;
+            }
+            .performance-mode .logo-glow {
+                animation: none !important;
+            }
+        `;
+        
+        if (!document.getElementById('heavy-optimizations')) {
+            document.head.appendChild(style);
+        }
+    }
     
-    function initParticleSystem() {
-        // 只在支持transform的浏览器中启用粒子
-        if (typeof document.body.style.transform === 'undefined' && 
-            typeof document.body.style.webkitTransform === 'undefined') {
-            console.log('当前浏览器不支持transform，禁用粒子系统');
+    // 轻量级粒子系统（仅在需要时启用）
+    let particleSystemEnabled = false;
+    let particleInterval = null;
+    
+    function initLightweightParticles() {
+        // 仅在桌面设备且非低性能设备上启用
+        if (browserInfo.isMobile || browserInfo.isLowPerformance) {
+            console.log('移动设备或低性能设备，禁用粒子系统');
             return;
         }
         
-        let mouseX = 0, mouseY = 0;
-        let particleCreationTime = 0;
-        
-        mouseMoveHandler = throttle(function(e) {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            const now = Date.now();
-            if (now - particleCreationTime > 33) {
-                createOptimizedParticle(mouseX, mouseY);
-                particleCreationTime = now;
-            }
-        }, 16);
-        
-        document.addEventListener('mousemove', mouseMoveHandler);
-    }
-    
-    function createOptimizedParticle(x, y) {
-        const particles = document.querySelector('.floating-particles');
-        if (!particles) return;
-        
-        // 限制粒子数量（特别针对移动端）
-        const maxParticles = window.innerWidth <= 768 ? 10 : 20;
-        if (particles.children.length >= maxParticles) {
-            // 移除最早的粒子
-            const firstParticle = particles.querySelector('.mouse-particle');
-            if (firstParticle) {
-                particles.removeChild(firstParticle);
-            }
+        // 检查主脚本是否已处理粒子系统
+        if (window.particleSystemInitialized) {
+            console.log('粒子系统已由主脚本处理');
+            return;
         }
         
-        optimizedRAF(() => {
-            const particle = document.createElement('div');
-            particle.className = 'particle mouse-particle';
-            
-            // 使用兼容性更好的样式设置
-            particle.style.position = 'absolute';
-            particle.style.left = x + 'px';
-            particle.style.top = y + 'px';
-            particle.style.width = (Math.random() * 3 + 2) + 'px';
-            particle.style.height = (Math.random() * 3 + 2) + 'px';
-            particle.style.background = 'rgba(0, 243, 255, 0.7)';
-            particle.style.borderRadius = '50%';
-            particle.style.pointerEvents = 'none';
-            
-            // 兼容性动画
-            if (typeof particle.style.animation !== 'undefined') {
-                particle.style.animation = 'optimizedFloat 1s ease-out forwards';
-            } else if (typeof particle.style.webkitAnimation !== 'undefined') {
-                particle.style.webkitAnimation = 'optimizedFloat 1s ease-out forwards';
-            }
-            
-            particles.appendChild(particle);
-            
-            // 自动清理
+        particleSystemEnabled = true;
+        
+        // 创建基础粒子
+        const particlesContainer = document.querySelector('.floating-particles');
+        if (!particlesContainer) return;
+        
+        // 限制粒子数量
+        const particleCount = 8;
+        
+        for (let i = 0; i < particleCount; i++) {
             setTimeout(() => {
-                if (particle && particle.parentNode) {
-                    particle.parentNode.removeChild(particle);
-                }
-            }, 1000);
+                createPerformanceParticle(particlesContainer);
+            }, i * 300);
+        }
+        
+        // 定期更新粒子位置
+        particleInterval = setInterval(() => {
+            updateParticles();
+        }, 100);
+    }
+    
+    function createPerformanceParticle(container) {
+        const particle = document.createElement('div');
+        particle.className = 'performance-particle';
+        
+        // 简单样式
+        particle.style.cssText = `
+            position: absolute;
+            width: ${Math.random() * 4 + 2}px;
+            height: ${Math.random() * 4 + 2}px;
+            background: rgba(0, 243, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            opacity: ${Math.random() * 0.5 + 0.3};
+        `;
+        
+        particle._data = {
+            speedX: (Math.random() - 0.5) * 0.5,
+            speedY: (Math.random() - 0.5) * 0.5,
+            opacity: Math.random() * 0.5 + 0.3
+        };
+        
+        container.appendChild(particle);
+        return particle;
+    }
+    
+    function updateParticles() {
+        if (!particleSystemEnabled) return;
+        
+        const particles = document.querySelectorAll('.performance-particle');
+        particles.forEach(particle => {
+            if (!particle._data) return;
+            
+            const rect = particle.getBoundingClientRect();
+            const data = particle._data;
+            
+            // 简单移动
+            let newLeft = parseFloat(particle.style.left) + data.speedX;
+            let newTop = parseFloat(particle.style.top) + data.speedY;
+            
+            // 边界检查
+            if (newLeft < -10) newLeft = 110;
+            if (newLeft > 110) newLeft = -10;
+            if (newTop < -10) newTop = 110;
+            if (newTop > 110) newTop = -10;
+            
+            particle.style.left = newLeft + '%';
+            particle.style.top = newTop + '%';
         });
     }
     
-    // 内存清理 - 针对移动浏览器优化
-    function initCleanupSystem() {
-        if (cleanupInterval) clearInterval(cleanupInterval);
-        
-        cleanupInterval = setInterval(() => {
-            const hiddenParticles = document.querySelectorAll('.mouse-particle');
-            hiddenParticles.forEach(particle => {
-                if (particle.getBoundingClientRect) {
-                    const rect = particle.getBoundingClientRect();
-                    if (rect.bottom < -100 || rect.top > window.innerHeight + 100 || 
-                        rect.right < -100 || rect.left > window.innerWidth + 100) {
-                        particle.remove();
-                    }
-                }
-            });
-        }, 10000); // 延长清理间隔减少性能消耗
-    }
+    // 滚动性能优化
+    let lastScrollY = 0;
+    let scrollUpdateScheduled = false;
     
-    // 页面可见性API优化（兼容性处理）
-    function initVisibilityHandler() {
-        if (typeof document.hidden !== 'undefined') {
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) {
-                    document.body.classList.add('page-hidden');
-                    if (mouseMoveHandler) {
-                        document.removeEventListener('mousemove', mouseMoveHandler);
-                    }
-                    if (cleanupInterval) {
-                        clearInterval(cleanupInterval);
-                        cleanupInterval = null;
-                    }
-                } else {
-                    document.body.classList.remove('page-hidden');
-                    initParticleSystem();
-                    initCleanupSystem();
-                }
-            });
-        }
-    }
-    
-    // 性能监控（兼容性处理）
-    function initPerformanceMonitoring() {
-        if (typeof window.performance !== 'undefined' && 
-            typeof window.performance.timing !== 'undefined') {
-            window.addEventListener('load', function() {
-                setTimeout(function() {
-                    try {
-                        const perfData = window.performance.timing;
-                        const loadTime = perfData.loadEventEnd - perfData.navigationStart;
-                        console.log(`页面加载时间: ${loadTime}ms`);
-                    } catch (e) {
-                        console.log('性能监控数据不可用');
-                    }
-                }, 100);
-            });
-        }
-    }
-
-    // APK下载功能 - 只负责性能优化，不重复处理下载逻辑
-    function initDownloadButton() {
-        // 确保下载功能只被主脚本处理
-        if (document.querySelector('[data-main-script-initialized]')) {
-            console.log('下载功能已由主脚本处理，跳过性能层处理');
-            return;
-        }
-        
-        const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
-        
-        if (downloadButtons.length === 0) {
-            console.warn('未找到下载按钮，将在2秒后重试');
-            setTimeout(initDownloadButton, 2000);
-            return;
-        }
-        
-        downloadButtons.forEach(button => {
-            // 检查是否已经被其他脚本处理过
-            if (button.hasAttribute('data-download-initialized') || 
-                button.hasAttribute('data-download-optimized')) {
-                return;
-            }
-            
-            // 标记为已处理，避免重复处理
-            button.setAttribute('data-download-optimized', 'true');
-            
-            // 只绑定一次事件
-            eventManager.add(button, 'click', function(e) {
-                // 只负责性能优化，不处理具体下载逻辑
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('性能层下载按钮点击，应由主脚本处理');
+    function initScrollOptimization() {
+        window.addEventListener('scroll', function() {
+            if (!scrollUpdateScheduled) {
+                scrollUpdateScheduled = true;
                 
-                // 阻止默认行为，让主脚本处理
-                return false;
+                requestAnimationFrame(() => {
+                    const currentScrollY = window.pageYOffset;
+                    const scrollDelta = Math.abs(currentScrollY - lastScrollY);
+                    
+                    // 如果滚动距离很大，应用优化
+                    if (scrollDelta > 300) {
+                        pauseNonEssentialAnimations();
+                    }
+                    
+                    lastScrollY = currentScrollY;
+                    scrollUpdateScheduled = false;
+                });
+            }
+        }, { passive: true });
+    }
+    
+    function pauseNonEssentialAnimations() {
+        // 临时暂停部分动画
+        const particles = document.querySelectorAll('.performance-particle');
+        particles.forEach(p => {
+            p.style.animationPlayState = 'paused';
+        });
+        
+        // 很快恢复
+        setTimeout(() => {
+            particles.forEach(p => {
+                p.style.animationPlayState = 'running';
             });
+        }, 100);
+    }
+    
+    // 可见性状态管理
+    function initVisibilityOptimization() {
+        if (typeof document.hidden !== 'undefined') {
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    // 页面隐藏时暂停非必要功能
+                    if (particleInterval) {
+                        clearInterval(particleInterval);
+                        particleInterval = null;
+                    }
+                    document.body.classList.add('page-hidden');
+                } else {
+                    // 页面恢复时重新启用
+                    document.body.classList.remove('page-hidden');
+                    if (particleSystemEnabled && !particleInterval) {
+                        particleInterval = setInterval(() => {
+                            updateParticles();
+                        }, 100);
+                    }
+                }
+            };
+            
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        }
+    }
+    
+    // 网络状态监控
+    function monitorNetwork() {
+        if (navigator.connection) {
+            const connection = navigator.connection;
+            
+            // 低速网络优化
+            if (connection.effectiveType && connection.effectiveType.includes('2g')) {
+                console.log('低速网络检测，应用网络优化');
+                applyNetworkOptimizations();
+            }
+            
+            // 监听网络变化
+            connection.addEventListener('change', () => {
+                if (connection.effectiveType && connection.effectiveType.includes('2g')) {
+                    applyNetworkOptimizations();
+                }
+            });
+        }
+    }
+    
+    function applyNetworkOptimizations() {
+        // 禁用高带宽内容
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            video.preload = 'none';
+        });
+        
+        // 减少图片质量
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            if (img.loading !== 'lazy') {
+                img.loading = 'lazy';
+            }
         });
     }
-
-    // 动画性能检查
-    function checkAnimationPerformance() {
-        if ('animation' in document.documentElement.style) {
-            // 检查是否支持硬件加速
-            const testEl = document.createElement('div');
-            testEl.style.cssText = 'transform: translateZ(0);';
-            document.body.appendChild(testEl);
-            const transform = getComputedStyle(testEl).transform;
-            document.body.removeChild(testEl);
-            
-            if (transform === 'none') {
-                console.warn('硬件加速可能不可用，简化特效');
-                document.body.classList.add('performance-mode');
-            }
-        }
-    }
-
-    // 初始化所有功能
-    function initAll() {
-        console.log('初始化性能优化层...');
+    
+    // 设备性能分类
+    function classifyDevicePerformance() {
+        const classes = [];
         
-        // 检查是否已经有主脚本处理过
-        if (document.querySelector('[data-main-script-initialized]')) {
-            console.log('主脚本已初始化，优化层跳过重复功能');
-            return;
-        }
-        
-        // 初始化基础功能
-        initPerformanceMonitoring();
-        initVisibilityHandler();
-        checkAnimationPerformance();
-        
-        // 根据浏览器能力选择性初始化
-        if (!isSafari || window.innerWidth > 768) {
-            try {
-                initParticleSystem();
-                initCleanupSystem();
-            } catch (error) {
-                console.error('粒子系统初始化失败:', error);
+        // 基于硬件线程数
+        if (navigator.hardwareConcurrency) {
+            if (navigator.hardwareConcurrency >= 8) {
+                classes.push('high-performance');
+            } else if (navigator.hardwareConcurrency >= 4) {
+                classes.push('medium-performance');
+            } else {
+                classes.push('low-performance');
             }
         }
         
-        // 针对移动浏览器的优化
-        if (window.innerWidth <= 768) {
-            // 减少动画复杂度
-            document.body.classList.add('mobile-optimized');
+        // 基于内存
+        if (navigator.deviceMemory) {
+            if (navigator.deviceMemory >= 8) {
+                classes.push('high-memory');
+            } else if (navigator.deviceMemory >= 4) {
+                classes.push('medium-memory');
+            } else {
+                classes.push('low-memory');
+            }
         }
+        
+        // 添加设备类
+        classes.forEach(cls => {
+            document.documentElement.classList.add(cls);
+        });
     }
     
-    // DOM加载完成后初始化
+    // 错误监控
+    function initErrorMonitoring() {
+        // 全局错误捕获
+        window.addEventListener('error', (event) => {
+            console.error('全局错误:', {
+                message: event.message,
+                filename: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                error: event.error
+            });
+        });
+        
+        // Promise拒绝捕获
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('未处理的Promise拒绝:', event.reason);
+        });
+    }
+    
+    // 初始化所有性能监控功能
+    function initPerformanceMonitoring() {
+        console.log('初始化性能监控层');
+        
+        // 设备分类
+        classifyDevicePerformance();
+        
+        // 错误监控
+        initErrorMonitoring();
+        
+        // 帧率监控
+        requestAnimationFrame(updateFPS);
+        
+        // 加载时间监控
+        if (document.readyState === 'complete') {
+            setTimeout(monitorLoadTimes, 100);
+        } else {
+            window.addEventListener('load', () => {
+                setTimeout(monitorLoadTimes, 100);
+            });
+        }
+        
+        // 内存监控
+        if (performance && performance.memory) {
+            setInterval(monitorMemory, 10000);
+        }
+        
+        // 网络监控
+        monitorNetwork();
+        
+        // 滚动优化
+        initScrollOptimization();
+        
+        // 可见性优化
+        initVisibilityOptimization();
+        
+        // 粒子系统（条件性启用）
+        setTimeout(initLightweightParticles, 2000);
+    }
+    
+    // 页面加载完成后初始化
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAll);
+        document.addEventListener('DOMContentLoaded', initPerformanceMonitoring);
     } else {
-        setTimeout(initAll, 0);
+        // 如果DOM已经加载，等待页面完全加载
+        if (document.readyState === 'interactive') {
+            window.addEventListener('load', initPerformanceMonitoring);
+        } else {
+            initPerformanceMonitoring();
+        }
     }
     
-    // 页面卸载时清理
-    window.addEventListener('beforeunload', function() {
-        eventManager.clearElement(document);
-        if (cleanupInterval) {
-            clearInterval(cleanupInterval);
+    // 页面卸载清理
+    window.addEventListener('beforeunload', () => {
+        // 清理粒子系统
+        if (particleInterval) {
+            clearInterval(particleInterval);
+            particleInterval = null;
         }
+        
+        // 移除性能层标记
+        window.performanceLayerInitialized = false;
+        
+        // 清理粒子元素
+        const particles = document.querySelectorAll('.performance-particle');
+        particles.forEach(particle => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        });
     });
+    
+    // 导出性能数据供调试使用
+    window.getPerformanceData = () => perfData;
+    
+    // 导出性能优化方法
+    window.PerformanceOptimizer = {
+        enableParticles: () => {
+            if (!particleSystemEnabled) {
+                initLightweightParticles();
+            }
+        },
+        disableParticles: () => {
+            particleSystemEnabled = false;
+            if (particleInterval) {
+                clearInterval(particleInterval);
+                particleInterval = null;
+            }
+        },
+        getFPS: () => fps,
+        getLoadTimes: () => perfData.loadTimes
+    };
 })();
