@@ -1,6 +1,7 @@
 /**
  * 自适应卡片特效系统 - 修复扫描线特效版本
  * 增加点击其他地方恢复角度功能
+ * 优化版 - 修复初始化问题
  */
 
 (function() {
@@ -10,31 +11,49 @@
     let activeCard = null;
     let clickOutsideHandler = null;
     let animationTimeouts = {};
+    let systemInitialized = false;
+    
+    // 检查卡片特效系统是否已加载
+    if (window.adaptiveCardSystemInitialized) {
+        console.warn('卡片特效系统已经初始化，跳过重复初始化');
+        return;
+    }
     
     // 等待页面完全加载
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAdaptiveCardSystem);
     } else {
+        // 如果DOM已经加载，设置延时确保其他脚本已加载
         setTimeout(initAdaptiveCardSystem, 100);
     }
     
     function initAdaptiveCardSystem() {
         console.log('初始化自适应卡片特效系统...');
         
-        // 检查是否已经初始化
-        if (window.adaptiveCardSystemInitialized) {
+        // 避免重复初始化
+        if (systemInitialized) {
             console.log('卡片系统已初始化，跳过');
             return;
         }
         
+        // 检查是否已经有主脚本处理卡片
+        if (window.mainScriptInitialized && document.body.getAttribute('data-main-script-initialized') === 'true') {
+            console.log('主脚本已初始化，确保不会冲突');
+        }
+        
         window.adaptiveCardSystemInitialized = true;
+        systemInitialized = true;
         
         // 获取所有卡片
         const cards = document.querySelectorAll('.feature-card');
         if (cards.length === 0) {
-            console.warn('未找到卡片元素');
+            console.warn('未找到卡片元素，等待重试...');
+            // 等待重试
+            setTimeout(initAdaptiveCardSystem, 500);
             return;
         }
+        
+        console.log(`找到 ${cards.length} 张卡片，开始初始化...`);
         
         // 初始化每张卡片
         cards.forEach((card, index) => {
@@ -44,45 +63,52 @@
         // 初始化全局点击事件监听
         initGlobalClickListener();
         
-        console.log(`已初始化 ${cards.length} 张卡片特效`);
+        // 添加卡片状态提示
+        setTimeout(() => {
+            const activeCard = window.AdaptiveCardEffects.getActiveCard();
+            console.log(`已初始化 ${cards.length} 张卡片特效，当前激活卡片:`, activeCard ? '有' : '无');
+        }, 100);
     }
     
     function initSingleCard(card, index) {
         // 避免重复初始化
-        if (card.hasAttribute('data-card-initialized')) return;
-        card.setAttribute('data-card-initialized', 'true');
-        card.setAttribute('data-card-index', index);
-        
-        // 包装卡片结构
-        wrapCardStructure(card);
-        
-        // 添加事件监听器
-        setupCardEvents(card);
-    }
-    
-    function wrapCardStructure(card) {
-        // 检查是否已经包装过
-        if (card.querySelector('.card-content')) return;
+        if (card.hasAttribute('data-card-initialized')) {
+            return;
+        }
         
         try {
-            // 获取原始内容
+            card.setAttribute('data-card-initialized', 'true');
+            card.setAttribute('data-card-index', index);
+            card._cardId = `card_${index}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            // 检查卡片结构
             const icon = card.querySelector('.card-icon');
             const title = card.querySelector('h3');
             const text = card.querySelector('p');
-            const cardGlow = card.querySelector('.card-glow');
             
-            if (!icon || !title || !text) return;
+            if (!icon || !title || !text) {
+                console.warn('卡片结构不完整，跳过初始化:', card);
+                return;
+            }
+            
+            // 如果已经有包装好的结构，跳过
+            if (card.querySelector('.card-content')) {
+                console.log('卡片已包装，跳过包装步骤');
+                setupCardEvents(card);
+                return;
+            }
             
             // 保存原始内容
             const originalIcon = icon.innerHTML;
             const originalTitle = title.textContent;
             const originalText = text.textContent;
+            const cardGlow = card.querySelector('.card-glow');
             const originalGlow = cardGlow ? cardGlow.outerHTML : '';
             
             // 清空卡片
             card.innerHTML = '';
             
-            // 创建刷新容器 - 确保这是第一个子元素
+            // 创建刷新容器
             const refreshContainer = document.createElement('div');
             refreshContainer.className = 'card-refresh-container';
             refreshContainer.style.position = 'absolute';
@@ -240,13 +266,6 @@
             gradientOverlay.style.zIndex = '1';
             card.appendChild(gradientOverlay);
             
-            // 保存原始内容引用
-            card._originalContent = {
-                icon: originalIcon,
-                title: originalTitle,
-                text: originalText
-            };
-            
             // 保存DOM引用以便后续使用
             card._scanLine = scanLine;
             card._refreshGrid = refreshGrid;
@@ -256,8 +275,11 @@
             card._cardContent = cardContent;
             
         } catch (error) {
-            console.error('卡片包装失败:', error);
+            console.error('卡片初始化失败:', error, card);
         }
+        
+        // 添加事件监听器
+        setupCardEvents(card);
     }
     
     function setupCardEvents(card) {
@@ -267,6 +289,7 @@
         // 点击事件
         card.addEventListener('click', function(e) {
             e.stopPropagation();
+            e.preventDefault();
             
             const now = Date.now();
             const isDoubleClick = (now - lastClickTime) < 300;
@@ -501,11 +524,6 @@
         }, 400);
     }
     
-    // 为每个卡片生成唯一ID
-    function generateCardId() {
-        return 'card_' + Math.random().toString(36).substr(2, 9);
-    }
-    
     // 提供全局访问
     window.AdaptiveCardEffects = window.AdaptiveCardEffects || {
         resetActiveCard: function() {
@@ -528,6 +546,12 @@
                 activateCard(cardElement);
                 activeCard = cardElement;
             }
+        },
+        getCardCount: function() {
+            return document.querySelectorAll('.feature-card').length;
+        },
+        isInitialized: function() {
+            return systemInitialized;
         }
     };
     
@@ -541,5 +565,12 @@
         Object.values(animationTimeouts).forEach(timeout => {
             clearTimeout(timeout);
         });
+        
+        // 重置标记
+        window.adaptiveCardSystemInitialized = false;
+        systemInitialized = false;
     });
+    
+    // 导出初始化函数以便其他脚本可以调用
+    window.initCardSystem = initAdaptiveCardSystem;
 })();
