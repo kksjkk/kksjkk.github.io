@@ -31,6 +31,82 @@
             overflow-x: hidden;
         }
         
+        /* 无权限提示样式 */
+        .no-access-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+        }
+        
+        .no-access-icon {
+            font-size: 5rem;
+            color: #ff3232;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .no-access-title {
+            font-size: 2.5rem;
+            color: #ff3232;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 50, 50, 0.5);
+        }
+        
+        .no-access-message {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .no-access-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-home, .btn-logout {
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-home {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: var(--primary-color);
+        }
+        
+        .btn-home:hover {
+            background: rgba(0, 243, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .btn-logout {
+            background: rgba(255, 50, 50, 0.1);
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            color: #ff3232;
+            cursor: pointer;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255, 50, 50, 0.2);
+            transform: translateY(-2px);
+        }
+        
         /* 布局 */
         .admin-container {
             display: flex;
@@ -72,6 +148,7 @@
             height: 32px;
             border-radius: 50%;
             border: 1px solid rgba(0, 243, 255, 0.3);
+            object-fit: cover;
         }
         
         .sidebar-nav {
@@ -425,6 +502,7 @@
             height: 32px;
             border-radius: 50%;
             object-fit: cover;
+            border: 1px solid rgba(0, 243, 255, 0.3);
         }
         
         .status-badge {
@@ -764,286 +842,8 @@
     <!-- 网格背景 -->
     <div class="grid-bg"></div>
     
-    <!-- 侧边栏 -->
-    <nav class="admin-sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <a href="index.html" class="sidebar-logo">
-                <img src="logo.png" alt="Logo">
-                <span>System_VM</span>
-            </a>
-        </div>
-        
-        <div class="sidebar-nav">
-            <a href="#dashboard" class="nav-item active" data-section="dashboard">
-                <i class="fas fa-home"></i>
-                <span>仪表盘</span>
-            </a>
-            
-            <a href="#users" class="nav-item" data-section="users">
-                <i class="fas fa-users"></i>
-                <span>用户管理</span>
-                <span class="nav-badge" id="user-count">0</span>
-            </a>
-            
-            <a href="#analytics" class="nav-item" data-section="analytics">
-                <i class="fas fa-chart-line"></i>
-                <span>数据分析</span>
-            </a>
-            
-            <a href="#settings" class="nav-item" data-section="settings">
-                <i class="fas fa-cog"></i>
-                <span>系统设置</span>
-            </a>
-            
-            <a href="#logs" class="nav-item" data-section="logs">
-                <i class="fas fa-history"></i>
-                <span>操作日志</span>
-            </a>
-            
-            <a href="#content" class="nav-item" data-section="content">
-                <i class="fas fa-file-alt"></i>
-                <span>内容管理</span>
-            </a>
-            
-            <a href="#backup" class="nav-item" data-section="backup">
-                <i class="fas fa-database"></i>
-                <span>数据备份</span>
-            </a>
-        </div>
-        
-        <div class="sidebar-footer">
-            <div class="user-profile">
-                <img src="default-avatar.png" alt="头像" class="user-avatar" id="user-avatar">
-                <div class="user-info">
-                    <div class="user-name" id="user-name">加载中...</div>
-                    <div class="user-role" id="user-role">管理员</div>
-                </div>
-                <button class="logout-btn" id="logout-btn" title="退出登录">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- 主内容区 -->
-    <main class="admin-main">
-        <!-- 头部 -->
-        <header class="admin-header">
-            <div class="header-left">
-                <button class="menu-toggle" id="menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="header-title" id="page-title">仪表盘</h1>
-            </div>
-            
-            <div class="header-right">
-                <div class="header-actions">
-                    <button class="action-btn" id="refresh-btn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>刷新</span>
-                    </button>
-                    <button class="action-btn" id="create-user-btn">
-                        <i class="fas fa-plus"></i>
-                        <span>新建用户</span>
-                    </button>
-                    <button class="action-btn" id="export-btn">
-                        <i class="fas fa-download"></i>
-                        <span>导出数据</span>
-                    </button>
-                </div>
-                
-                <div class="notifications">
-                    <button class="action-btn" id="notifications-btn">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
-                    </button>
-                </div>
-            </div>
-        </header>
-        
-        <!-- 内容区 -->
-        <div class="admin-content" id="content-area">
-            <!-- 仪表盘内容会动态加载到这里 -->
-            <div id="dashboard-section">
-                <!-- 统计卡片 -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">总用户数</div>
-                            <div class="stat-icon" style="background: rgba(0, 243, 255, 0.1); color: var(--primary-color);">
-                                <i class="fas fa-users"></i>
-                            </div>
-                        </div>
-                        <div class="stat-value" id="stat-total-users">0</div>
-                        <div class="stat-change positive" id="stat-user-change">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>0%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">今日注册</div>
-                            <div class="stat-icon" style="background: rgba(0, 255, 128, 0.1); color: #00ff80;">
-                                <i class="fas fa-user-plus"></i>
-                            </div>
-                        </div>
-                        <div class="stat-value" id="stat-today-registrations">0</div>
-                        <div class="stat-change positive" id="stat-registration-change">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>0%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">活跃用户</div>
-                            <div class="stat-icon" style="background: rgba(255, 165, 0, 0.1); color: #ffa500;">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                        </div>
-                        <div class="stat-value" id="stat-active-users">0</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>0%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">系统负载</div>
-                            <div class="stat-icon" style="background: rgba(148, 0, 211, 0.1); color: #9400d3;">
-                                <i class="fas fa-server"></i>
-                            </div>
-                        </div>
-                        <div class="stat-value" id="stat-system-load">0%</div>
-                        <div class="stat-change negative">
-                            <i class="fas fa-arrow-down"></i>
-                            <span>0%</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 图表区域 -->
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title">用户增长趋势</div>
-                        <div class="chart-actions">
-                            <select class="chart-select" id="chart-period">
-                                <option value="7">最近7天</option>
-                                <option value="30" selected>最近30天</option>
-                                <option value="90">最近90天</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="chart-wrapper">
-                        <canvas id="user-growth-chart" width="400" height="200"></canvas>
-                    </div>
-                </div>
-                
-                <!-- 最近用户表格 -->
-                <div class="table-container">
-                    <div class="table-header">
-                        <div class="table-title">最近注册用户</div>
-                        <div class="table-actions">
-                            <div class="search-box">
-                                <i class="fas fa-search search-icon"></i>
-                                <input type="text" class="search-input" placeholder="搜索用户...">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>用户</th>
-                                    <th>邮箱</th>
-                                    <th>角色</th>
-                                    <th>状态</th>
-                                    <th>注册时间</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-users-table">
-                                <!-- 动态加载 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 用户管理部分（默认隐藏） -->
-            <div id="users-section" style="display: none;">
-                <!-- 用户管理内容会动态加载 -->
-            </div>
-            
-            <!-- 其他部分类似... -->
-        </div>
-    </main>
-    
-    <!-- 创建用户弹窗 -->
-    <div class="modal" id="create-user-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">创建新用户</h2>
-                <button class="modal-close" id="close-create-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="create-user-form">
-                    <div class="form-group">
-                        <label class="form-label">用户名</label>
-                        <input type="text" class="form-control" id="new-username" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">邮箱</label>
-                        <input type="email" class="form-control" id="new-email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">姓名</label>
-                        <input type="text" class="form-control" id="new-fullname">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">密码</label>
-                        <input type="password" class="form-control" id="new-password" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">确认密码</label>
-                        <input type="password" class="form-control" id="new-confirm-password" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">角色</label>
-                        <select class="form-control" id="new-role">
-                            <option value="user">普通用户</option>
-                            <option value="moderator">版主</option>
-                            <option value="admin">管理员</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">状态</label>
-                        <select class="form-control" id="new-status">
-                            <option value="active">活跃</option>
-                            <option value="inactive">未激活</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" id="cancel-create">取消</button>
-                <button type="button" class="btn-primary" id="submit-create">创建</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 编辑用户弹窗 -->
-    <div class="modal" id="edit-user-modal">
-        <!-- 类似结构 -->
-    </div>
+    <!-- 内容区域将由JavaScript动态生成 -->
+    <div id="content-container"></div>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -1053,8 +853,357 @@
         
         // 初始化
         document.addEventListener('DOMContentLoaded', async function() {
-            // 检查登录状态（简化版，实际需要后端验证）
-            await checkAdminAuth();
+            // 检查登录状态和权限
+            const hasAccess = await checkAdminAccess();
+            
+            if (!hasAccess) {
+                // 无权限，显示无权限页面
+                showNoAccessPage();
+                return;
+            }
+            
+            // 有权限，显示管理后台
+            await showAdminDashboard();
+        });
+        
+        // 检查管理员权限
+        async function checkAdminAccess() {
+            const savedUser = localStorage.getItem('admin_user');
+            if (!savedUser) {
+                // 未登录，跳转到登录页
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            try {
+                currentUser = JSON.parse(savedUser);
+                
+                // 检查用户角色是否为管理员或版主
+                if (currentUser.role !== 'admin' && currentUser.role !== 'moderator') {
+                    console.log('非管理员用户尝试访问管理后台，重定向到个人中心');
+                    // 非管理员用户，重定向到个人中心
+                    window.location.href = 'profile.html';
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('解析用户信息失败:', error);
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+        
+        // 显示无权限页面
+        function showNoAccessPage() {
+            const container = document.getElementById('content-container');
+            container.innerHTML = `
+                <div class="no-access-container">
+                    <div class="no-access-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <h1 class="no-access-title">访问被拒绝</h1>
+                    <p class="no-access-message">
+                        抱歉，您没有权限访问系统管理后台。<br>
+                        管理后台仅对管理员和版主开放。
+                    </p>
+                    <div class="no-access-actions">
+                        <a href="index.html" class="btn-home">
+                            <i class="fas fa-home"></i> 返回首页
+                        </a>
+                        <button class="btn-logout" onclick="logoutUser()">
+                            <i class="fas fa-sign-out-alt"></i> 退出登录
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 显示管理后台
+        async function showAdminDashboard() {
+            const container = document.getElementById('content-container');
+            container.innerHTML = `
+                <!-- 侧边栏 -->
+                <nav class="admin-sidebar" id="sidebar">
+                    <div class="sidebar-header">
+                        <a href="index.html" class="sidebar-logo">
+                            <img src="logo.png" alt="Logo">
+                            <span>System_VM</span>
+                        </a>
+                    </div>
+                    
+                    <div class="sidebar-nav">
+                        <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                            <i class="fas fa-home"></i>
+                            <span>仪表盘</span>
+                        </a>
+                        
+                        <a href="#users" class="nav-item" data-section="users">
+                            <i class="fas fa-users"></i>
+                            <span>用户管理</span>
+                            <span class="nav-badge" id="user-count">0</span>
+                        </a>
+                        
+                        <a href="#analytics" class="nav-item" data-section="analytics">
+                            <i class="fas fa-chart-line"></i>
+                            <span>数据分析</span>
+                        </a>
+                        
+                        <a href="#settings" class="nav-item" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>系统设置</span>
+                        </a>
+                        
+                        <a href="#logs" class="nav-item" data-section="logs">
+                            <i class="fas fa-history"></i>
+                            <span>操作日志</span>
+                        </a>
+                        
+                        <a href="#content" class="nav-item" data-section="content">
+                            <i class="fas fa-file-alt"></i>
+                            <span>内容管理</span>
+                        </a>
+                        
+                        <a href="#backup" class="nav-item" data-section="backup">
+                            <i class="fas fa-database"></i>
+                            <span>数据备份</span>
+                        </a>
+                    </div>
+                    
+                    <div class="sidebar-footer">
+                        <div class="user-profile">
+                            <img src="logo.png" alt="头像" class="user-avatar" id="user-avatar">
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">加载中...</div>
+                                <div class="user-role" id="user-role">管理员</div>
+                            </div>
+                            <button class="logout-btn" id="logout-btn" title="退出登录">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- 主内容区 -->
+                <main class="admin-main">
+                    <!-- 头部 -->
+                    <header class="admin-header">
+                        <div class="header-left">
+                            <button class="menu-toggle" id="menu-toggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h1 class="header-title" id="page-title">仪表盘</h1>
+                        </div>
+                        
+                        <div class="header-right">
+                            <div class="header-actions">
+                                <button class="action-btn" id="refresh-btn">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>刷新</span>
+                                </button>
+                                <button class="action-btn" id="create-user-btn">
+                                    <i class="fas fa-plus"></i>
+                                    <span>新建用户</span>
+                                </button>
+                                <button class="action-btn" id="export-btn">
+                                    <i class="fas fa-download"></i>
+                                    <span>导出数据</span>
+                                </button>
+                            </div>
+                            
+                            <div class="notifications">
+                                <button class="action-btn" id="notifications-btn">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="badge">3</span>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+                    
+                    <!-- 内容区 -->
+                    <div class="admin-content" id="content-area">
+                        <!-- 仪表盘内容会动态加载到这里 -->
+                        <div id="dashboard-section">
+                            <!-- 统计卡片 -->
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-header">
+                                        <div class="stat-title">总用户数</div>
+                                        <div class="stat-icon" style="background: rgba(0, 243, 255, 0.1); color: var(--primary-color);">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                    </div>
+                                    <div class="stat-value" id="stat-total-users">0</div>
+                                    <div class="stat-change positive" id="stat-user-change">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>0%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-card">
+                                    <div class="stat-header">
+                                        <div class="stat-title">今日注册</div>
+                                        <div class="stat-icon" style="background: rgba(0, 255, 128, 0.1); color: #00ff80;">
+                                            <i class="fas fa-user-plus"></i>
+                                        </div>
+                                    </div>
+                                    <div class="stat-value" id="stat-today-registrations">0</div>
+                                    <div class="stat-change positive" id="stat-registration-change">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>0%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-card">
+                                    <div class="stat-header">
+                                        <div class="stat-title">活跃用户</div>
+                                        <div class="stat-icon" style="background: rgba(255, 165, 0, 0.1); color: #ffa500;">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                    </div>
+                                    <div class="stat-value" id="stat-active-users">0</div>
+                                    <div class="stat-change positive">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>0%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-card">
+                                    <div class="stat-header">
+                                        <div class="stat-title">系统负载</div>
+                                        <div class="stat-icon" style="background: rgba(148, 0, 211, 0.1); color: #9400d3;">
+                                            <i class="fas fa-server"></i>
+                                        </div>
+                                    </div>
+                                    <div class="stat-value" id="stat-system-load">0%</div>
+                                    <div class="stat-change negative">
+                                        <i class="fas fa-arrow-down"></i>
+                                        <span>0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 图表区域 -->
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <div class="chart-title">用户增长趋势</div>
+                                    <div class="chart-actions">
+                                        <select class="chart-select" id="chart-period">
+                                            <option value="7">最近7天</option>
+                                            <option value="30" selected>最近30天</option>
+                                            <option value="90">最近90天</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="user-growth-chart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- 最近用户表格 -->
+                            <div class="table-container">
+                                <div class="table-header">
+                                    <div class="table-title">最近注册用户</div>
+                                    <div class="table-actions">
+                                        <div class="search-box">
+                                            <i class="fas fa-search search-icon"></i>
+                                            <input type="text" class="search-input" placeholder="搜索用户...">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>用户</th>
+                                                <th>邮箱</th>
+                                                <th>角色</th>
+                                                <th>状态</th>
+                                                <th>注册时间</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recent-users-table">
+                                            <!-- 动态加载 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 用户管理部分（默认隐藏） -->
+                        <div id="users-section" style="display: none;">
+                            <!-- 用户管理内容会动态加载 -->
+                        </div>
+                        
+                        <!-- 其他部分类似... -->
+                    </div>
+                </main>
+                
+                <!-- 创建用户弹窗 -->
+                <div class="modal" id="create-user-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title">创建新用户</h2>
+                            <button class="modal-close" id="close-create-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="create-user-form">
+                                <div class="form-group">
+                                    <label class="form-label">用户名</label>
+                                    <input type="text" class="form-control" id="new-username" required>
+                                </div>
+                                
+                             <div class="form-group">
+                                    <label class="form-label">邮箱</label>
+                                    <input type="email" class="form-control" id="new-email" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">姓名</label>
+                                    <input type="text" class="form-control" id="new-fullname">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">密码</label>
+                                    <input type="password" class="form-control" id="new-password" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">确认密码</label>
+                                    <input type="password" class="form-control" id="new-confirm-password" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">角色</label>
+                                    <select class="form-control" id="new-role">
+                                        <option value="user">普通用户</option>
+                                        <option value="moderator">版主</option>
+                                        <option value="admin">管理员</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">状态</label>
+                                    <select class="form-control" id="new-status">
+                                        <option value="active">活跃</option>
+                                        <option value="inactive">未激活</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn-secondary" id="cancel-create">取消</button>
+                            <button type="button" class="btn-primary" id="submit-create">创建</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 编辑用户弹窗 -->
+                <div class="modal" id="edit-user-modal">
+                    <!-- 类似结构 -->
+                </div>
+            `;
             
             // 加载用户信息
             await loadUserProfile();
@@ -1067,23 +1216,6 @@
             
             // 初始化图表
             initCharts();
-        });
-        
-        // 检查管理员权限（简化版）
-        async function checkAdminAuth() {
-            // 这里应该是后端验证，这里简化处理
-            const savedUser = localStorage.getItem('admin_user');
-            if (!savedUser) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            try {
-                currentUser = JSON.parse(savedUser);
-            } catch (error) {
-                console.error('解析用户信息失败:', error);
-                window.location.href = 'login.html';
-            }
         }
         
         // 加载用户信息
@@ -1207,7 +1339,7 @@
                         username: 'tech_guru',
                         full_name: '张三',
                         email: 'zhangsan@example.com',
-                        avatar_url: 'default-avatar.png',
+                        avatar_url: 'logo.png',
                         role: 'user',
                         status: 'active',
                         created_at: '2025-01-15T10:30:00Z'
@@ -1217,7 +1349,7 @@
                         username: 'code_master',
                         full_name: '李四',
                         email: 'lisi@example.com',
-                        avatar_url: 'default-avatar.png',
+                        avatar_url: 'logo.png',
                         role: 'moderator',
                         status: 'active',
                         created_at: '2025-01-14T14:20:00Z'
@@ -1227,7 +1359,7 @@
                         username: 'design_wizard',
                         full_name: '王五',
                         email: 'wangwu@example.com',
-                        avatar_url: 'default-avatar.png',
+                        avatar_url: 'logo.png',
                         role: 'user',
                         status: 'inactive',
                         created_at: '2025-01-13T09:15:00Z'
@@ -1237,7 +1369,7 @@
                         username: 'system_admin',
                         full_name: '系统管理员',
                         email: 'admin@system-vm.com',
-                        avatar_url: 'default-avatar.png',
+                        avatar_url: 'logo.png',
                         role: 'admin',
                         status: 'active',
                         created_at: '2025-01-10T08:00:00Z'
@@ -1247,7 +1379,7 @@
                         username: 'new_user_001',
                         full_name: '赵六',
                         email: 'zhaoliu@example.com',
-                        avatar_url: 'default-avatar.png',
+                        avatar_url: 'logo.png',
                         role: 'user',
                         status: 'active',
                         created_at: '2025-01-12T16:45:00Z'
@@ -1448,7 +1580,7 @@
                         username: 'tech_guru',
                         full_name: '张三',
                         email: 'zhangsan@example.com',
-                        avatar_url: 'default-avatar.png',
+                        avatar_url: 'logo.png',
                         role: 'user',
                         status: 'active',
                         created_at: '2025-01-15T10:30:00Z',
@@ -1459,7 +1591,7 @@
                         username: 'code_master',
                         full_name: '李四',
                         email: 'lisi@example.com',
-                        avatar_url: 'default-avatar.png',
+                        avatar_url: 'logo.png',
                         role: 'moderator',
                         status: 'active',
                         created_at: '2025-01-14T14:20:00Z',
@@ -1842,6 +1974,17 @@
             // 跳转到登录页
             window.location.href = 'login.html';
         }
+        
+        // 退出登录函数（用于无权限页面）
+        function logoutUser() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('admin_user');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // 全局暴露退出登录函数
+        window.logoutUser = logoutUser;
     </script>
 </body>
 </html>
