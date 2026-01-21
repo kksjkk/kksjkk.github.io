@@ -1,6 +1,69 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
     console.log('script.js: DOM加载完成');
+    // 在 script.js 的 DOMContentLoaded 事件中添加
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('script.js: DOM加载完成');
+    
+    // 标记主脚本已初始化
+    window.mainScriptInitialized = true;
+    document.body.setAttribute('data-main-script-initialized', 'true');
+    
+    // 检查是否有性能层已初始化，避免重复
+    if (window.performanceLayerInitialized) {
+        console.log('性能层已初始化，跳过部分功能');
+    }
+    
+    // 检查卡片系统是否已加载
+    if (window.adaptiveCardSystemInitialized) {
+        console.log('卡片特效系统已加载，跳过兼容性处理');
+    }
+    
+    // 检查登录状态并更新导航栏
+    function checkLoginAndUpdateNav() {
+        const savedUser = localStorage.getItem('admin_user');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        if (savedUser && navMenu) {
+            try {
+                const user = JSON.parse(savedUser);
+                const username = user.username || user.full_name || '用户';
+                
+                // 查找导航栏中的登录注册按钮并替换
+                const loginLinks = navMenu.querySelectorAll('a[href="login.html"]');
+                loginLinks.forEach(link => {
+                    if (user.role === 'admin' || user.role === 'moderator') {
+                        link.innerHTML = `<span class="btn-icon">👤</span> ${username} (管理)`;
+                        link.href = 'admin.html';
+                        link.title = '进入管理后台';
+                    } else {
+                        link.innerHTML = `<span class="btn-icon">👤</span> ${username}`;
+                        link.href = 'admin.html';
+                        link.title = '查看个人中心';
+                    }
+                    link.classList.add('user-status');
+                    link.classList.remove('auth-link');
+                });
+                
+                console.log('导航栏已更新为登录状态');
+            } catch (error) {
+                console.error('解析用户信息失败:', error);
+            }
+        }
+    }
+    
+    // 初始检查
+    setTimeout(checkLoginAndUpdateNav, 100);
+    
+    // 监听存储变化
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'admin_user') {
+            setTimeout(checkLoginAndUpdateNav, 100);
+        }
+    });
+    
+    // ... 原有的其他代码保持不变 ...
+});
     
     // 标记主脚本已初始化
     window.mainScriptInitialized = true;
