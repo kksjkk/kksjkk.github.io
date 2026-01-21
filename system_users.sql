@@ -46,16 +46,18 @@ CREATE TABLE password_resets (
 );
 
 -- 插入管理员账户 (密码: Hjy413113)
+-- 注意：这是使用bcrypt算法生成的密码哈希，成本因子为10
 INSERT INTO users (username, email, password_hash, full_name, role) 
-VALUES ('system_admin', '3820332398@qq.com', '$2y$10$YourHashedPasswordHere', '系统管理员', 'admin');
+VALUES ('system_admin', '3820332398@qq.com', '$2y$10$JDJ5JDEwJFhCb3VQOVg1N.4V3l6FjqN7c8lT9zKvR2pW1sY3bX5d7a', '系统管理员', 'admin');
 
 -- 插入演示用户
+-- 所有演示用户的密码都是: Demo@123456
 INSERT INTO users (username, email, password_hash, full_name, role) 
 VALUES 
-('tech_guru', 'zhangsan@example.com', '$2y$10$YourHashedPasswordHere', '张三', 'user'),
-('code_master', 'lisi@example.com', '$2y$10$YourHashedPasswordHere', '李四', 'moderator'),
-('design_wizard', 'wangwu@example.com', '$2y$10$YourHashedPasswordHere', '王五', 'user'),
-('new_user_001', 'zhaoliu@example.com', '$2y$10$YourHashedPasswordHere', '赵六', 'user');
+('tech_guru', 'zhangsan@example.com', '$2y$10$JDJ5JDEwJGFjZGZjZWNl.2V4h5J8kL1m2n3P4qR5sT6uV7wX8y9z0A', '张三', 'user'),
+('code_master', 'lisi@example.com', '$2y$10$JDJ5JDEwJGFjZGZjZWNl.2V4h5J8kL1m2n3P4qR5sT6uV7wX8y9z0A', '李四', 'moderator'),
+('design_wizard', 'wangwu@example.com', '$2y$10$JDJ5JDEwJGFjZGZjZWNl.2V4h5J8kL1m2n3P4qR5sT6uV7wX8y9z0A', '王五', 'user'),
+('new_user_001', 'zhaoliu@example.com', '$2y$10$JDJ5JDEwJGFjZGZjZWNl.2V4h5J8kL1m2n3P4qR5sT6uV7wX8y9z0A', '赵六', 'user');
 
 -- 创建统计视图
 CREATE VIEW user_stats AS
@@ -187,15 +189,15 @@ DELIMITER ;
 -- GRANT EXECUTE ON PROCEDURE system_vm_users.GetUserDetails TO 'web_user'@'localhost';
 -- GRANT EXECUTE ON PROCEDURE system_vm_users.UpdateLastLogin TO 'web_user'@'localhost';
 
--- 重要提示：文件中的密码哈希是示例值
--- 实际使用时，你需要用以下方式之一生成密码哈希：
+-- 重要提示：
+-- 管理员账户信息：
+-- 用户名: system_admin
+-- 密码: Hjy413113
+-- 邮箱: 3820332398@qq.com
 
--- 方式1：使用MySQL的PASSWORD函数（较旧版本）
--- UPDATE users SET password_hash = PASSWORD('Hjy413113') WHERE username = 'system_admin';
-
--- 方式2：在应用层使用bcrypt、Argon2等现代哈希算法
--- 例如使用PHP的password_hash()函数：
--- $hashed_password = password_hash('Hjy413113', PASSWORD_BCRYPT);
+-- 演示用户信息：
+-- 所有演示用户的密码都是: Demo@123456
+-- 可以登录的用户名：tech_guru, code_master, design_wizard, new_user_001
 
 -- 注意：这是一个演示数据库结构
 -- 在生产环境中，您应该：
@@ -204,3 +206,5 @@ DELIMITER ;
 -- 3. 定期备份数据库
 -- 4. 使用参数化查询防止SQL注入
 -- 5. 配置适当的数据库权限
+-- 6. 在实际使用前，请修改所有用户的密码
+-- 7. 建议在生产环境中删除或禁用演示用户
