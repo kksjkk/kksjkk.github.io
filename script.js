@@ -1,9 +1,6 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
     console.log('script.js: DOM加载完成');
-    // 在 script.js 的 DOMContentLoaded 事件中添加
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('script.js: DOM加载完成');
     
     // 标记主脚本已初始化
     window.mainScriptInitialized = true;
@@ -32,22 +29,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 查找导航栏中的登录注册按钮并替换
                 const loginLinks = navMenu.querySelectorAll('a[href="login.html"]');
                 loginLinks.forEach(link => {
+                    // 根据用户角色决定链接目标
                     if (user.role === 'admin' || user.role === 'moderator') {
+                        // 管理员和版主显示管理后台链接
                         link.innerHTML = `<span class="btn-icon">👤</span> ${username} (管理)`;
                         link.href = 'admin.html';
                         link.title = '进入管理后台';
                     } else {
+                        // 普通用户显示个人中心链接
                         link.innerHTML = `<span class="btn-icon">👤</span> ${username}`;
-                        link.href = 'admin.html';
+                        link.href = 'profile.html';
                         link.title = '查看个人中心';
                     }
                     link.classList.add('user-status');
                     link.classList.remove('auth-link');
                 });
                 
-                console.log('导航栏已更新为登录状态');
+                console.log('导航栏已更新为登录状态，用户角色:', user.role);
             } catch (error) {
                 console.error('解析用户信息失败:', error);
+            }
+        } else {
+            // 用户未登录，确保显示登录注册链接
+            const navMenu = document.querySelector('.nav-menu');
+            if (navMenu) {
+                const existingAuthLink = navMenu.querySelector('a[href="login.html"]');
+                if (!existingAuthLink) {
+                    // 添加登录注册链接
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <a href="login.html" class="scifi-link auth-link" id="register-btn" aria-label="注册或登录">
+                            <span class="btn-icon">🔐</span> 注册/登录
+                        </a>
+                    `;
+                    navMenu.appendChild(listItem);
+                }
             }
         }
     }
@@ -61,23 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(checkLoginAndUpdateNav, 100);
         }
     });
-    
-    // ... 原有的其他代码保持不变 ...
-});
-    
-    // 标记主脚本已初始化
-    window.mainScriptInitialized = true;
-    document.body.setAttribute('data-main-script-initialized', 'true');
-    
-    // 检查是否有性能层已初始化，避免重复
-    if (window.performanceLayerInitialized) {
-        console.log('性能层已初始化，跳过部分功能');
-    }
-    
-    // 检查卡片系统是否已加载
-    if (window.adaptiveCardSystemInitialized) {
-        console.log('卡片特效系统已加载，跳过兼容性处理');
-    }
     
     // 统一的requestAnimationFrame兼容性处理
     if (!window.requestAnimationFrame) {
@@ -214,491 +213,491 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('theme-toggle');
     let currentTheme = localStorage.getItem('theme');
     
-  // 应用保存的主题
-function applyTheme(theme) {
-    if (theme === 'dark') {
-        document.body.classList.add('dark-mode');
-        if (themeToggle) themeToggle.textContent = '☀️ 亮色模式';
-    } else {
-        document.body.classList.remove('dark-mode');
-        if (themeToggle) themeToggle.textContent = '🌓 暗色模式';
+    // 应用保存的主题
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (themeToggle) themeToggle.textContent = '☀️ 亮色模式';
+        } else {
+            document.body.classList.remove('dark-mode');
+            if (themeToggle) themeToggle.textContent = '🌓 暗色模式';
+        }
     }
-}
 
-// 如果没有保存的主题，检测系统偏好
-if (!currentTheme) {
-    currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    localStorage.setItem('theme', currentTheme);
-}
-
-applyTheme(currentTheme);
-
-// 监听系统主题变化
-if (window.matchMedia) {
-    const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    try {
-        // 新的API
-        colorSchemeQuery.addEventListener('change', function(e) {
-            if (!localStorage.getItem('theme')) {
-                const newTheme = e.matches ? 'dark' : 'light';
-                applyTheme(newTheme);
-            }
-        });
-    } catch (e) {
-        // 旧的API
-        colorSchemeQuery.addListener(function(e) {
-            if (!localStorage.getItem('theme')) {
-                const newTheme = e.matches ? 'dark' : 'light';
-                applyTheme(newTheme);
-            }
-        });
+    // 如果没有保存的主题，检测系统偏好
+    if (!currentTheme) {
+        currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        localStorage.setItem('theme', currentTheme);
     }
-}
 
-// 主题切换事件
-if (themeToggle && !themeToggle.hasAttribute('data-theme-initialized')) {
-    themeToggle.setAttribute('data-theme-initialized', 'true');
-    
-    themeToggle.addEventListener('click', function() {
-        requestAnimationFrame(() => {
-            // 添加切换动画
-            document.body.style.opacity = '0.8';
-            document.body.style.transition = 'opacity 0.3s ease';
-            
-            setTimeout(() => {
-                const isDarkMode = document.body.classList.contains('dark-mode');
-                const newTheme = isDarkMode ? 'light' : 'dark';
-                
-                document.body.classList.toggle('dark-mode');
-                localStorage.setItem('theme', newTheme);
-                
-                if (isDarkMode) {
-                    themeToggle.textContent = '☀️ 亮色模式';
-                } else {
-                    themeToggle.textContent = '🌓 暗色模式';
-                }
-                
-                // 恢复透明度
-                setTimeout(() => {
-                    document.body.style.opacity = '1';
-                }, 50);
-            }, 300);
-        });
-    });
-}
+    applyTheme(currentTheme);
 
-// 图片懒加载
-function initLazyLoad() {
-    const lazyImages = document.querySelectorAll('.lazy-load');
-    
-    if (!lazyImages.length) return;
-    
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    
-                    requestAnimationFrame(() => {
-                        // 添加淡入效果
-                        img.style.opacity = '0';
-                        img.style.transition = 'opacity 0.5s ease';
-                        
-                        // 设置图片源
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.removeAttribute('data-src');
-                        }
-                        
-                        // 移除懒加载类
-                        img.classList.remove('lazy-load');
-                        
-                        // 淡入图片
-                        setTimeout(() => {
-                            requestAnimationFrame(() => {
-                                img.style.opacity = '1';
-                            });
-                        }, 100);
-                        
-                        imageObserver.unobserve(img);
-                    });
+    // 监听系统主题变化
+    if (window.matchMedia) {
+        const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        try {
+            // 新的API
+            colorSchemeQuery.addEventListener('change', function(e) {
+                if (!localStorage.getItem('theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(newTheme);
                 }
             });
-        }, {
-            rootMargin: '0px 0px 100px 0px' // 提前100px加载
-        });
+        } catch (e) {
+            // 旧的API
+            colorSchemeQuery.addListener(function(e) {
+                if (!localStorage.getItem('theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(newTheme);
+                }
+            });
+        }
+    }
+
+    // 主题切换事件
+    if (themeToggle && !themeToggle.hasAttribute('data-theme-initialized')) {
+        themeToggle.setAttribute('data-theme-initialized', 'true');
         
-        lazyImages.forEach(img => {
-            // 确保图片有data-src属性
-            if (img.src && !img.dataset.src) {
-                img.dataset.src = img.src;
-                img.src = '';
-            }
-            imageObserver.observe(img);
+        themeToggle.addEventListener('click', function() {
+            requestAnimationFrame(() => {
+                // 添加切换动画
+                document.body.style.opacity = '0.8';
+                document.body.style.transition = 'opacity 0.3s ease';
+                
+                setTimeout(() => {
+                    const isDarkMode = document.body.classList.contains('dark-mode');
+                    const newTheme = isDarkMode ? 'light' : 'dark';
+                    
+                    document.body.classList.toggle('dark-mode');
+                    localStorage.setItem('theme', newTheme);
+                    
+                    if (isDarkMode) {
+                        themeToggle.textContent = '☀️ 亮色模式';
+                    } else {
+                        themeToggle.textContent = '🌓 暗色模式';
+                    }
+                    
+                    // 恢复透明度
+                    setTimeout(() => {
+                        document.body.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            });
         });
-    } else {
-        // 直接加载所有图片
-        lazyImages.forEach(img => {
-            if (img.dataset.src) {
-                img.src = img.dataset.src;
-                img.classList.remove('lazy-load');
+    }
+
+    // 图片懒加载
+    function initLazyLoad() {
+        const lazyImages = document.querySelectorAll('.lazy-load');
+        
+        if (!lazyImages.length) return;
+        
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        
+                        requestAnimationFrame(() => {
+                            // 添加淡入效果
+                            img.style.opacity = '0';
+                            img.style.transition = 'opacity 0.5s ease';
+                            
+                            // 设置图片源
+                            if (img.dataset.src) {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                            }
+                            
+                            // 移除懒加载类
+                            img.classList.remove('lazy-load');
+                            
+                            // 淡入图片
+                            setTimeout(() => {
+                                requestAnimationFrame(() => {
+                                    img.style.opacity = '1';
+                                });
+                            }, 100);
+                            
+                            imageObserver.unobserve(img);
+                        });
+                    }
+                });
+            }, {
+                rootMargin: '0px 0px 100px 0px' // 提前100px加载
+            });
+            
+            lazyImages.forEach(img => {
+                // 确保图片有data-src属性
+                if (img.src && !img.dataset.src) {
+                    img.dataset.src = img.src;
+                    img.src = '';
+                }
+                imageObserver.observe(img);
+            });
+        } else {
+            // 直接加载所有图片
+            lazyImages.forEach(img => {
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy-load');
+                }
+            });
+        }
+    }
+
+    initLazyLoad();
+
+    // 访问统计
+    function trackVisit() {
+        try {
+            const visitData = {
+                url: window.location.href,
+                timestamp: new Date().toISOString(),
+                referrer: document.referrer || '直接访问',
+                userAgent: navigator.userAgent.substring(0, 100), // 截断避免过长
+                screen: `${window.screen.width}x${window.screen.height}`
+            };
+            
+            // 存储到 localStorage
+            let visitHistory = JSON.parse(localStorage.getItem('visitHistory') || '[]');
+            visitHistory.push(visitData);
+            
+            // 保留最近10次访问记录
+            if (visitHistory.length > 10) {
+                visitHistory = visitHistory.slice(-10);
+            }
+            
+            localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
+            console.log('访问记录已保存');
+        } catch (error) {
+            console.warn('无法保存访问记录:', error);
+        }
+    }
+
+    // 延迟记录访问，避免影响页面加载
+    setTimeout(trackVisit, 1000);
+
+    // 平滑滚动
+    function initSmoothScroll() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            // 跳过外部链接和空链接
+            if (anchor.getAttribute('href') === '#' || anchor.hasAttribute('target')) return;
+            
+            if (!anchor.hasAttribute('data-scroll-initialized')) {
+                anchor.setAttribute('data-scroll-initialized', 'true');
+                
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        // 使用平滑滚动
+                        const header = document.querySelector('header');
+                        const headerHeight = header ? header.offsetHeight : 80;
+                        
+                        // 如果浏览器支持平滑滚动
+                        if ('scrollBehavior' in document.documentElement.style) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - headerHeight - 20,
+                                behavior: 'smooth'
+                            });
+                        } else {
+                            // 降级方案
+                            const targetPosition = targetElement.offsetTop - headerHeight - 20;
+                            const startPosition = window.pageYOffset;
+                            const distance = targetPosition - startPosition;
+                            const duration = 500;
+                            let start = null;
+                            
+                            function step(timestamp) {
+                                if (!start) start = timestamp;
+                                const progress = timestamp - start;
+                                window.scrollTo(0, easeInOutCubic(progress, startPosition, distance, duration));
+                                if (progress < duration) {
+                                    requestAnimationFrame(step);
+                                }
+                            }
+                            
+                            function easeInOutCubic(t, b, c, d) {
+                                t /= d/2;
+                                if (t < 1) return c/2*t*t*t + b;
+                                t -= 2;
+                                return c/2*(t*t*t + 2) + b;
+                            }
+                            
+                            requestAnimationFrame(step);
+                        }
+                        
+                        // 移动端关闭菜单
+                        if (window.innerWidth <= 768 && navMenu && navMenu.classList.contains('active')) {
+                            toggleMenu(true);
+                        }
+                    }
+                });
             }
         });
     }
-}
 
-initLazyLoad();
+    initSmoothScroll();
 
-// 访问统计
-function trackVisit() {
-    try {
-        const visitData = {
-            url: window.location.href,
-            timestamp: new Date().toISOString(),
-            referrer: document.referrer || '直接访问',
-            userAgent: navigator.userAgent.substring(0, 100), // 截断避免过长
-            screen: `${window.screen.width}x${window.screen.height}`
+    // 高性能滚动处理（唯一负责滚动进度条）
+    let ticking = false;
+    let scrollProgressHandler = null;
+
+    function updateProgressBar() {
+        const winHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+        const progressBar = document.querySelector('.progress-bar');
+        
+        if (progressBar) {
+            progressBar.style.width = Math.min(scrollPercent, 100) + '%';
+            
+            // 当进度达到100%时，添加隐藏类
+            if (scrollPercent >= 100) {
+                progressBar.classList.add('hidden');
+            } else {
+                progressBar.classList.remove('hidden');
+            }
+        }
+        
+        // 头部背景变化
+        const header = document.querySelector('header');
+        if (header) {
+            if (scrollTop > 50) {
+                header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+                header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.3)';
+            } else {
+                header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
+            }
+        }
+        
+        ticking = false;
+    }
+
+    function initScrollHandlers() {
+        // 移除旧的监听器
+        if (scrollProgressHandler) {
+            window.removeEventListener('scroll', scrollProgressHandler);
+        }
+        
+        scrollProgressHandler = function() {
+            if (!ticking) {
+                requestAnimationFrame(updateProgressBar);
+                ticking = true;
+            }
         };
         
-        // 存储到 localStorage
-        let visitHistory = JSON.parse(localStorage.getItem('visitHistory') || '[]');
-        visitHistory.push(visitData);
+        window.addEventListener('scroll', scrollProgressHandler, { passive: true });
         
-        // 保留最近10次访问记录
-        if (visitHistory.length > 10) {
-            visitHistory = visitHistory.slice(-10);
-        }
-        
-        localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
-        console.log('访问记录已保存');
-    } catch (error) {
-        console.warn('无法保存访问记录:', error);
+        // 初始调用一次
+        updateProgressBar();
     }
-}
 
-// 延迟记录访问，避免影响页面加载
-setTimeout(trackVisit, 1000);
+    initScrollHandlers();
 
-// 平滑滚动
-function initSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        // 跳过外部链接和空链接
-        if (anchor.getAttribute('href') === '#' || anchor.hasAttribute('target')) return;
+    // 初始化进度条动画
+    function initProgressAnimation() {
+        const progressElement = document.getElementById('system-progress');
+        if (!progressElement) return;
         
-        if (!anchor.hasAttribute('data-scroll-initialized')) {
-            anchor.setAttribute('data-scroll-initialized', 'true');
+        let progress = 75;
+        let lastProgressTime = 0;
+        let animationId = null;
+        
+        function animateProgress(timestamp) {
+            if (!lastProgressTime) lastProgressTime = timestamp;
+            const elapsed = timestamp - lastProgressTime;
             
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    // 使用平滑滚动
-                    const header = document.querySelector('header');
-                    const headerHeight = header ? header.offsetHeight : 80;
-                    
-                    // 如果浏览器支持平滑滚动
-                    if ('scrollBehavior' in document.documentElement.style) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - headerHeight - 20,
-                            behavior: 'smooth'
-                        });
-                    } else {
-                        // 降级方案
-                        const targetPosition = targetElement.offsetTop - headerHeight - 20;
-                        const startPosition = window.pageYOffset;
-                        const distance = targetPosition - startPosition;
-                        const duration = 500;
-                        let start = null;
-                        
-                        function step(timestamp) {
-                            if (!start) start = timestamp;
-                            const progress = timestamp - start;
-                            window.scrollTo(0, easeInOutCubic(progress, startPosition, distance, duration));
-                            if (progress < duration) {
-                                requestAnimationFrame(step);
-                            }
-                        }
-                        
-                        function easeInOutCubic(t, b, c, d) {
-                            t /= d/2;
-                            if (t < 1) return c/2*t*t*t + b;
-                            t -= 2;
-                            return c/2*(t*t*t + 2) + b;
-                        }
-                        
-                        requestAnimationFrame(step);
-                    }
-                    
-                    // 移动端关闭菜单
-                    if (window.innerWidth <= 768 && navMenu && navMenu.classList.contains('active')) {
-                        toggleMenu(true);
-                    }
+            if (elapsed > 200) { // 控制更新频率
+                progress += Math.random() * 2;
+                if (progress >= 100) {
+                    progress = 100;
+                    progressElement.value = progress;
+                    const progressText = document.querySelector('.progress-text');
+                    const progressGlow = document.querySelector('.progress-glow');
+                    if (progressText) progressText.textContent = Math.round(progress) + '%';
+                    if (progressGlow) progressGlow.style.width = progress + '%';
+                    cancelAnimationFrame(animationId);
+                    return;
                 }
-            });
-        }
-    });
-}
-
-initSmoothScroll();
-
-// 高性能滚动处理（唯一负责滚动进度条）
-let ticking = false;
-let scrollProgressHandler = null;
-
-function updateProgressBar() {
-    const winHeight = window.innerHeight;
-    const docHeight = document.documentElement.scrollHeight;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
-    const progressBar = document.querySelector('.progress-bar');
-    
-    if (progressBar) {
-        progressBar.style.width = Math.min(scrollPercent, 100) + '%';
-        
-        // 当进度达到100%时，添加隐藏类
-        if (scrollPercent >= 100) {
-            progressBar.classList.add('hidden');
-        } else {
-            progressBar.classList.remove('hidden');
-        }
-    }
-    
-    // 头部背景变化
-    const header = document.querySelector('header');
-    if (header) {
-        if (scrollTop > 50) {
-            header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-            header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.3)';
-        } else {
-            header.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            header.style.boxShadow = '0 2px 30px rgba(0, 212, 255, 0.2)';
-        }
-    }
-    
-    ticking = false;
-}
-
-function initScrollHandlers() {
-    // 移除旧的监听器
-    if (scrollProgressHandler) {
-        window.removeEventListener('scroll', scrollProgressHandler);
-    }
-    
-    scrollProgressHandler = function() {
-        if (!ticking) {
-            requestAnimationFrame(updateProgressBar);
-            ticking = true;
-        }
-    };
-    
-    window.addEventListener('scroll', scrollProgressHandler, { passive: true });
-    
-    // 初始调用一次
-    updateProgressBar();
-}
-
-initScrollHandlers();
-
-// 初始化进度条动画
-function initProgressAnimation() {
-    const progressElement = document.getElementById('system-progress');
-    if (!progressElement) return;
-    
-    let progress = 75;
-    let lastProgressTime = 0;
-    let animationId = null;
-    
-    function animateProgress(timestamp) {
-        if (!lastProgressTime) lastProgressTime = timestamp;
-        const elapsed = timestamp - lastProgressTime;
-        
-        if (elapsed > 200) { // 控制更新频率
-            progress += Math.random() * 2;
-            if (progress >= 100) {
-                progress = 100;
+                
                 progressElement.value = progress;
                 const progressText = document.querySelector('.progress-text');
                 const progressGlow = document.querySelector('.progress-glow');
                 if (progressText) progressText.textContent = Math.round(progress) + '%';
                 if (progressGlow) progressGlow.style.width = progress + '%';
-                cancelAnimationFrame(animationId);
-                return;
+                lastProgressTime = timestamp;
             }
             
-            progressElement.value = progress;
-            const progressText = document.querySelector('.progress-text');
-            const progressGlow = document.querySelector('.progress-glow');
-            if (progressText) progressText.textContent = Math.round(progress) + '%';
-            if (progressGlow) progressGlow.style.width = progress + '%';
-            lastProgressTime = timestamp;
+            if (progress < 100) {
+                animationId = requestAnimationFrame(animateProgress);
+            }
         }
         
-        if (progress < 100) {
-            animationId = requestAnimationFrame(animateProgress);
-        }
+        animationId = requestAnimationFrame(animateProgress);
+        
+        // 提供停止函数
+        return function() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        };
     }
-    
-    animationId = requestAnimationFrame(animateProgress);
-    
-    // 提供停止函数
-    return function() {
-        if (animationId) {
-            cancelAnimationFrame(animationId);
-        }
-    };
-}
 
-let stopProgressAnimation = initProgressAnimation();
+    let stopProgressAnimation = initProgressAnimation();
 
-// 下载功能处理（主脚本统一处理）
-function initDownloadButtons() {
-    const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
-    
-    if (downloadButtons.length === 0) {
-        setTimeout(initDownloadButtons, 1000);
-        return;
-    }
-    
-    downloadButtons.forEach(button => {
-        // 避免重复绑定
-        if (button.hasAttribute('data-download-main-initialized')) {
+    // 下载功能处理（主脚本统一处理）
+    function initDownloadButtons() {
+        const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
+        
+        if (downloadButtons.length === 0) {
+            setTimeout(initDownloadButtons, 1000);
             return;
         }
         
-        button.setAttribute('data-download-main-initialized', 'true');
-        
-        // 移除可能存在的其他事件处理器
-        button.replaceWith(button.cloneNode(true));
-        const newButton = document.getElementById(button.id);
-        
-        newButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            console.log('主脚本处理下载请求');
-            
-            // 显示下载进度
-            this.classList.add('downloading');
-            const progressBar = this.querySelector('.download-progress') || document.createElement('div');
-            if (!progressBar.classList.contains('download-progress')) {
-                progressBar.className = 'download-progress';
-                this.appendChild(progressBar);
+        downloadButtons.forEach(button => {
+            // 避免重复绑定
+            if (button.hasAttribute('data-download-main-initialized')) {
+                return;
             }
             
-            progressBar.style.width = '0%';
+            button.setAttribute('data-download-main-initialized', 'true');
             
-            // 模拟下载进度
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                progressBar.style.width = progress + '%';
+            // 移除可能存在的其他事件处理器
+            button.replaceWith(button.cloneNode(true));
+            const newButton = document.getElementById(button.id);
+            
+            newButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                if (progress >= 100) {
-                    clearInterval(interval);
+                console.log('主脚本处理下载请求');
+                
+                // 显示下载进度
+                this.classList.add('downloading');
+                const progressBar = this.querySelector('.download-progress') || document.createElement('div');
+                if (!progressBar.classList.contains('download-progress')) {
+                    progressBar.className = 'download-progress';
+                    this.appendChild(progressBar);
+                }
+                
+                progressBar.style.width = '0%';
+                
+                // 模拟下载进度
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    progressBar.style.width = progress + '%';
                     
-                    // 添加完成动画
-                    this.classList.remove('downloading');
-                    this.classList.add('download-complete');
-                    
-                    // 实际下载
-                    setTimeout(() => {
-                        const link = document.createElement('a');
-                        link.href = 'System_VM_D62E.apk'; // 修改为本地路径
-                        link.download = 'System_VM_D62E.apk';
-                        link.target = '_blank';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
+                    if (progress >= 100) {
+                        clearInterval(interval);
                         
-                        // 移除完成动画
+                        // 添加完成动画
+                        this.classList.remove('downloading');
+                        this.classList.add('download-complete');
+                        
+                        // 实际下载
                         setTimeout(() => {
-                            this.classList.remove('download-complete');
-                            progressBar.style.width = '0%';
-                        }, 1000);
-                    }, 500);
-                }
-            }, 100);
+                            const link = document.createElement('a');
+                            link.href = 'System_VM_D62E.apk'; // 修改为本地路径
+                            link.download = 'System_VM_D62E.apk';
+                            link.target = '_blank';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            // 移除完成动画
+                            setTimeout(() => {
+                                this.classList.remove('download-complete');
+                                progressBar.style.width = '0%';
+                            }, 1000);
+                        }, 500);
+                    }
+                }, 100);
+            });
         });
-    });
-}
+    }
 
-// 延迟初始化下载按钮，确保其他脚本不会干扰
-setTimeout(initDownloadButtons, 500);
+    // 延迟初始化下载按钮，确保其他脚本不会干扰
+    setTimeout(initDownloadButtons, 500);
 
-// 添加键盘导航支持
-function initKeyboardNavigation() {
-    document.addEventListener('keydown', function(e) {
-        // Escape键关闭菜单
-        if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
-            toggleMenu(true);
-            if (navToggle) navToggle.focus();
-        }
-        
-        // Tab键在菜单内循环
-        if (e.key === 'Tab' && navMenu && navMenu.classList.contains('active')) {
-            const focusableElements = navMenu.querySelectorAll('a, button');
-            const firstElement = focusableElements[0];
-            const lastElement = focusableElements[focusableElements.length - 1];
+    // 添加键盘导航支持
+    function initKeyboardNavigation() {
+        document.addEventListener('keydown', function(e) {
+            // Escape键关闭菜单
+            if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
+                toggleMenu(true);
+                if (navToggle) navToggle.focus();
+            }
             
-            if (e.shiftKey) { // Shift + Tab
-                if (document.activeElement === firstElement) {
-                    e.preventDefault();
-                    lastElement.focus();
-                }
-            } else { // Tab
-                if (document.activeElement === lastElement) {
-                    e.preventDefault();
-                    firstElement.focus();
+            // Tab键在菜单内循环
+            if (e.key === 'Tab' && navMenu && navMenu.classList.contains('active')) {
+                const focusableElements = navMenu.querySelectorAll('a, button');
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+                
+                if (e.shiftKey) { // Shift + Tab
+                    if (document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    }
+                } else { // Tab
+                    if (document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
                 }
             }
+        });
+    }
+
+    initKeyboardNavigation();
+
+    // 改善可访问性
+    function improveAccessibility() {
+        if (navToggle) {
+            navToggle.setAttribute('aria-label', '切换导航菜单');
+            navToggle.setAttribute('aria-expanded', 'false');
+            navToggle.setAttribute('aria-controls', 'nav-menu');
         }
+        
+        if (navMenu) {
+            navMenu.id = 'nav-menu';
+            navMenu.setAttribute('aria-label', '主导航');
+        }
+        
+        // 为进度条添加aria属性
+        const progressElement = document.getElementById('system-progress');
+        if (progressElement) {
+            progressElement.setAttribute('aria-label', '系统加载进度');
+            progressElement.setAttribute('aria-valuemin', '0');
+            progressElement.setAttribute('aria-valuemax', '100');
+            progressElement.setAttribute('aria-valuenow', '75');
+        }
+    }
+
+    improveAccessibility();
+
+    // 页面卸载前清理
+    window.addEventListener('beforeunload', function() {
+        if (stopProgressAnimation) {
+            stopProgressAnimation();
+        }
+        
+        if (scrollProgressHandler) {
+            window.removeEventListener('scroll', scrollProgressHandler);
+        }
+        
+        // 清理全局标记
+        window.mainScriptInitialized = false;
     });
-}
-
-initKeyboardNavigation();
-
-// 改善可访问性
-function improveAccessibility() {
-    if (navToggle) {
-        navToggle.setAttribute('aria-label', '切换导航菜单');
-        navToggle.setAttribute('aria-expanded', 'false');
-        navToggle.setAttribute('aria-controls', 'nav-menu');
-    }
-    
-    if (navMenu) {
-        navMenu.id = 'nav-menu';
-        navMenu.setAttribute('aria-label', '主导航');
-    }
-    
-    // 为进度条添加aria属性
-    const progressElement = document.getElementById('system-progress');
-    if (progressElement) {
-        progressElement.setAttribute('aria-label', '系统加载进度');
-        progressElement.setAttribute('aria-valuemin', '0');
-        progressElement.setAttribute('aria-valuemax', '100');
-        progressElement.setAttribute('aria-valuenow', '75');
-    }
-}
-
-improveAccessibility();
-
-// 页面卸载前清理
-window.addEventListener('beforeunload', function() {
-    if (stopProgressAnimation) {
-        stopProgressAnimation();
-    }
-    
-    if (scrollProgressHandler) {
-        window.removeEventListener('scroll', scrollProgressHandler);
-    }
-    
-    // 清理全局标记
-    window.mainScriptInitialized = false;
-});
 });
 
 // requestAnimationFrame兼容性处理函数
@@ -806,6 +805,151 @@ function initRAF() {
                     el.style.webkitBackdropFilter = 'none';
                 }
             });
+        }, 100);
+    }
+})();
+
+// 用户权限检查函数
+function checkUserAccess(requiredRole) {
+    const savedUser = localStorage.getItem('admin_user');
+    if (!savedUser) {
+        return false;
+    }
+    
+    try {
+        const user = JSON.parse(savedUser);
+        
+        // 检查用户角色
+        if (requiredRole === 'admin') {
+            return user.role === 'admin';
+        } else if (requiredRole === 'moderator') {
+            return user.role === 'admin' || user.role === 'moderator';
+        } else if (requiredRole === 'user') {
+            return true; // 任何登录用户
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('解析用户信息失败:', error);
+        return false;
+    }
+}
+
+// 页面跳转前的权限检查
+function navigateWithPermissionCheck(url, requiredRole) {
+    if (checkUserAccess(requiredRole)) {
+        window.location.href = url;
+    } else {
+        // 显示权限不足提示
+        alert('抱歉，您没有权限访问该页面。');
+        
+        // 如果未登录，跳转到登录页
+        if (!localStorage.getItem('admin_user')) {
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1000);
+        }
+    }
+}
+
+// 用户信息获取函数
+function getCurrentUser() {
+    const savedUser = localStorage.getItem('admin_user');
+    if (!savedUser) {
+        return null;
+    }
+    
+    try {
+        return JSON.parse(savedUser);
+    } catch (error) {
+        console.error('解析用户信息失败:', error);
+        return null;
+    }
+}
+
+// 更新用户信息的全局函数
+function updateCurrentUser(userData) {
+    try {
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+            // 合并现有数据和更新数据
+            const updatedUser = { ...currentUser, ...userData };
+            localStorage.setItem('admin_user', JSON.stringify(updatedUser));
+            
+            // 触发存储事件，让其他页面知道用户信息已更新
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'admin_user',
+                newValue: JSON.stringify(updatedUser)
+            }));
+            
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('更新用户信息失败:', error);
+        return false;
+    }
+}
+
+// 退出登录函数
+function logoutUser() {
+    if (confirm('确定要退出登录吗？')) {
+        localStorage.removeItem('admin_user');
+        
+        // 触发存储事件
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: 'admin_user',
+            newValue: null
+        }));
+        
+        // 显示退出成功消息
+        alert('已成功退出登录');
+        
+        // 跳转到首页
+        window.location.href = 'index.html';
+    }
+}
+
+// 全局暴露函数
+window.checkUserAccess = checkUserAccess;
+window.navigateWithPermissionCheck = navigateWithPermissionCheck;
+window.getCurrentUser = getCurrentUser;
+window.updateCurrentUser = updateCurrentUser;
+window.logoutUser = logoutUser;
+
+// 自动处理权限受限页面的访问
+(function() {
+    'use strict';
+    
+    // 获取当前页面路径
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    // 定义页面权限要求
+    const pagePermissions = {
+        'admin.html': 'moderator', // 需要管理员或版主权限
+        'profile.html': 'user',    // 需要登录用户权限
+        // 其他页面不需要特殊权限
+    };
+    
+    // 检查当前页面是否需要权限
+    if (pagePermissions[currentPage]) {
+        const requiredRole = pagePermissions[currentPage];
+        
+        // 延迟检查，确保DOM已加载
+        setTimeout(() => {
+            if (!checkUserAccess(requiredRole)) {
+                // 根据用户状态跳转
+                const savedUser = localStorage.getItem('admin_user');
+                if (!savedUser) {
+                    // 未登录，跳转到登录页
+                    window.location.href = 'login.html';
+                } else if (requiredRole === 'moderator') {
+                    // 非管理员访问admin.html，跳转到个人中心
+                    if (currentPage === 'admin.html') {
+                        window.location.href = 'profile.html';
+                    }
+                }
+            }
         }, 100);
     }
 })();
