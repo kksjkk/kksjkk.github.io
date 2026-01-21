@@ -905,7 +905,7 @@
             return strength;
         }
         
-        // 登录表单提交
+        // 登录表单提交 - 已修复验证逻辑
         document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -925,26 +925,65 @@
             try {
                 // 模拟登录延迟
                 setTimeout(() => {
-                    // 模拟成功登录
-                    if (identifier === 'admin' && password === 'admin123') {
-                        showMessage('登录成功！正在跳转...', 'success');
-                        
-                        // 保存用户信息到localStorage
-                        const user = {
+                    // 使用实际的数据库账号验证
+                    // 管理员账号：system_admin 或 3820332398@qq.com，密码：Hjy413113
+                    // 演示用户账号：tech_guru, code_master 等，密码：Demo@123456
+                    
+                    let isValid = false;
+                    let userInfo = {};
+                    
+                    // 检查管理员账号
+                    if ((identifier === 'system_admin' || identifier === '3820332398@qq.com') && password === 'Hjy413113') {
+                        isValid = true;
+                        userInfo = {
                             id: 1,
-                            username: 'admin',
-                            email: 'admin@system-vm.com',
+                            username: 'system_admin',
+                            email: '3820332398@qq.com',
                             full_name: '系统管理员',
                             role: 'admin',
                             status: 'active'
                         };
+                    }
+                    // 检查演示用户账号
+                    else if (
+                        (identifier === 'tech_guru' && password === 'Demo@123456') ||
+                        (identifier === 'code_master' && password === 'Demo@123456') ||
+                        (identifier === 'design_wizard' && password === 'Demo@123456') ||
+                        (identifier === 'new_user_001' && password === 'Demo@123456')
+                    ) {
+                        isValid = true;
+                        userInfo = {
+                            id: identifier === 'tech_guru' ? 2 : 
+                                 identifier === 'code_master' ? 3 : 
+                                 identifier === 'design_wizard' ? 4 : 5,
+                            username: identifier,
+                            email: identifier === 'tech_guru' ? 'zhangsan@example.com' :
+                                   identifier === 'code_master' ? 'lisi@example.com' :
+                                   identifier === 'design_wizard' ? 'wangwu@example.com' : 'zhaoliu@example.com',
+                            full_name: identifier === 'tech_guru' ? '张三' :
+                                     identifier === 'code_master' ? '李四' :
+                                     identifier === 'design_wizard' ? '王五' : '赵六',
+                            role: identifier === 'code_master' ? 'moderator' : 'user',
+                            status: 'active'
+                        };
+                    }
+                    
+                    if (isValid) {
+                        showMessage('登录成功！正在跳转...', 'success');
                         
-                        localStorage.setItem('admin_user', JSON.stringify(user));
+                        // 保存用户信息到localStorage
+                        localStorage.setItem('admin_user', JSON.stringify(userInfo));
                         
-                        // 重定向到管理员后台
-                        setTimeout(() => {
-                            window.location.href = 'admin.html';
-                        }, 1500);
+                        // 根据角色重定向
+                        if (userInfo.role === 'admin' || userInfo.role === 'moderator') {
+                            setTimeout(() => {
+                                window.location.href = 'admin.html';
+                            }, 1500);
+                        } else {
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1500);
+                        }
                     } else {
                         showMessage('用户名或密码错误', 'error');
                     }
@@ -986,8 +1025,22 @@
                 return;
             }
             
+            // 检查用户名是否已存在（模拟）
+            const existingUsers = ['system_admin', 'tech_guru', 'code_master', 'design_wizard', 'new_user_001'];
+            if (existingUsers.includes(username)) {
+                showMessage('用户名已存在，请选择其他用户名', 'error');
+                return;
+            }
+            
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 showMessage('请输入有效的邮箱地址', 'error');
+                return;
+            }
+            
+            // 检查邮箱是否已存在（模拟）
+            const existingEmails = ['3820332398@qq.com', 'zhangsan@example.com', 'lisi@example.com', 'wangwu@example.com', 'zhaoliu@example.com'];
+            if (existingEmails.includes(email)) {
+                showMessage('邮箱已被注册，请使用其他邮箱', 'error');
                 return;
             }
             
@@ -1024,7 +1077,7 @@
                         id: Math.floor(Math.random() * 1000) + 100,
                         username: username,
                         email: email,
-                        full_name: fullName,
+                        full_name: fullName || username,
                         role: 'user',
                         status: 'active'
                     };
