@@ -45,19 +45,19 @@ CREATE TABLE password_resets (
     INDEX idx_token (token)
 );
 
--- 插入管理员账户 (密码: Hjy413113)
--- 注意：这是使用bcrypt算法生成的密码哈希，成本因子为10
-INSERT INTO users (username, email, password_hash, full_name, role) 
-VALUES ('system_admin', '3820332398@qq.com', '$2y$10$JDJ5JDEwJFhCb3VQOVg1N.4V3l6FjqN7c8lT9zKvR2pW1sY3bX5d7a', '系统管理员', 'admin');
-
--- 插入演示用户
--- 所有演示用户的密码都是: Demo@123456
+-- 插入管理员账户 - 使用MySQL 8.0+ 兼容的哈希
+-- 密码: Hjy413113 (为了兼容性，使用MD5作为临时解决方案)
 INSERT INTO users (username, email, password_hash, full_name, role) 
 VALUES 
-('tech_guru', 'zhangsan@example.com', '$2y$10$JDJ5JDEwJGFjZGZjZWNl.2V4h5J8kL1m2n3P4qR5sT6uV7wX8y9z0A', '张三', 'user'),
-('code_master', 'lisi@example.com', '$2y$10$JDJ5JDEwJGFjZGZjZWNl.2V4h5J8kL1m2n3P4qR5sT6uV7wX8y9z0A', '李四', 'moderator'),
-('design_wizard', 'wangwu@example.com', '$2y$10$JDJ5JDEwJGFjZGZjZWNl.2V4h5J8kL1m2n3P4qR5sT6uV7wX8y9z0A', '王五', 'user'),
-('new_user_001', 'zhaoliu@example.com', '$2y$10$JDJ5JDEwJGFjZGZjZWNl.2V4h5J8kL1m2n3P4qR5sT6uV7wX8y9z0A', '赵六', 'user');
+('system_admin', '3820332398@qq.com', MD5('Hjy413113'), '系统管理员', 'admin');
+
+-- 插入演示用户 - 使用MD5简化验证
+INSERT INTO users (username, email, password_hash, full_name, role) 
+VALUES 
+('tech_guru', 'zhangsan@example.com', MD5('Demo@123456'), '张三', 'user'),
+('code_master', 'lisi@example.com', MD5('Demo@123456'), '李四', 'moderator'),
+('design_wizard', 'wangwu@example.com', MD5('Demo@123456'), '王五', 'user'),
+('new_user_001', 'zhaoliu@example.com', MD5('Demo@123456'), '赵六', 'user');
 
 -- 创建统计视图
 CREATE VIEW user_stats AS
@@ -97,8 +97,39 @@ CREATE INDEX idx_users_created_at ON users(created_at);
 CREATE INDEX idx_users_status_role ON users(status, role);
 CREATE INDEX idx_login_history_time ON login_history(login_time);
 
--- 存储过程：获取用户详细信息
+-- 创建测试用的存储过程和函数
 DELIMITER $$
+
+-- 存储过程：验证用户登录（使用MD5）
+CREATE PROCEDURE VerifyUserLogin(IN p_username VARCHAR(50), IN p_password VARCHAR(255), OUT p_user_id INT)
+BEGIN
+    DECLARE hashed_password VARCHAR(255);
+    DECLARE stored_hash VARCHAR(255);
+    
+    -- 获取用户ID和存储的哈希
+    SELECT id, password_hash INTO p_user_id, stored_hash 
+    FROM users 
+    WHERE username = p_username AND status = 'active';
+    
+    -- 如果找到用户，检查密码
+    IF p_user_id IS NOT NULL THEN
+        SET hashed_password = MD5(p_password);
+        
+        IF stored_hash = hashed_password THEN
+            -- 密码正确，记录登录历史
+            INSERT INTO login_history (user_id, success) VALUES (p_user_id, TRUE);
+            
+            -- 更新最后登录时间
+            UPDATE users SET last_login = NOW() WHERE id = p_user_id;
+        ELSE
+            -- 密码错误，记录失败尝试
+            INSERT INTO login_history (user_id, success) VALUES (p_user_id, FALSE);
+            SET p_user_id = NULL;
+        END IF;
+    END IF;
+END$$
+
+-- 存储过程：获取用户详细信息
 CREATE PROCEDURE GetUserDetails(IN user_id INT)
 BEGIN
     SELECT 
@@ -116,16 +147,63 @@ BEGIN
     FROM users u
     WHERE u.id = user_id;
 END$$
-DELIMITER ;
 
 -- 存储过程：更新用户最后登录时间
-DELIMITER $$
 CREATE PROCEDURE UpdateLastLogin(IN user_id INT)
 BEGIN
     UPDATE users 
     SET last_login = NOW() 
     WHERE id = user_id;
 END$$
+
+-- 存储过程：修改用户密码
+CREATE PROCEDURE ChangePassword(IN user_id INT, IN new_password VARCHAR(255))
+BEGIN
+    UPDATE users 
+    SET password_hash = MD5(new_password), 
+        updated_at = NOW() 
+    WHERE id = user_id;
+END$$
+
+-- 函数：检查用户名是否可用
+CREATE FUNCTION IsUsernameAvailable(username_to_check VARCHAR(50))
+RETURNS BOOLEAN
+DETERMINISTIC
+BEGIN
+    DECLARE user_count INT;
+    SELECT COUNT(*) INTO user_count FROM users WHERE username = username_to_check;
+    RETURN user_count = 0;
+END$$
+
+-- 函数：检查邮箱是否可用
+CREATE FUNCTION IsEmailAvailable(email_to_check VARCHAR(100))
+RETURNS BOOLEAN
+DETERMINISTIC
+BEGIN
+    DECLARE email_count INT;
+    SELECT COUNT(*) INTO email_count FROM users WHERE email = email_to_check;
+    RETURN email_count = 0;
+END$$
+
+-- 函数：验证用户凭据（简单版本）
+CREATE FUNCTION ValidateUserCredentials(p_username VARCHAR(50), p_password VARCHAR(255))
+RETURNS BOOLEAN
+DETERMINISTIC
+BEGIN
+    DECLARE valid BOOLEAN DEFAULT FALSE;
+    
+    IF EXISTS (
+        SELECT 1 FROM users 
+        WHERE username = p_username 
+        AND password_hash = MD5(p_password)
+        AND status = 'active'
+    ) THEN
+        SET valid = TRUE;
+    END IF;
+    
+    RETURN valid;
+END$$
+
 DELIMITER ;
 
 -- 触发器：自动更新用户最后活动时间
@@ -137,30 +215,6 @@ BEGIN
     IF NEW.success = TRUE THEN
         CALL UpdateLastLogin(NEW.user_id);
     END IF;
-END$$
-DELIMITER ;
-
--- 函数：检查用户名是否可用
-DELIMITER $$
-CREATE FUNCTION IsUsernameAvailable(username_to_check VARCHAR(50))
-RETURNS BOOLEAN
-DETERMINISTIC
-BEGIN
-    DECLARE user_count INT;
-    SELECT COUNT(*) INTO user_count FROM users WHERE username = username_to_check;
-    RETURN user_count = 0;
-END$$
-DELIMITER ;
-
--- 函数：检查邮箱是否可用
-DELIMITER $$
-CREATE FUNCTION IsEmailAvailable(email_to_check VARCHAR(100))
-RETURNS BOOLEAN
-DETERMINISTIC
-BEGIN
-    DECLARE email_count INT;
-    SELECT COUNT(*) INTO email_count FROM users WHERE email = email_to_check;
-    RETURN email_count = 0;
 END$$
 DELIMITER ;
 
@@ -184,27 +238,69 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- 创建测试用户登录记录的存储过程
+DELIMITER $$
+CREATE PROCEDURE TestLogin()
+BEGIN
+    DECLARE test_user_id INT;
+    
+    -- 测试管理员登录
+    CALL VerifyUserLogin('system_admin', 'Hjy413113', @test_user_id);
+    
+    IF @test_user_id IS NOT NULL THEN
+        SELECT '管理员登录测试: 成功' as result, @test_user_id as user_id;
+    ELSE
+        SELECT '管理员登录测试: 失败 - 检查用户名或密码' as result;
+    END IF;
+    
+    -- 测试演示用户登录
+    CALL VerifyUserLogin('tech_guru', 'Demo@123456', @test_user_id);
+    
+    IF @test_user_id IS NOT NULL THEN
+        SELECT '演示用户登录测试: 成功' as result, @test_user_id as user_id;
+    ELSE
+        SELECT '演示用户登录测试: 失败' as result;
+    END IF;
+    
+    -- 测试错误密码
+    CALL VerifyUserLogin('system_admin', 'WrongPassword', @test_user_id);
+    
+    IF @test_user_id IS NULL THEN
+        SELECT '错误密码测试: 成功 (正确拒绝了错误密码)' as result;
+    END IF;
+    
+END$$
+DELIMITER ;
+
 -- 授予权限（根据实际数据库用户调整）
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON system_vm_users.* TO 'web_user'@'localhost';
--- GRANT EXECUTE ON PROCEDURE system_vm_users.GetUserDetails TO 'web_user'@'localhost';
--- GRANT EXECUTE ON PROCEDURE system_vm_users.UpdateLastLogin TO 'web_user'@'localhost';
+-- GRANT EXECUTE ON PROCEDURE system_vm_users.* TO 'web_user'@'localhost';
 
--- 重要提示：
--- 管理员账户信息：
--- 用户名: system_admin
--- 密码: Hjy413113
--- 邮箱: 3820332398@qq.com
-
--- 演示用户信息：
--- 所有演示用户的密码都是: Demo@123456
--- 可以登录的用户名：tech_guru, code_master, design_wizard, new_user_001
-
--- 注意：这是一个演示数据库结构
--- 在生产环境中，您应该：
--- 1. 使用更强的密码哈希算法（如Argon2或bcrypt）
--- 2. 添加更多的安全性检查
--- 3. 定期备份数据库
--- 4. 使用参数化查询防止SQL注入
--- 5. 配置适当的数据库权限
--- 6. 在实际使用前，请修改所有用户的密码
--- 7. 建议在生产环境中删除或禁用演示用户
+-- 显示所有用户及其密码（仅用于调试）
+SELECT 
+    '===== 用户登录信息 (仅用于测试) =====' as info
+UNION ALL
+SELECT 
+    CONCAT(
+        '用户名: ', username, 
+        ' | 密码: ', 
+        CASE username 
+            WHEN 'system_admin' THEN 'Hjy413113' 
+            ELSE 'Demo@123456' 
+        END,
+        ' | 邮箱: ', email,
+        ' | 角色: ', role
+    ) as user_info
+FROM users
+UNION ALL
+SELECT 
+    '===== 测试登录 =====' as info
+UNION ALL
+SELECT 
+    '1. 管理员登录: CALL VerifyUserLogin(''system_admin'', ''Hjy413113'', @user_id);' as test_command
+UNION ALL
+SELECT 
+    '2. 演示用户登录: CALL VerifyUserLogin(''tech_guru'', ''Demo@123456'', @user_id);' as test_command
+UNION ALL
+SELECT 
+    '3. 运行所有测试: CALL TestLogin();' as test_command;
