@@ -113,8 +113,20 @@
             }
         }
         
-        /* 注册按钮样式 */
-        #register-btn {
+        /* 登录状态显示样式 */
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #00f3ff;
+            font-weight: 500;
+        }
+        
+        .user-status .btn-icon {
+            font-size: 1rem;
+        }
+        
+        .auth-link {
             display: inline-flex;
             align-items: center;
             padding: 0.5rem 1rem;
@@ -127,18 +139,19 @@
             font-weight: 500;
         }
         
-        #register-btn:hover {
+        .auth-link:hover {
             background: rgba(0, 243, 255, 0.15);
             transform: translateY(-2px);
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
         }
         
-        #register-btn .btn-icon {
+        .auth-link .btn-icon {
             margin-right: 0.5rem;
             font-size: 1rem;
         }
         
-        .register-btn-large {
+        /* 注册按钮大样式 */
+        .auth-btn-large {
             display: inline-flex;
             flex-direction: column;
             align-items: center;
@@ -162,28 +175,28 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
-        .register-btn-large:hover {
+        .auth-btn-large:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
         
-        .register-btn-large .btn-icon {
+        .auth-btn-large .btn-icon {
             font-size: 1.8rem;
             margin-bottom: 0.5rem;
         }
         
-        .register-btn-large .btn-text {
+        .auth-btn-large .btn-text {
             font-size: 1.3rem;
             margin-bottom: 0.3rem;
         }
         
-        .register-btn-large .btn-subtext {
+        .auth-btn-large .btn-subtext {
             font-size: 0.9rem;
             opacity: 0.8;
         }
         
         /* 为注册按钮添加科幻效果 */
-        .register-btn-large::before {
+        .auth-btn-large::before {
             content: '';
             position: absolute;
             top: 0;
@@ -194,24 +207,33 @@
             transition: left 0.7s ease;
         }
         
-        .register-btn-large:hover::before {
+        .auth-btn-large:hover::before {
             left: 100%;
+        }
+        
+        /* 已登录用户大按钮样式 */
+        .user-btn-large {
+            background: linear-gradient(135deg, #00c9ff 0%, #007acc 100%);
         }
         
         /* 移动端适配 */
         @media (max-width: 768px) {
-            #register-btn {
+            .auth-link {
                 padding: 0.4rem 0.8rem;
                 font-size: 0.9rem;
             }
             
-            .register-btn-large {
+            .auth-btn-large {
                 padding: 1rem 1.5rem;
                 max-width: 250px;
             }
             
-            .register-btn-large .btn-text {
+            .auth-btn-large .btn-text {
                 font-size: 1.1rem;
+            }
+            
+            .user-status {
+                font-size: 0.9rem;
             }
         }
         
@@ -292,6 +314,38 @@
             transform: scale(0.95) !important;
             opacity: 0.9 !important;
         }
+        
+        /* 登录状态指示器 */
+        .login-indicator {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 255, 128, 0.1);
+            border: 1px solid rgba(0, 255, 128, 0.3);
+            color: #00ff80;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1001;
+            backdrop-filter: blur(5px);
+        }
+        
+        .login-indicator.visible {
+            display: block;
+            animation: slideInDown 0.3s ease;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -313,6 +367,11 @@
         注册功能和后台补丁支持（版本：8.1.0.6.48）
     </div>
     
+    <!-- 登录状态指示器 -->
+    <div class="login-indicator" id="login-indicator">
+        已登录
+    </div>
+    
     <!-- 屏幕阅读器专用提示 -->
     <div class="visually-hidden" id="screen-reader-hint">
         这是一个科技风格的个人项目展示页面，包含卡片交互特效
@@ -332,10 +391,10 @@
                     <li><a href="#about" class="scifi-link">关于UP</a></li>
                     <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" rel="noopener" class="scifi-link">作者信息</a></li>
                     
-                    <!-- 方案1：在导航栏中添加注册按钮 -->
-                    <li><a href="login.html" class="scifi-link" id="register-btn" aria-label="注册或登录">
-                        <span class="btn-icon">🔐</span> 注册/登录
-                    </a></li>
+                    <!-- 动态身份验证按钮 - 由JavaScript控制 -->
+                    <li id="auth-nav-item">
+                        <!-- 这里的内容会被JavaScript动态更新 -->
+                    </li>
                     
                     <li><button class="scifi-button download-btn-main" id="download-btn">
                         下载PC端
@@ -388,13 +447,10 @@
                         <div class="download-progress"></div>
                     </button>
                     
-                    <!-- 方案2：在主内容区域添加突出的注册按钮 -->
-                    <a href="login.html" class="scifi-button register-btn-large" id="hero-register-btn"
-                       aria-label="注册账户或登录" style="margin-top: 1.5rem;">
-                        <span class="btn-icon">🔐</span>
-                        <span class="btn-text">注册 / 登录</span>
-                        <span class="btn-subtext">体验完整功能</span>
-                    </a>
+                    <!-- 动态身份验证按钮（大按钮）- 由JavaScript控制 -->
+                    <div id="hero-auth-section">
+                        <!-- 这里的内容会被JavaScript动态更新 -->
+                    </div>
                 </div>
             </div>
         </section>
@@ -452,7 +508,7 @@
                 💡 提示：点击卡片体验特效，点击其他地方恢复原状
             </p>
             <p class="scifi-text" style="font-size: 0.9rem; margin-top: 0.5rem;">
-                🔐 <a href="login.html" style="color: #00f3ff; text-decoration: underline;">注册账户</a> 解锁更多个性化功能
+                <span id="auth-hint">🔐 <a href="login.html" style="color: #00f3ff; text-decoration: underline;">注册账户</a> 解锁更多个性化功能</span>
             </p>
         </section>
     </main>
@@ -463,11 +519,9 @@
             <p class="scifi-text">&copy; 2025 System_VM_D62E 版权所有</p>
             <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
             
-            <!-- 方案3：在页脚区域添加注册链接 -->
-            <p class="scifi-text" style="margin-top: 1rem;">
-                <a href="login.html" class="scifi-link" style="color: #00f3ff; font-weight: bold;">
-                    🔐 点击这里注册或登录
-                </a>
+            <!-- 动态身份验证链接 - 由JavaScript控制 -->
+            <p class="scifi-text" style="margin-top: 1rem;" id="footer-auth-link">
+                <!-- 这里的内容会被JavaScript动态更新 -->
             </p>
             
             <p class="scifi-text" style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">
@@ -498,10 +552,154 @@
             // 立即设置加载状态
             document.body.setAttribute('data-page-loaded', 'false');
             
-            // 页面完全加载后
+            // 检查登录状态并更新UI的函数
+            function updateAuthUI() {
+                const savedUser = localStorage.getItem('admin_user');
+                const authNavItem = document.getElementById('auth-nav-item');
+                const heroAuthSection = document.getElementById('hero-auth-section');
+                const authHint = document.getElementById('auth-hint');
+                const footerAuthLink = document.getElementById('footer-auth-link');
+                const loginIndicator = document.getElementById('login-indicator');
+                
+                if (savedUser) {
+                    try {
+                        const user = JSON.parse(savedUser);
+                        const username = user.username || user.full_name || '用户';
+                        const userRole = user.role || 'user';
+                        
+                        // 导航栏：显示用户信息和管理后台链接
+                        if (authNavItem) {
+                            let adminLink = userRole === 'admin' || userRole === 'moderator' ? 
+                                '<a href="admin.html" class="scifi-link user-status" title="进入管理后台"><span class="btn-icon">👤</span> ' + username + ' (管理)</a>' :
+                                '<span class="scifi-link user-status" title="已登录"><span class="btn-icon">👤</span> ' + username + '</span>';
+                            
+                            authNavItem.innerHTML = adminLink;
+                        }
+                        
+                        // 主内容区域：显示管理后台入口
+                        if (heroAuthSection) {
+                            if (userRole === 'admin' || userRole === 'moderator') {
+                                heroAuthSection.innerHTML = `
+                                    <a href="admin.html" class="scifi-button auth-btn-large user-btn-large" id="hero-admin-btn"
+                                       aria-label="进入管理后台" style="margin-top: 1.5rem;">
+                                        <span class="btn-icon">⚙️</span>
+                                        <span class="btn-text">管理后台</span>
+                                        <span class="btn-subtext">${username}</span>
+                                    </a>
+                                `;
+                            } else {
+                                heroAuthSection.innerHTML = `
+                                    <a href="admin.html" class="scifi-button auth-btn-large user-btn-large" id="hero-profile-btn"
+                                       aria-label="查看个人资料" style="margin-top: 1.5rem;">
+                                        <span class="btn-icon">👤</span>
+                                        <span class="btn-text">个人中心</span>
+                                        <span class="btn-subtext">${username}</span>
+                                    </a>
+                                `;
+                            }
+                        }
+                        
+                        // 提示信息：已登录提示
+                        if (authHint) {
+                            authHint.innerHTML = `👋 欢迎回来，${username}！<a href="admin.html" style="color: #00f3ff; text-decoration: underline;">查看个人中心</a>`;
+                        }
+                        
+                        // 页脚链接：显示退出登录
+                        if (footerAuthLink) {
+                            footerAuthLink.innerHTML = `
+                                <a href="#" onclick="logoutUser()" class="scifi-link" style="color: #ff3232; font-weight: bold;">
+                                    ⚠️ 退出登录
+                                </a>
+                            `;
+                        }
+                        
+                        // 显示登录状态指示器
+                        if (loginIndicator) {
+                            loginIndicator.classList.add('visible');
+                            setTimeout(() => {
+                                loginIndicator.classList.remove('visible');
+                            }, 3000);
+                        }
+                        
+                        console.log('用户已登录，更新UI显示:', username, '角色:', userRole);
+                        
+                    } catch (error) {
+                        console.error('解析用户信息失败:', error);
+                        showLoginUI(); // 显示登录界面
+                    }
+                } else {
+                    // 用户未登录，显示登录注册选项
+                    showLoginUI();
+                }
+            }
+            
+            // 显示登录注册界面的函数
+            function showLoginUI() {
+                const authNavItem = document.getElementById('auth-nav-item');
+                const heroAuthSection = document.getElementById('hero-auth-section');
+                const authHint = document.getElementById('auth-hint');
+                const footerAuthLink = document.getElementById('footer-auth-link');
+                
+                // 导航栏：显示注册/登录按钮
+                if (authNavItem) {
+                    authNavItem.innerHTML = `
+                        <a href="login.html" class="scifi-link auth-link" id="register-btn" aria-label="注册或登录">
+                            <span class="btn-icon">🔐</span> 注册/登录
+                        </a>
+                    `;
+                }
+                
+                // 主内容区域：显示注册按钮
+                if (heroAuthSection) {
+                    heroAuthSection.innerHTML = `
+                        <a href="login.html" class="scifi-button auth-btn-large" id="hero-register-btn"
+                           aria-label="注册账户或登录" style="margin-top: 1.5rem;">
+                            <span class="btn-icon">🔐</span>
+                            <span class="btn-text">注册 / 登录</span>
+                            <span class="btn-subtext">体验完整功能</span>
+                        </a>
+                    `;
+                }
+                
+                // 提示信息：注册提示
+                if (authHint) {
+                    authHint.innerHTML = '🔐 <a href="login.html" style="color: #00f3ff; text-decoration: underline;">注册账户</a> 解锁更多个性化功能';
+                }
+                
+                // 页脚链接：显示注册链接
+                if (footerAuthLink) {
+                    footerAuthLink.innerHTML = `
+                        <a href="login.html" class="scifi-link" style="color: #00f3ff; font-weight: bold;">
+                            🔐 点击这里注册或登录
+                        </a>
+                    `;
+                }
+                
+                console.log('用户未登录，显示登录注册选项');
+            }
+            
+            // 退出登录函数
+            function logoutUser() {
+                if (confirm('确定要退出登录吗？')) {
+                    // 清除本地存储的用户信息
+                    localStorage.removeItem('admin_user');
+                    // 显示成功消息
+                    alert('已成功退出登录');
+                    // 重新加载页面以更新UI
+                    window.location.reload();
+                }
+            }
+            
+            // 全局暴露退出登录函数
+            window.logoutUser = logoutUser;
+            
+            // 页面加载完成后初始化
             window.addEventListener('load', function() {
                 document.body.setAttribute('data-page-loaded', 'true');
                 document.body.classList.add('loaded');
+                
+                // 更新登录状态UI
+                updateAuthUI();
                 
                 // 更新当前时间
                 function updateTime() {
@@ -546,6 +744,31 @@
                     window.performance.mark('pageFullyLoaded');
                 }
             });
+            
+            // 页面可见性变化时检查登录状态
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    // 页面变为可见时检查登录状态
+                    updateAuthUI();
+                }
+            });
+            
+            // 监听其他页面的登录事件
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'admin_user') {
+                    // admin_user发生变化，更新UI
+                    setTimeout(updateAuthUI, 100);
+                }
+            });
+            
+            // 初始加载时立即检查登录状态
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    updateAuthUI();
+                });
+            } else {
+                updateAuthUI();
+            }
             
             // 浏览器兼容性检测
             function detectBrowserCompatibility() {
@@ -592,48 +815,6 @@
             
             // 立即执行兼容性检测
             detectBrowserCompatibility();
-            
-            // 注册按钮点击效果处理
-            function setupRegisterButtons() {
-                // 为所有注册按钮添加点击效果
-                const registerButtons = document.querySelectorAll('a[href="login.html"]');
-                
-                registerButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        // 添加点击反馈
-                        this.style.transform = 'scale(0.95)';
-                        this.style.opacity = '0.9';
-                        
-                        // 保存点击状态到sessionStorage，以便login.html页面知道来源
-                        sessionStorage.setItem('registerSource', window.location.href);
-                        
-                        // 短暂延迟后跳转，让用户看到点击效果
-                        setTimeout(() => {
-                            window.location.href = 'login.html';
-                        }, 300);
-                        
-                        // 阻止默认行为，因为我们已处理跳转
-                        e.preventDefault();
-                    });
-                });
-                
-                // 检查是否有注册按钮，如果没有则自动添加
-                if (registerButtons.length === 0) {
-                    // 自动在导航栏添加注册按钮
-                    const navMenu = document.getElementById('nav-menu');
-                    if (navMenu) {
-                        const registerItem = document.createElement('li');
-                        registerItem.innerHTML = `
-                            <a href="login.html" class="scifi-link" id="register-btn" aria-label="注册或登录">
-                                <span class="btn-icon">🔐</span> 注册/登录
-                            </a>
-                        `;
-                        navMenu.insertBefore(registerItem, navMenu.children[navMenu.children.length - 2]);
-                    }
-                }
-                
-                console.log(`已设置 ${registerButtons.length} 个注册按钮`);
-            }
             
             // 卡片功能提示
             function showCardFunctionHint() {
@@ -700,11 +881,9 @@
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(showCardFunctionHint, 500);
-                    setTimeout(setupRegisterButtons, 100);
                 });
             } else {
                 setTimeout(showCardFunctionHint, 500);
-                setTimeout(setupRegisterButtons, 100);
             }
             
             // 防止表单重复提交（如果有表单的话）
@@ -756,8 +935,8 @@
                 
                 // 标记正在滚动
                 isScrolling = true;
-                
-                // 只在特定情况下阻止默认行为
+
+// 只在特定情况下阻止默认行为
                 if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
                     // 允许小幅度的滚动，只在明显越界时阻止
                     if (Math.abs(deltaY) > 30) {
