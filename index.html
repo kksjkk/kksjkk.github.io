@@ -22,9 +22,6 @@
     <!-- 预加载关键资源 -->
     <link rel="preload" href="style-optimized.css" as="style">
     <link rel="preload" href="adaptive-card-styles.css" as="style">
-    <link rel="preload" href="performance.js" as="script">
-    <link rel="preload" href="adaptive-card-system.js" as="script">
-    <link rel="preload" href="script.js" as="script">
     
     <!-- 样式文件（修复后的合并版本） -->
     <link rel="stylesheet" href="style-optimized.css">
@@ -116,6 +113,108 @@
             }
         }
         
+        /* 注册按钮样式 */
+        #register-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            background: rgba(0, 243, 255, 0.05);
+            color: #00f3ff;
+            font-weight: 500;
+        }
+        
+        #register-btn:hover {
+            background: rgba(0, 243, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+        
+        #register-btn .btn-icon {
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .register-btn-large {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .register-btn-large:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .register-btn-large .btn-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .register-btn-large .btn-text {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .register-btn-large .btn-subtext {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* 为注册按钮添加科幻效果 */
+        .register-btn-large::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .register-btn-large:hover::before {
+            left: 100%;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            #register-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .register-btn-large {
+                padding: 1rem 1.5rem;
+                max-width: 250px;
+            }
+            
+            .register-btn-large .btn-text {
+                font-size: 1.1rem;
+            }
+        }
+        
         /* 其他现有样式保持不变... */
         .logo.lazy-load {
             background: linear-gradient(90deg, #0a0a1a 0%, #1a1a2e 50%, #0a0a1a 100%);
@@ -187,6 +286,12 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
+        
+        /* 基础按钮活动状态 */
+        .button-active {
+            transform: scale(0.95) !important;
+            opacity: 0.9 !important;
+        }
     </style>
 </head>
 
@@ -205,7 +310,7 @@
     
     <!-- 全局提示 -->
     <div class="click-outside-hint" id="click-hint" role="status" aria-live="polite">
-        文件补丁与信息改进（版本：8.1.0.5.48）
+        注册功能和后台补丁支持（版本：8.1.0.6.48）
     </div>
     
     <!-- 屏幕阅读器专用提示 -->
@@ -226,6 +331,12 @@
                 <ul class="nav-menu" id="nav-menu">
                     <li><a href="#about" class="scifi-link">关于UP</a></li>
                     <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" rel="noopener" class="scifi-link">作者信息</a></li>
+                    
+                    <!-- 方案1：在导航栏中添加注册按钮 -->
+                    <li><a href="login.html" class="scifi-link" id="register-btn" aria-label="注册或登录">
+                        <span class="btn-icon">🔐</span> 注册/登录
+                    </a></li>
+                    
                     <li><button class="scifi-button download-btn-main" id="download-btn">
                         下载PC端
                     </button></li>
@@ -266,7 +377,7 @@
                     <span class="progress-text">75%</span>
                 </div>
                 
-                <!-- 主下载按钮 -->
+                <!-- 主下载按钮区域 -->
                 <div class="download-section">
                     <button class="scifi-button download-btn-large hero-download-btn" 
                             id="hero-download-btn"
@@ -276,6 +387,14 @@
                         <span class="btn-subtext">v0.9.8 • 测试版本</span>
                         <div class="download-progress"></div>
                     </button>
+                    
+                    <!-- 方案2：在主内容区域添加突出的注册按钮 -->
+                    <a href="login.html" class="scifi-button register-btn-large" id="hero-register-btn"
+                       aria-label="注册账户或登录" style="margin-top: 1.5rem;">
+                        <span class="btn-icon">🔐</span>
+                        <span class="btn-text">注册 / 登录</span>
+                        <span class="btn-subtext">体验完整功能</span>
+                    </a>
                 </div>
             </div>
         </section>
@@ -284,7 +403,7 @@
         <section id="about" class="about-section" aria-label="关于UP主">
             <div class="container">
                 <h2 class="scifi-heading">关于UP主</h2>
-                <p class="scifi-text">根据 2026年1月17日晚上统计，up的粉丝是2160人，视频播放15.2万，149条弹幕，3580条评论，7027个点赞。代表作：《全网最全的Windows网页版，你值得拥有！！！》，最新稿件：《不就是C盘满了吗，又耐我何？小白有救了！！！》，粉丝团名称：D云团。</p>
+                <p class="scifi-text">根据 2026年1月21日晚上统计，up的粉丝是2214人，视频播放15.6万，150条弹幕，3677条评论，7163个点赞。代表作：《全网最全的Windows网页版，你值得拥有！！！》，最新稿件：《什么才是真正好的工具？这五个应用才是真的装机必备！好用到爆！！！》，粉丝团名称：D云团。</p>
                 
                 <!-- 特性卡片区域 - 现在有4张卡片 -->
                 <div class="features">
@@ -332,6 +451,9 @@
             <p class="scifi-text" style="font-size: 0.9rem;">
                 💡 提示：点击卡片体验特效，点击其他地方恢复原状
             </p>
+            <p class="scifi-text" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                🔐 <a href="login.html" style="color: #00f3ff; text-decoration: underline;">注册账户</a> 解锁更多个性化功能
+            </p>
         </section>
     </main>
 
@@ -340,6 +462,14 @@
         <div class="footer-container">
             <p class="scifi-text">&copy; 2025 System_VM_D62E 版权所有</p>
             <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
+            
+            <!-- 方案3：在页脚区域添加注册链接 -->
+            <p class="scifi-text" style="margin-top: 1rem;">
+                <a href="login.html" class="scifi-link" style="color: #00f3ff; font-weight: bold;">
+                    🔐 点击这里注册或登录
+                </a>
+            </p>
+            
             <p class="scifi-text" style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">
                 本站已优化支持：Chrome、Firefox、Safari、Edge、百度浏览器、Via浏览器、夸克浏览器
             </p>
@@ -349,12 +479,12 @@
         </div>
     </footer>
 
-    <!-- JavaScript文件（优化后的加载顺序） -->
-    <!-- 1. 首先加载自适应卡片系统 -->
-    <script src="adaptive-card-system.js" defer></script>
-    
-    <!-- 2. 然后加载性能监控层 -->
+    <!-- JavaScript文件（修复后的加载顺序） -->
+    <!-- 1. 先加载性能监控（基础层） -->
     <script src="performance.js" defer></script>
+    
+    <!-- 2. 再加载卡片特效系统 -->
+    <script src="adaptive-card-system.js" defer></script>
     
     <!-- 3. 最后加载主脚本（控制器） -->
     <script src="script.js" defer></script>
@@ -463,6 +593,48 @@
             // 立即执行兼容性检测
             detectBrowserCompatibility();
             
+            // 注册按钮点击效果处理
+            function setupRegisterButtons() {
+                // 为所有注册按钮添加点击效果
+                const registerButtons = document.querySelectorAll('a[href="login.html"]');
+                
+                registerButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        // 添加点击反馈
+                        this.style.transform = 'scale(0.95)';
+                        this.style.opacity = '0.9';
+                        
+                        // 保存点击状态到sessionStorage，以便login.html页面知道来源
+                        sessionStorage.setItem('registerSource', window.location.href);
+                        
+                        // 短暂延迟后跳转，让用户看到点击效果
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 300);
+                        
+                        // 阻止默认行为，因为我们已处理跳转
+                        e.preventDefault();
+                    });
+                });
+                
+                // 检查是否有注册按钮，如果没有则自动添加
+                if (registerButtons.length === 0) {
+                    // 自动在导航栏添加注册按钮
+                    const navMenu = document.getElementById('nav-menu');
+                    if (navMenu) {
+                        const registerItem = document.createElement('li');
+                        registerItem.innerHTML = `
+                            <a href="login.html" class="scifi-link" id="register-btn" aria-label="注册或登录">
+                                <span class="btn-icon">🔐</span> 注册/登录
+                            </a>
+                        `;
+                        navMenu.insertBefore(registerItem, navMenu.children[navMenu.children.length - 2]);
+                    }
+                }
+                
+                console.log(`已设置 ${registerButtons.length} 个注册按钮`);
+            }
+            
             // 卡片功能提示
             function showCardFunctionHint() {
                 const cards = document.querySelectorAll('.feature-card');
@@ -528,9 +700,11 @@
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(showCardFunctionHint, 500);
+                    setTimeout(setupRegisterButtons, 100);
                 });
             } else {
                 setTimeout(showCardFunctionHint, 500);
+                setTimeout(setupRegisterButtons, 100);
             }
             
             // 防止表单重复提交（如果有表单的话）
@@ -671,6 +845,14 @@
                         behavior: 'smooth'
                     });
                 }
+                
+                // R键快速跳转到注册页面
+                if (e.key === 'r' || e.key === 'R') {
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        window.location.href = 'login.html';
+                    }
+                }
             });
             
             // 网络状态监控
@@ -769,46 +951,25 @@
                     }
                 }, { passive: true });
             }
-            
-            // 监听卡片特效系统加载
-            document.addEventListener('DOMContentLoaded', function() {
-                // 等待自适应卡片系统加载
-                setTimeout(function() {
+        })();
+
+        // 监听卡片特效系统加载
+        document.addEventListener('DOMContentLoaded', function() {
+            // 等待自适应卡片系统加载
+            const checkCardSystem = setInterval(function() {
+                if (window.AdaptiveCardEffects) {
+                    clearInterval(checkCardSystem);
+                    
                     const cards = document.querySelectorAll('.feature-card');
-                    console.log(`特效卡片系统已加载，共 ${cards.length} 张卡片`);
+                    console.log(`卡片特效系统已加载，共 ${cards.length} 张卡片`);
                     
                     // 为每张卡片添加数据属性
                     cards.forEach((card, index) => {
                         card.setAttribute('data-card-id', `card-${index + 1}`);
                     });
-                }, 1000);
-            });
-        })();
-
-// 在 index.html 的 <script> 标签中添加
-document.addEventListener('DOMContentLoaded', function() {
-    // 等待所有资源加载完成
-    window.addEventListener('load', function() {
-        // 确保卡片系统已初始化
-        if (window.AdaptiveCardEffects) {
-            console.log('卡片特效系统已加载');
-            
-            // 测试卡片功能
-            const cards = document.querySelectorAll('.feature-card');
-            console.log(`找到 ${cards.length} 张卡片`);
-            
-            // 添加测试按钮（可选，用于调试）
-            if (cards.length > 0) {
-                const testCard = cards[0];
-                setTimeout(() => {
-                    // 自动测试第一张卡片（仅用于调试）
-                    // window.AdaptiveCardEffects.triggerCardEffect(testCard);
-                }, 2000);
-            }
-        }
-    });
-});
-
+                }
+            }, 100);
+        });
     </script>
 </body>
 </html>
