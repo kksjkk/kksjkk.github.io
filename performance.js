@@ -1,8 +1,14 @@
-// 高级性能优化层（兼容性修复版） - 重构版
+// 高级性能优化层（兼容性修复版） - 优化版
 // 专注于性能监控和浏览器兼容性，不处理业务逻辑
 
 (function() {
     'use strict';
+    
+    // 检查是否已经初始化
+    if (window.performanceLayerInitialized) {
+        console.log('性能层已初始化，跳过重复初始化');
+        return;
+    }
     
     // 标记性能层已初始化
     window.performanceLayerInitialized = true;
@@ -10,6 +16,11 @@
     // 检查主脚本是否已初始化，避免功能冲突
     if (window.mainScriptInitialized) {
         console.log('主脚本已初始化，性能层将专注于监控');
+    }
+    
+    // 检查卡片系统是否已初始化
+    if (window.adaptiveCardSystemInitialized) {
+        console.log('卡片系统已初始化，性能层将优化卡片性能');
     }
     
     // 浏览器检测 - 仅用于性能优化决策
@@ -27,13 +38,15 @@
         memoryUsage: null,
         animationFrameRate: 60,
         domReadyTime: null,
-        loadCompleteTime: null
+        loadCompleteTime: null,
+        cardCount: 0
     };
     
     // 帧率监控
     let lastFrameTime = performance.now();
     let frameCount = 0;
     let fps = 60;
+    let fpsUpdateId = null;
     
     function updateFPS() {
         const now = performance.now();
@@ -47,11 +60,11 @@
             // 低帧率警告
             if (fps < 30 && !document.body.classList.contains('low-fps-warning')) {
                 console.warn(`低帧率检测: ${fps} FPS`);
-                // 可以在这里添加低帧率优化，但避免与主脚本冲突
+                // 可以在这里添加低帧率优化
             }
         }
         
-        requestAnimationFrame(updateFPS);
+        fpsUpdateId = requestAnimationFrame(updateFPS);
     }
     
     // 页面加载时间监控
@@ -95,6 +108,40 @@
         }
     }
     
+    // 监控卡片数量
+    function monitorCardCount() {
+        const cards = document.querySelectorAll('.feature-card');
+        perfData.cardCount = cards.length;
+        console.log(`检测到 ${perfData.cardCount} 张卡片`);
+        
+        // 如果卡片过多，应用优化
+        if (perfData.cardCount > 10) {
+            console.log('卡片数量过多，应用卡片优化');
+            optimizeCardPerformance();
+        }
+    }
+    
+    // 卡片性能优化
+    function optimizeCardPerformance() {
+        const cards = document.querySelectorAll('.feature-card');
+        
+        // 为低性能设备减少卡片动画
+        if (browserInfo.isLowPerformance || browserInfo.isMobile) {
+            cards.forEach(card => {
+                card.style.animation = 'none';
+                card.style.transition = 'none';
+                
+                // 移除复杂的卡片效果
+                const refreshElements = card.querySelectorAll('.card-refresh-container, .card-border-glow, .gradient-overlay');
+                refreshElements.forEach(el => {
+                    el.style.display = 'none';
+                });
+            });
+            
+            console.log('低性能设备，已禁用卡片动画');
+        }
+    }
+    
     // 重度性能优化
     function applyHeavyOptimizations() {
         console.log('应用重度性能优化');
@@ -120,9 +167,15 @@
             .performance-mode .feature-card {
                 animation: none !important;
                 transform: none !important;
+                transition: none !important;
             }
             .performance-mode .logo-glow {
                 animation: none !important;
+            }
+            .performance-mode .card-refresh-container,
+            .performance-mode .card-border-glow,
+            .performance-mode .gradient-overlay {
+                display: none !important;
             }
         `;
         
@@ -254,10 +307,22 @@
             p.style.animationPlayState = 'paused';
         });
         
+        // 暂停卡片动画
+        const cards = document.querySelectorAll('.feature-card');
+        cards.forEach(card => {
+            if (!card.classList.contains('active')) {
+                card.style.animationPlayState = 'paused';
+            }
+        });
+        
         // 很快恢复
         setTimeout(() => {
             particles.forEach(p => {
                 p.style.animationPlayState = 'running';
+            });
+            
+            cards.forEach(card => {
+                card.style.animationPlayState = 'running';
             });
         }, 100);
     }
@@ -272,10 +337,23 @@
                         clearInterval(particleInterval);
                         particleInterval = null;
                     }
+                    
+                    if (fpsUpdateId) {
+                        cancelAnimationFrame(fpsUpdateId);
+                        fpsUpdateId = null;
+                    }
+                    
                     document.body.classList.add('page-hidden');
                 } else {
                     // 页面恢复时重新启用
                     document.body.classList.remove('page-hidden');
+                    
+                    // 恢复FPS监控
+                    if (!fpsUpdateId) {
+                        fpsUpdateId = requestAnimationFrame(updateFPS);
+                    }
+                    
+                    // 恢复粒子系统
                     if (particleSystemEnabled && !particleInterval) {
                         particleInterval = setInterval(() => {
                             updateParticles();
@@ -322,6 +400,12 @@
                 img.loading = 'lazy';
             }
         });
+        
+        // 禁用粒子效果
+        if (particleSystemEnabled && particleInterval) {
+            clearInterval(particleInterval);
+            particleInterval = null;
+        }
     }
     
     // 设备性能分类
@@ -386,7 +470,10 @@
         initErrorMonitoring();
         
         // 帧率监控
-        requestAnimationFrame(updateFPS);
+        fpsUpdateId = requestAnimationFrame(updateFPS);
+        
+        // 卡片数量监控
+        monitorCardCount();
         
         // 加载时间监控
         if (document.readyState === 'complete') {
@@ -435,6 +522,12 @@
             particleInterval = null;
         }
         
+        // 清理FPS监控
+        if (fpsUpdateId) {
+            cancelAnimationFrame(fpsUpdateId);
+            fpsUpdateId = null;
+        }
+        
         // 移除性能层标记
         window.performanceLayerInitialized = false;
         
@@ -465,6 +558,9 @@
             }
         },
         getFPS: () => fps,
-        getLoadTimes: () => perfData.loadTimes
+        getLoadTimes: () => perfData.loadTimes,
+        getCardCount: () => perfData.cardCount,
+        optimizeCards: () => optimizeCardPerformance(),
+        applyPerformanceMode: () => applyHeavyOptimizations()
     };
 })();
