@@ -1,6 +1,5 @@
-/* 自适应卡片特效系统 - 无计数器版本 */
+/* 自适应卡片特效系统样式 - 简化版本 */
 
-/* 基础卡片优化 */
 .feature-card {
     cursor: pointer;
     user-select: none;
@@ -13,7 +12,6 @@
     min-height: 180px;
 }
 
-/* 卡片内容容器 */
 .card-content {
     position: relative;
     width: 100%;
@@ -27,7 +25,6 @@
     transition: all 0.3s ease-out;
 }
 
-/* 图片/图标容器 */
 .card-image-container {
     position: relative;
     width: 60px;
@@ -41,7 +38,6 @@
     justify-content: center;
 }
 
-/* 自适应图标大小 */
 .card-icon {
     font-size: 2.5rem;
     transition: all 0.3s ease;
@@ -49,7 +45,6 @@
     line-height: 1;
 }
 
-/* 标题和文本 */
 .card-content h3 {
     color: #00f3ff;
     margin-bottom: 0.8rem;
@@ -70,7 +65,6 @@
     transition: all 0.3s ease;
 }
 
-/* 刷新特效容器 */
 .card-refresh-container {
     position: absolute;
     top: 0;
@@ -85,7 +79,6 @@
     transition: opacity 0.3s ease;
 }
 
-/* 刷新扫描线 */
 .refresh-scan-line {
     position: absolute;
     top: 0;
@@ -102,7 +95,6 @@
     z-index: 2;
 }
 
-/* 刷新网格 */
 .refresh-grid {
     position: absolute;
     top: 0;
@@ -117,7 +109,6 @@
     z-index: 1;
 }
 
-/* 边框辉光效果 */
 .card-border-glow {
     position: absolute;
     top: -1px;
@@ -137,7 +128,6 @@
     z-index: 1;
 }
 
-/* 渐变覆盖层 */
 .gradient-overlay {
     position: absolute;
     top: 0;
@@ -156,279 +146,103 @@
     z-index: 1;
 }
 
-/* ===== 动画定义（带前缀版本）===== */
-
-/* 图片旋转动画 */
+/* 动画定义 */
 @keyframes rotateSlightRight {
-    0% {
-        transform: rotate(0deg) scale(1);
-    }
-    30% {
-        transform: rotate(12deg) scale(1.1);
-    }
-    70% {
-        transform: rotate(8deg) scale(1.05);
-    }
-    100% {
-        transform: rotate(10deg) scale(1.08);
-    }
+    0% { transform: rotate(0deg) scale(1); }
+    30% { transform: rotate(12deg) scale(1.1); }
+    70% { transform: rotate(8deg) scale(1.05); }
+    100% { transform: rotate(10deg) scale(1.08); }
 }
 
-@-webkit-keyframes rotateSlightRight {
-    0% {
-        -webkit-transform: rotate(0deg) scale(1);
-    }
-    30% {
-        -webkit-transform: rotate(12deg) scale(1.1);
-    }
-    70% {
-        -webkit-transform: rotate(8deg) scale(1.05);
-    }
-    100% {
-        -webkit-transform: rotate(10deg) scale(1.08);
-    }
-}
-
-/* 旋转恢复动画 */
 @keyframes rotateBack {
-    0% {
-        transform: rotate(10deg) scale(1.08);
-    }
-    100% {
-        transform: rotate(0deg) scale(1);
-    }
+    0% { transform: rotate(10deg) scale(1.08); }
+    100% { transform: rotate(0deg) scale(1); }
 }
 
-@-webkit-keyframes rotateBack {
-    0% {
-        -webkit-transform: rotate(10deg) scale(1.08);
-    }
-    100% {
-        -webkit-transform: rotate(0deg) scale(1);
-    }
-}
-
-/* 刷新扫描动画 */
 @keyframes refreshScan {
-    0% {
-        left: -100%;
-        opacity: 0;
-    }
-    20% {
-        opacity: 1;
-    }
-    80% {
-        opacity: 1;
-    }
-    100% {
-        left: 100%;
-        opacity: 0;
-    }
+    0% { left: -100%; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
 }
 
-@-webkit-keyframes refreshScan {
-    0% {
-        left: -100%;
-        opacity: 0;
-    }
-    20% {
-        opacity: 1;
-    }
-    80% {
-        opacity: 1;
-    }
-    100% {
-        left: 100%;
-        opacity: 0;
-    }
-}
-
-/* 网格闪动动画 */
 @keyframes gridFlash {
     0% { opacity: 0; }
     50% { opacity: 0.3; }
     100% { opacity: 0; }
 }
 
-@-webkit-keyframes gridFlash {
-    0% { opacity: 0; }
-    50% { opacity: 0.3; }
-    100% { opacity: 0; }
-}
-
-/* 内容刷新动画 */
 @keyframes contentRefresh {
-    0% {
-        filter: brightness(1) contrast(1);
-    }
-    25% {
-        filter: brightness(1.3) contrast(1.2);
-    }
-    50% {
-        filter: brightness(1.5) contrast(1.3);
-    }
-    100% {
-        filter: brightness(1) contrast(1);
-    }
+    0% { filter: brightness(1) contrast(1); }
+    25% { filter: brightness(1.3) contrast(1.2); }
+    50% { filter: brightness(1.5) contrast(1.3); }
+    100% { filter: brightness(1) contrast(1); }
 }
 
-@-webkit-keyframes contentRefresh {
-    0% {
-        -webkit-filter: brightness(1) contrast(1);
-    }
-    25% {
-        -webkit-filter: brightness(1.3) contrast(1.2);
-    }
-    50% {
-        -webkit-filter: brightness(1.5) contrast(1.3);
-    }
-    100% {
-        -webkit-filter: brightness(1) contrast(1);
-    }
-}
-
-/* 边框刷新动画 */
 @keyframes borderRefresh {
-    0% {
-        border-color: rgba(0, 243, 255, 0.2);
-        box-shadow: 0 5px 15px rgba(0, 243, 255, 0.05);
-    }
-    50% {
-        border-color: rgba(0, 243, 255, 0.6);
-        box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
-    }
-    100% {
-        border-color: rgba(0, 243, 255, 0.3);
-        box-shadow: 0 5px 15px rgba(0, 243, 255, 0.1);
-    }
+    0% { border-color: rgba(0, 243, 255, 0.2); box-shadow: 0 5px 15px rgba(0, 243, 255, 0.05); }
+    50% { border-color: rgba(0, 243, 255, 0.6); box-shadow: 0 0 30px rgba(0, 243, 255, 0.3); }
+    100% { border-color: rgba(0, 243, 255, 0.3); box-shadow: 0 5px 15px rgba(0, 243, 255, 0.1); }
 }
 
-/* 文本刷新动画 */
 @keyframes textRefresh {
-    0% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    20% {
-        opacity: 0.3;
-        transform: translateY(5px);
-    }
-    40% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    0% { opacity: 1; transform: translateY(0); }
+    20% { opacity: 0.3; transform: translateY(5px); }
+    40% { opacity: 1; transform: translateY(0); }
 }
 
-@-webkit-keyframes textRefresh {
-    0% {
-        opacity: 1;
-        -webkit-transform: translateY(0);
-    }
-    20% {
-        opacity: 0.3;
-        -webkit-transform: translateY(5px);
-    }
-    40% {
-        opacity: 1;
-        -webkit-transform: translateY(0);
-    }
-}
-
-/* 阴影脉动动画 */
 @keyframes shadowPulse {
-    0%, 100% {
-        box-shadow: 0 5px 15px rgba(0, 243, 255, 0.05);
-    }
-    50% {
-        box-shadow: 0 8px 25px rgba(0, 243, 255, 0.1);
-    }
+    0%, 100% { box-shadow: 0 5px 15px rgba(0, 243, 255, 0.05); }
+    50% { box-shadow: 0 8px 25px rgba(0, 243, 255, 0.1); }
 }
 
-/* 图标脉动动画 */
 @keyframes iconPulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.1);
-        opacity: 0.8;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-@-webkit-keyframes iconPulse {
-    0% {
-        -webkit-transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        -webkit-transform: scale(1.1);
-        opacity: 0.8;
-    }
-    100% {
-        -webkit-transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* ===== 动画应用 ===== */
-
-/* 激活状态的卡片 */
+/* 动画应用 */
 .feature-card.active {
     animation: borderRefresh 1.2s ease-out !important;
-    -webkit-animation: borderRefresh 1.2s ease-out !important;
 }
 
 .feature-card.active .card-content {
     animation: contentRefresh 1s ease-out !important;
-    -webkit-animation: contentRefresh 1s ease-out !important;
 }
 
 .feature-card.active .card-image-container {
     animation: rotateSlightRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
-    -webkit-animation: rotateSlightRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
 }
 
 .feature-card.active .refresh-scan-line {
     animation: refreshScan 1.2s ease-out forwards !important;
-    -webkit-animation: refreshScan 1.2s ease-out forwards !important;
 }
 
 .feature-card.active .refresh-grid {
     animation: gridFlash 1.2s ease-out !important;
-    -webkit-animation: gridFlash 1.2s ease-out !important;
 }
 
 .feature-card.active h3 {
     animation: textRefresh 0.8s ease-out !important;
-    -webkit-animation: textRefresh 0.8s ease-out !important;
 }
 
 .feature-card.active p {
     animation: textRefresh 0.8s ease-out 0.1s !important;
-    -webkit-animation: textRefresh 0.8s ease-out 0.1s !important;
 }
 
 .feature-card.active .card-refresh-container {
     opacity: 1 !important;
 }
 
-/* 旋转状态 */
 .feature-card.rotated .card-image-container {
     transform: rotate(10deg) scale(1.08) !important;
-    -webkit-transform: rotate(10deg) scale(1.08) !important;
 }
 
 .feature-card.rotating-back .card-image-container {
     animation: rotateBack 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
-    -webkit-animation: rotateBack 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
 }
 
-/* 悬停效果 */
 .feature-card:hover .card-border-glow {
     opacity: 1 !important;
 }
@@ -443,11 +257,9 @@
 
 .feature-card:hover .card-icon {
     animation: iconPulse 2s infinite ease-in-out !important;
-    -webkit-animation: iconPulse 2s infinite ease-in-out !important;
 }
 
-/* ===== 响应式设计 ===== */
-
+/* 响应式设计 */
 @media (max-width: 768px) {
     .card-image-container {
         width: 50px;
@@ -495,38 +307,35 @@
     }
 }
 
-/* 横向屏幕优化 */
-@media (orientation: landscape) and (max-height: 600px) {
-    .feature-card {
-        min-height: 140px !important;
-    }
-    
-    .card-image-container {
-        width: 30px;
-        height: 30px;
-        margin-bottom: 0.5rem;
-    }
-    
-    .card-icon {
-        font-size: 1.2rem;
-    }
-    
-    .card-content h3 {
-        font-size: 0.9rem;
-        margin-bottom: 0.3rem;
-    }
-    
-    .card-content p {
-        font-size: 0.75rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        max-height: 36px;
-    }
+/* 性能优化 */
+.card-image-container,
+.card-refresh-container,
+.refresh-scan-line,
+.refresh-grid {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform, opacity;
 }
 
-/* 减少动画模式 */
+.feature-card.rotating-back {
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.feature-card.rotating-back:hover {
+    transform: none !important;
+    animation: none !important;
+}
+
+.feature-card.rotating-back:hover .card-icon {
+    animation: none !important;
+}
+
+.feature-card.rotating-back:hover .card-border-glow,
+.feature-card.rotating-back:hover .gradient-overlay {
+    opacity: 0 !important;
+}
+
+/* 兼容性修复 */
 @media (prefers-reduced-motion: reduce) {
     .feature-card.active .card-image-container,
     .feature-card.active .card-content,
@@ -538,7 +347,6 @@
     .feature-card:hover .card-icon,
     .feature-card:hover {
         animation: none !important;
-        -webkit-animation: none !important;
     }
     
     .feature-card.active {
@@ -548,294 +356,5 @@
     
     .feature-card.rotated .card-image-container {
         transform: none !important;
-        -webkit-transform: none !important;
-    }
-}
-
-/* 性能优化 */
-.card-image-container,
-.card-refresh-container,
-.refresh-scan-line,
-.refresh-grid {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    -moz-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    -o-transform: translateZ(0);
-    
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    -moz-backface-visibility: hidden;
-    -ms-backface-visibility: hidden;
-    
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
-    -moz-perspective: 1000px;
-    
-    will-change: transform, opacity;
-}
-
-/* 添加卡片恢复时的平滑过渡 */
-.feature-card.rotating-back {
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    -webkit-transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    -moz-transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    -o-transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
-/* 确保卡片在恢复过程中没有悬停效果 */
-.feature-card.rotating-back:hover {
-    transform: none !important;
-    -webkit-transform: none !important;
-    animation: none !important;
-    -webkit-animation: none !important;
-}
-
-.feature-card.rotating-back:hover .card-icon {
-    animation: none !important;
-    -webkit-animation: none !important;
-}
-
-.feature-card.rotating-back:hover .card-border-glow,
-.feature-card.rotating-back:hover .gradient-overlay {
-    opacity: 0 !important;
-}
-
-/* ===== 浏览器兼容性修复（新增）===== */
-
-/* 触摸设备优化 */
-@media (hover: none) and (pointer: coarse) {
-    .feature-card:hover {
-        transform: none !important;
-        -webkit-transform: none !important;
-    }
-    
-    .feature-card:hover .card-icon {
-        animation: none !important;
-        -webkit-animation: none !important;
-    }
-    
-    .feature-card.active {
-        transform: scale(0.98) !important;
-        -webkit-transform: scale(0.98) !important;
-    }
-}
-
-/* iOS Safari 触摸反馈优化 */
-@supports (-webkit-touch-callout: none) {
-    .feature-card {
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    .card-icon {
-        -webkit-user-select: none;
-        user-select: none;
-    }
-}
-
-/* 旧版浏览器回退动画 */
-.no-animation .feature-card.active .card-image-container,
-.no-animation .feature-card.active .card-content,
-.no-animation .feature-card.active .refresh-scan-line,
-.no-animation .feature-card.active h3,
-.no-animation .feature-card.active p,
-.no-animation .feature-card.active .refresh-grid,
-.no-animation .feature-card.rotating-back .card-image-container,
-.no-animation .feature-card:hover .card-icon,
-.no-animation .feature-card:hover {
-    animation: none !important;
-    -webkit-animation: none !important;
-}
-
-.no-animation .feature-card.active {
-    border-color: rgba(0, 243, 255, 0.4) !important;
-    box-shadow: 0 5px 15px rgba(0, 243, 255, 0.1) !important;
-}
-
-.no-animation .feature-card.rotated .card-image-container {
-    transform: none !important;
-    -webkit-transform: none !important;
-}
-
-/* 性能模式优化 */
-.performance-mode .feature-card.active {
-    animation: none !important;
-    -webkit-animation: none !important;
-}
-
-.performance-mode .refresh-scan-line,
-.performance-mode .refresh-grid {
-    display: none !important;
-}
-
-.performance-mode .card-image-container {
-    animation: none !important;
-    -webkit-animation: none !important;
-}
-
-/* 旧版IE和Edge支持 */
-@supports not (transform-style: preserve-3d) {
-    .feature-card {
-        transform-style: flat;
-        -webkit-transform-style: flat;
-        perspective: none;
-    }
-    
-    .card-image-container {
-        transform-style: flat;
-        -webkit-transform-style: flat;
-    }
-}
-
-/* 滤镜效果回退 */
-.no-filter .refresh-scan-line {
-    background: rgba(0, 243, 255, 0.6) !important;
-    filter: none !important;
-}
-
-/* 移动设备响应式优化补充 */
-@media (max-width: 768px) {
-    .card-image-container {
-        transform: translateZ(0) !important;
-        -webkit-transform: translateZ(0) !important;
-    }
-    
-    .feature-card.active .card-image-container {
-        animation: rotateSlightRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
-        -webkit-animation: rotateSlightRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
-    }
-    
-    .feature-card.rotating-back .card-image-container {
-        animation: rotateBack 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
-        -webkit-animation: rotateBack 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
-    }
-}
-
-/* 超小屏幕优化 */
-@media (max-width: 360px) {
-    .card-content {
-        padding: 1rem 0.5rem !important;
-    }
-    
-    .card-image-container {
-        width: 35px !important;
-        height: 35px !important;
-        margin-bottom: 0.5rem !important;
-    }
-    
-    .card-icon {
-        font-size: 1.3rem !important;
-    }
-    
-    .card-content h3 {
-        font-size: 0.95rem !important;
-        margin-bottom: 0.3rem !important;
-    }
-    
-    .card-content p {
-        font-size: 0.75rem !important;
-        line-height: 1.3 !important;
-    }
-}
-
-/* 卡片恢复过程中的样式保护 */
-.feature-card.rotating-back:hover .card-border-glow,
-.feature-card.rotating-back:hover .gradient-overlay {
-    opacity: 0 !important;
-}
-
-/* 确保内容在恢复过程中可见 */
-.feature-card.rotating-back .card-content {
-    opacity: 1 !important;
-    filter: none !important;
-    -webkit-filter: none !important;
-}
-
-/* 加载状态优化 */
-.feature-card.loading .card-content {
-    opacity: 0.5;
-}
-
-.feature-card.loading .card-image-container {
-    animation: iconPulse 1s infinite ease-in-out !important;
-    -webkit-animation: iconPulse 1s infinite ease-in-out !important;
-}
-
-/* 错误状态 */
-.feature-card.error {
-    border-color: rgba(255, 50, 50, 0.3) !important;
-}
-
-.feature-card.error .card-icon {
-    color: rgba(255, 50, 50, 0.7) !important;
-}
-
-/* 禁用状态 */
-.feature-card.disabled {
-    cursor: not-allowed !important;
-    opacity: 0.6 !important;
-}
-
-.feature-card.disabled:hover {
-    transform: none !important;
-    -webkit-transform: none !important;
-    animation: none !important;
-    -webkit-animation: none !important;
-}
-
-.feature-card.disabled .card-icon {
-    animation: none !important;
-    -webkit-animation: none !important;
-}
-
-/* 打印样式 */
-@media print {
-    .card-refresh-container,
-    .card-border-glow,
-    .gradient-overlay {
-        display: none !important;
-    }
-    
-    .feature-card {
-        break-inside: avoid;
-        border: 1px solid #ddd !important;
-        background: white !important;
-        color: black !important;
-        box-shadow: none !important;
-    }
-    
-    .card-content h3 {
-        color: black !important;
-    }
-    
-    .card-content p {
-        color: #666 !important;
-    }
-}
-
-/* 高对比度模式 */
-@media (prefers-contrast: high) {
-    .card-border-glow,
-    .gradient-overlay {
-        display: none !important;
-    }
-    
-    .feature-card {
-        border: 2px solid #00f3ff !important;
-    }
-    
-    .feature-card.active {
-        border-width: 3px !important;
-    }
-}
-
-/* 暗色模式兼容性 */
-@media (prefers-color-scheme: dark) {
-    .feature-card:not(.active) {
-        background: rgba(30, 35, 60, 0.8) !important;
-    }
-    
-    .card-content p {
-        color: #b0b0b0 !important;
     }
 }
