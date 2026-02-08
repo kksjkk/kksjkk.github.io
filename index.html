@@ -1,29 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.png" type="image/png">
     <title>System_VM_D62E官方网站</title>
     
-    <!-- 针对不同浏览器的优化 -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0a0a1a">
-    <meta name="baidu-site-verification" content="codeva-RxYVGyqgJc">
-    
-    <!-- DNS预连接 -->
-    <link rel="dns-prefetch" href="//pics1.baidu.com">
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    
-    <!-- 预加载关键资源 -->
-    <link rel="preload" href="style-optimized.css" as="style">
-    <link rel="preload" href="adaptive-card-styles.css" as="style">
-    
-    <!-- 样式文件（修复后的合并版本） -->
+    <!-- 样式文件 -->
     <link rel="stylesheet" href="style-optimized.css">
     <link rel="stylesheet" href="adaptive-card-styles.css">
     
@@ -88,31 +71,6 @@
             }
         }
         
-        /* 保持原有的基础回退样式 */
-        .no-cssgrid .features {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1.5rem;
-        }
-        
-        .no-cssgrid .feature-card {
-            flex: 0 0 calc(50% - 1.5rem);
-            min-width: 280px;
-        }
-        
-        @media (max-width: 992px) {
-            .no-cssgrid .feature-card {
-                flex: 0 0 calc(50% - 1.5rem);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .no-cssgrid .feature-card {
-                flex: 0 0 100%;
-            }
-        }
-        
         /* 登录状态显示样式 */
         .user-status {
             display: flex;
@@ -120,10 +78,6 @@
             gap: 0.5rem;
             color: #00f3ff;
             font-weight: 500;
-        }
-        
-        .user-status .btn-icon {
-            font-size: 1rem;
         }
         
         .auth-link {
@@ -143,11 +97,6 @@
             background: rgba(0, 243, 255, 0.15);
             transform: translateY(-2px);
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
-        }
-        
-        .auth-link .btn-icon {
-            margin-right: 0.5rem;
-            font-size: 1rem;
         }
         
         /* 注册按钮大样式 */
@@ -180,37 +129,6 @@
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
         
-        .auth-btn-large .btn-icon {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .auth-btn-large .btn-text {
-            font-size: 1.3rem;
-            margin-bottom: 0.3rem;
-        }
-        
-        .auth-btn-large .btn-subtext {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        /* 为注册按钮添加科幻效果 */
-        .auth-btn-large::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.7s ease;
-        }
-        
-        .auth-btn-large:hover::before {
-            left: 100%;
-        }
-        
         /* 已登录用户大按钮样式 */
         .user-btn-large {
             background: linear-gradient(135deg, #00c9ff 0%, #007acc 100%);
@@ -227,92 +145,6 @@
                 padding: 1rem 1.5rem;
                 max-width: 250px;
             }
-            
-            .auth-btn-large .btn-text {
-                font-size: 1.1rem;
-            }
-            
-            .user-status {
-                font-size: 0.9rem;
-            }
-        }
-        
-        /* 其他现有样式保持不变... */
-        .logo.lazy-load {
-            background: linear-gradient(90deg, #0a0a1a 0%, #1a1a2e 50%, #0a0a1a 100%);
-            background-size: 200% 100%;
-            animation: loadingShimmer 1.5s infinite linear;
-        }
-        
-        @keyframes loadingShimmer {
-            0% {
-                background-position: -200% 0;
-            }
-            100% {
-                background-position: 200% 0;
-            }
-        }
-        
-        .click-outside-hint {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 243, 255, 0.1);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            color: #00f3ff;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            opacity: 0.8;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            animation: fadeInOut 3s ease-in-out;
-            display: none;
-            pointer-events: none;
-        }
-        
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; transform: translateY(10px); }
-            20%, 80% { opacity: 0.8; transform: translateY(0); }
-        }
-        
-        .visually-hidden {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            padding: 0 !important;
-            margin: -1px !important;
-            overflow: hidden !important;
-            clip: rect(0, 0, 0, 0) !important;
-            white-space: nowrap !important;
-            border: 0 !important;
-        }
-        
-        .performance-mode .feature-card {
-            animation: none !important;
-        }
-        
-        .page-hidden {
-            animation-play-state: paused !important;
-        }
-        
-        html {
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        body {
-            overscroll-behavior-y: none;
-        }
-        
-        .scrollable-content {
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* 基础按钮活动状态 */
-        .button-active {
-            transform: scale(0.95) !important;
-            opacity: 0.9 !important;
         }
         
         /* 登录状态指示器 */
@@ -353,18 +185,12 @@
     <!-- 科幻背景效果 -->
     <div class="scifi-bg">
         <div class="grid-lines"></div>
-        <div class="floating-particles">
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-        </div>
+        <div class="floating-particles"></div>
     </div>
     
     <!-- 全局提示 -->
-    <div class="click-outside-hint" id="click-hint" role="status" aria-live="polite">
-        注册功能和后台补丁支持（版本：8.1.0.6.48）
+    <div class="click-outside-hint" id="click-hint">
+        整体优化和系统支持（版本：8.2.0.6.48）
     </div>
     
     <!-- 登录状态指示器 -->
@@ -372,29 +198,17 @@
         已登录
     </div>
     
-    <!-- 屏幕阅读器专用提示 -->
-    <div class="visually-hidden" id="screen-reader-hint">
-        这是一个科技风格的个人项目展示页面，包含卡片交互特效
-    </div>
-    
     <!-- 头部导航 -->
     <header>
         <div class="header-container">
             <h1 class="scifi-title">System_VM_D62E</h1>
-            <nav class="navbar" aria-label="主导航">
-                <button class="nav-toggle" aria-label="切换菜单" aria-expanded="false" aria-controls="nav-menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+            <nav class="navbar">
                 <ul class="nav-menu" id="nav-menu">
                     <li><a href="#about" class="scifi-link">关于UP</a></li>
                     <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" rel="noopener" class="scifi-link">作者信息</a></li>
                     
-                    <!-- 动态身份验证按钮 - 由JavaScript控制 -->
-                    <li id="auth-nav-item">
-                        <!-- 这里的内容会被JavaScript动态更新 -->
-                    </li>
+                    <!-- 动态身份验证按钮 -->
+                    <li id="auth-nav-item"></li>
                     
                     <li><button class="scifi-button download-btn-main" id="download-btn">
                         下载PC端
@@ -403,23 +217,19 @@
                 </ul>
             </nav>
         </div>
-        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        <div class="progress-bar"></div>
     </header>
 
     <!-- 主内容区域 -->
-    <main class="scrollable-content">
-        <section class="hero" aria-label="欢迎区域">
+    <main>
+        <section class="hero">
             <div class="hero-content">
                 <!-- Logo区域 -->
                 <div class="logo-container">
-                    <div class="logo-glow"></div>
                     <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iIzBhMGEyMiIvPjwvc3ZnPg==" 
                          data-src="drawcut_1768537221502.png" 
                          alt="System_VM_D62E Logo" 
-                         class="logo lazy-load"
-                         width="150"
-                         height="150"
-                         loading="lazy">
+                         class="logo lazy-load">
                 </div>
                 
                 <!-- 标题和描述 -->
@@ -428,10 +238,9 @@
                 
                 <!-- 进度条 -->
                 <div class="progress-container">
-                    <label for="system-progress" class="scifi-label">系统加载进度:</label>
+                    <label for="system-progress">系统加载进度:</label>
                     <div class="progress-wrapper">
-                        <progress id="system-progress" value="75" max="100" aria-label="系统加载进度">75%</progress>
-                        <div class="progress-glow"></div>
+                        <progress id="system-progress" value="75" max="100">75%</progress>
                     </div>
                     <span class="progress-text">75%</span>
                 </div>
@@ -439,57 +248,49 @@
                 <!-- 主下载按钮区域 -->
                 <div class="download-section">
                     <button class="scifi-button download-btn-large hero-download-btn" 
-                            id="hero-download-btn"
-                            aria-label="下载 PC 版本应用">
+                            id="hero-download-btn">
                         <span class="btn-icon">💻 </span>
                         <span class="btn-text">下载 PC版</span>
                         <span class="btn-subtext">v0.9.8 • 测试版本</span>
-                        <div class="download-progress"></div>
                     </button>
                     
-                    <!-- 动态身份验证按钮（大按钮）- 由JavaScript控制 -->
-                    <div id="hero-auth-section">
-                        <!-- 这里的内容会被JavaScript动态更新 -->
-                    </div>
+                    <!-- 动态身份验证按钮 -->
+                    <div id="hero-auth-section"></div>
                 </div>
             </div>
         </section>
         
         <!-- 关于UP主区域 -->
-        <section id="about" class="about-section" aria-label="关于UP主">
+        <section id="about" class="about-section">
             <div class="container">
                 <h2 class="scifi-heading">关于UP主</h2>
                 <p class="scifi-text">根据 2026年1月21日晚上统计，up的粉丝是2214人，视频播放15.6万，150条弹幕，3677条评论，7163个点赞。代表作：《全网最全的Windows网页版，你值得拥有！！！》，最新稿件：《什么才是真正好的工具？这五个应用才是真的装机必备！好用到爆！！！》，粉丝团名称：D云团。</p>
                 
-                <!-- 特性卡片区域 - 现在有4张卡片 -->
+                <!-- 特性卡片区域 - 4张卡片 -->
                 <div class="features">
-                    <div class="feature-card" role="button" tabindex="0" aria-label="技术分享卡片" data-card-type="tech">
+                    <div class="feature-card" tabindex="0" data-card-type="tech">
                         <div class="card-icon">💻</div>
                         <h3>技术分享</h3>
                         <p>前沿技术解析与实践经验</p>
-                        <div class="card-glow"></div>
                     </div>
                     
-                    <div class="feature-card" role="button" tabindex="0" aria-label="创意作品卡片" data-card-type="creative">
+                    <div class="feature-card" tabindex="0" data-card-type="creative">
                         <div class="card-icon">🎨</div>
                         <h3>创意作品</h3>
                         <p>原创项目与设计思路</p>
-                        <div class="card-glow"></div>
                     </div>
                     
-                    <div class="feature-card" role="button" tabindex="0" aria-label="社区互动卡片" data-card-type="community">
+                    <div class="feature-card" tabindex="0" data-card-type="community">
                         <div class="card-icon">👥</div>
                         <h3>社区互动</h3>
                         <p>与粉丝交流分享心得</p>
-                        <div class="card-glow"></div>
                     </div>
                     
-                    <!-- 新增的第四张卡片 - 系统优化 -->
-                    <div class="feature-card" role="button" tabindex="0" aria-label="系统优化卡片" data-card-type="optimization">
+                    <!-- 新增的第四张卡片 -->
+                    <div class="feature-card" tabindex="0" data-card-type="optimization">
                         <div class="card-icon">⚡</div>
                         <h3>系统优化</h3>
                         <p>性能调优与用户体验提升</p>
-                        <div class="card-glow"></div>
                     </div>
                 </div>
                 
@@ -503,7 +304,7 @@
         </section>
         
         <!-- 功能提示区域 -->
-        <section class="hint-section" style="padding: 1rem; text-align: center; opacity: 0.7;" aria-label="操作提示">
+        <section class="hint-section" style="padding: 1rem; text-align: center; opacity: 0.7;">
             <p class="scifi-text" style="font-size: 0.9rem;">
                 💡 提示：点击卡片体验特效，点击其他地方恢复原状
             </p>
@@ -514,15 +315,13 @@
     </main>
 
     <!-- 页脚 -->
-    <footer id="contact" aria-label="联系信息">
+    <footer id="contact">
         <div class="footer-container">
             <p class="scifi-text">&copy; 2025 System_VM_D62E 版权所有</p>
             <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
             
-            <!-- 动态身份验证链接 - 由JavaScript控制 -->
-            <p class="scifi-text" style="margin-top: 1rem;" id="footer-auth-link">
-                <!-- 这里的内容会被JavaScript动态更新 -->
-            </p>
+            <!-- 动态身份验证链接 -->
+            <p class="scifi-text" style="margin-top: 1rem;" id="footer-auth-link"></p>
             
             <p class="scifi-text" style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">
                 本站已优化支持：Chrome、Firefox、Safari、Edge、百度浏览器、Via浏览器、夸克浏览器
@@ -533,26 +332,17 @@
         </div>
     </footer>
 
-    <!-- JavaScript文件（修复后的加载顺序） -->
-    <!-- 1. 先加载性能监控（基础层） -->
+    <!-- JavaScript文件 -->
     <script src="performance.js" defer></script>
-    
-    <!-- 2. 再加载卡片特效系统 -->
     <script src="adaptive-card-system.js" defer></script>
-    
-    <!-- 3. 最后加载主脚本（控制器） -->
     <script src="script.js" defer></script>
     
-    <!-- 内联脚本确保兼容性和核心功能 -->
+    <!-- 内联脚本 -->
     <script>
-        // 确保页面加载状态
         (function() {
             'use strict';
             
-            // 立即设置加载状态
-            document.body.setAttribute('data-page-loaded', 'false');
-            
-            // 检查登录状态并更新UI的函数
+            // 检查登录状态并更新UI
             function updateAuthUI() {
                 const savedUser = localStorage.getItem('admin_user');
                 const authNavItem = document.getElementById('auth-nav-item');
@@ -567,7 +357,7 @@
                         const username = user.username || user.full_name || '用户';
                         const userRole = user.role || 'user';
                         
-                        // 导航栏：显示用户信息和管理后台链接
+                        // 导航栏
                         if (authNavItem) {
                             let adminLink = userRole === 'admin' || userRole === 'moderator' ? 
                                 '<a href="admin.html" class="scifi-link user-status" title="进入管理后台"><span class="btn-icon">👤</span> ' + username + ' (管理)</a>' :
@@ -576,12 +366,12 @@
                             authNavItem.innerHTML = adminLink;
                         }
                         
-                        // 主内容区域：显示管理后台入口
+                        // 主内容区域
                         if (heroAuthSection) {
                             if (userRole === 'admin' || userRole === 'moderator') {
                                 heroAuthSection.innerHTML = `
-                                    <a href="admin.html" class="scifi-button auth-btn-large user-btn-large" id="hero-admin-btn"
-                                       aria-label="进入管理后台" style="margin-top: 1.5rem;">
+                                    <a href="admin.html" class="scifi-button auth-btn-large user-btn-large" 
+                                       style="margin-top: 1.5rem;">
                                         <span class="btn-icon">⚙️</span>
                                         <span class="btn-text">管理后台</span>
                                         <span class="btn-subtext">${username}</span>
@@ -589,8 +379,8 @@
                                 `;
                             } else {
                                 heroAuthSection.innerHTML = `
-                                    <a href="admin.html" class="scifi-button auth-btn-large user-btn-large" id="hero-profile-btn"
-                                       aria-label="查看个人资料" style="margin-top: 1.5rem;">
+                                    <a href="admin.html" class="scifi-button auth-btn-large user-btn-large" 
+                                       style="margin-top: 1.5rem;">
                                         <span class="btn-icon">👤</span>
                                         <span class="btn-text">个人中心</span>
                                         <span class="btn-subtext">${username}</span>
@@ -599,20 +389,12 @@
                             }
                         }
                         
-                        // 提示信息：已登录提示
+                        // 提示信息
                         if (authHint) {
                             authHint.innerHTML = `👋 欢迎回来，${username}！<a href="admin.html" style="color: #00f3ff; text-decoration: underline;">查看个人中心</a>`;
                         }
                         
-                        // 页脚链接：显示退出登录
-                        if (footerAuthLink) {
-                            footerAuthLink.innerHTML = `
-                                <a href="#" onclick="logoutUser()" class="scifi-link" style="color: #ff3232; font-weight: bold;">
-                                    ⚠️ 退出登录
-                                </a>
-                            `;
-                        }
-                        
+                      
                         // 显示登录状态指示器
                         if (loginIndicator) {
                             loginIndicator.classList.add('visible');
@@ -621,39 +403,35 @@
                             }, 3000);
                         }
                         
-                        console.log('用户已登录，更新UI显示:', username, '角色:', userRole);
-                        
                     } catch (error) {
-                        console.error('解析用户信息失败:', error);
-                        showLoginUI(); // 显示登录界面
+                        showLoginUI();
                     }
                 } else {
-                    // 用户未登录，显示登录注册选项
                     showLoginUI();
                 }
             }
             
-            // 显示登录注册界面的函数
+            // 显示登录注册界面
             function showLoginUI() {
                 const authNavItem = document.getElementById('auth-nav-item');
                 const heroAuthSection = document.getElementById('hero-auth-section');
                 const authHint = document.getElementById('auth-hint');
                 const footerAuthLink = document.getElementById('footer-auth-link');
                 
-                // 导航栏：显示注册/登录按钮
+                // 导航栏
                 if (authNavItem) {
                     authNavItem.innerHTML = `
-                        <a href="login.html" class="scifi-link auth-link" id="register-btn" aria-label="注册或登录">
+                        <a href="login.html" class="scifi-link auth-link">
                             <span class="btn-icon">🔐</span> 注册/登录
                         </a>
                     `;
                 }
                 
-                // 主内容区域：显示注册按钮
+                // 主内容区域
                 if (heroAuthSection) {
                     heroAuthSection.innerHTML = `
-                        <a href="login.html" class="scifi-button auth-btn-large" id="hero-register-btn"
-                           aria-label="注册账户或登录" style="margin-top: 1.5rem;">
+                        <a href="login.html" class="scifi-button auth-btn-large" 
+                           style="margin-top: 1.5rem;">
                             <span class="btn-icon">🔐</span>
                             <span class="btn-text">注册 / 登录</span>
                             <span class="btn-subtext">体验完整功能</span>
@@ -661,12 +439,12 @@
                     `;
                 }
                 
-                // 提示信息：注册提示
+                // 提示信息
                 if (authHint) {
                     authHint.innerHTML = '🔐 <a href="login.html" style="color: #00f3ff; text-decoration: underline;">注册账户</a> 解锁更多个性化功能';
                 }
                 
-                // 页脚链接：显示注册链接
+                // 页脚链接
                 if (footerAuthLink) {
                     footerAuthLink.innerHTML = `
                         <a href="login.html" class="scifi-link" style="color: #00f3ff; font-weight: bold;">
@@ -674,18 +452,13 @@
                         </a>
                     `;
                 }
-                
-                console.log('用户未登录，显示登录注册选项');
             }
             
             // 退出登录函数
             function logoutUser() {
                 if (confirm('确定要退出登录吗？')) {
-                    // 清除本地存储的用户信息
                     localStorage.removeItem('admin_user');
-                    // 显示成功消息
                     alert('已成功退出登录');
-                    // 重新加载页面以更新UI
                     window.location.reload();
                 }
             }
@@ -696,7 +469,6 @@
             // 页面加载完成后初始化
             window.addEventListener('load', function() {
                 document.body.setAttribute('data-page-loaded', 'true');
-                document.body.classList.add('loaded');
                 
                 // 更新登录状态UI
                 updateAuthUI();
@@ -706,20 +478,11 @@
                     const now = new Date();
                     const timeElement = document.getElementById('current-time');
                     if (timeElement) {
-                        timeElement.textContent = now.toLocaleString('zh-CN', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        });
+                        timeElement.textContent = now.toLocaleString('zh-CN');
                     }
                 }
                 
-                // 初始更新时间
                 updateTime();
-                // 每分钟更新一次时间
                 setInterval(updateTime, 60000);
                 
                 // 显示功能提示
@@ -732,36 +495,9 @@
                         }, 3000);
                     }
                 }, 1000);
-                
-                // 触发自定义事件
-                const event = new CustomEvent('pageFullyLoaded', {
-                    detail: { timestamp: new Date().toISOString() }
-                });
-                window.dispatchEvent(event);
-                
-                // 性能监控标记
-                if (window.performance && window.performance.mark) {
-                    window.performance.mark('pageFullyLoaded');
-                }
             });
             
-            // 页面可见性变化时检查登录状态
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    // 页面变为可见时检查登录状态
-                    updateAuthUI();
-                }
-            });
-            
-            // 监听其他页面的登录事件
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'admin_user') {
-                    // admin_user发生变化，更新UI
-                    setTimeout(updateAuthUI, 100);
-                }
-            });
-            
-            // 初始加载时立即检查登录状态
+            // 初始加载时检查登录状态
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', function() {
                     updateAuthUI();
@@ -770,385 +506,13 @@
                 updateAuthUI();
             }
             
-            // 浏览器兼容性检测
-            function detectBrowserCompatibility() {
-                const features = {
-                    cssGrid: 'grid' in document.createElement('div').style,
-                    flexbox: 'flex' in document.createElement('div').style,
-                    transform: 'transform' in document.createElement('div').style,
-                    animation: 'animation' in document.createElement('div').style,
-                    backdropFilter: 'backdropFilter' in document.createElement('div').style || 
-                                  'webkitBackdropFilter' in document.createElement('div').style,
-                    intersectionObserver: 'IntersectionObserver' in window,
-                    matchMedia: 'matchMedia' in window
-                };
-                
-                // 添加浏览器能力类
-                const html = document.documentElement;
-                if (!features.cssGrid) html.classList.add('no-cssgrid');
-                if (!features.flexbox) html.classList.add('no-flexbox');
-                if (!features.transform) html.classList.add('no-transform');
-                if (!features.animation) html.classList.add('no-animation');
-                if (!features.backdropFilter) html.classList.add('no-backdrop-filter');
-                if (!features.intersectionObserver) html.classList.add('no-intersection-observer');
-                if (!features.matchMedia) html.classList.add('no-match-media');
-                
-                // 检测移动设备
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                if (isMobile) {
-                    html.classList.add('mobile-device');
-                }
-                
-                // 检测触摸设备
-                const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-                if (isTouchDevice) {
-                    html.classList.add('touch-device');
-                }
-                
-                // 检测低性能设备
-                if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
-                    html.classList.add('low-performance');
-                }
-                
-                console.log('浏览器特性检测:', features);
-            }
-            
-            // 立即执行兼容性检测
-            detectBrowserCompatibility();
-            
-            // 卡片功能提示
-            function showCardFunctionHint() {
-                const cards = document.querySelectorAll('.feature-card');
-                if (cards.length > 0) {
-                    console.log(`检测到 ${cards.length} 张特效卡片`);
-                    
-                    // 添加首次点击提示
-                    let hasShownHint = localStorage.getItem('cardHintShown');
-                    if (!hasShownHint) {
-                        setTimeout(function() {
-                            const hint = document.getElementById('click-hint');
-                            if (hint) {
-                                hint.textContent = `💡 点击${cards.length}张卡片体验交互特效`;
-                                hint.style.display = 'block';
-                                setTimeout(function() {
-                                    hint.style.display = 'none';
-                                }, 3000);
-                            }
-                            localStorage.setItem('cardHintShown', 'true');
-                        }, 2000);
-                    }
-                }
-            }
-            
-            // 基础错误处理
-            window.addEventListener('error', function(event) {
-                console.error('全局错误:', event.message, 'at', event.filename + ':' + event.lineno);
-                
-                // 显示用户友好的错误提示
-                if (!document.getElementById('error-toast')) {
-                    const errorToast = document.createElement('div');
-                    errorToast.id = 'error-toast';
-                    errorToast.style.cssText = `
-                        position: fixed;
-                        bottom: 20px;
-                        left: 50%;
-                        transform: translateX(-50%);
-                        background: rgba(255, 50, 50, 0.9);
-                        color: white;
-                        padding: 10px 20px;
-                        border-radius: 5px;
-                        z-index: 10000;
-                        display: none;
-                    `;
-                    errorToast.textContent = '发生了一些小问题，正在自动修复...';
-                    document.body.appendChild(errorToast);
-                    
-                    setTimeout(() => {
-                        errorToast.style.display = 'block';
-                        setTimeout(() => {
-                            errorToast.style.display = 'none';
-                        }, 3000);
-                    }, 100);
+            // 监听其他页面的登录事件
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'admin_user') {
+                    setTimeout(updateAuthUI, 100);
                 }
             });
-            
-            // Promise错误处理
-            window.addEventListener('unhandledrejection', function(event) {
-                console.warn('未处理的Promise拒绝:', event.reason);
-            });
-            
-            // 页面加载完成后显示提示
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    setTimeout(showCardFunctionHint, 500);
-                });
-            } else {
-                setTimeout(showCardFunctionHint, 500);
-            }
-            
-            // 防止表单重复提交（如果有表单的话）
-            document.addEventListener('submit', function(e) {
-                const form = e.target;
-                if (form.tagName === 'FORM') {
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        setTimeout(() => {
-                            submitBtn.disabled = false;
-                        }, 3000);
-                    }
-                }
-            });
-            
-            // 改进的触摸事件处理 - 修复页顶页脚滑动问题
-            let lastTouchY = 0;
-            let isScrolling = false;
-            
-            // touchstart 事件
-            document.addEventListener('touchstart', function(e) {
-                lastTouchY = e.touches[0].clientY;
-                isScrolling = false;
-            }, { passive: true });
-            
-            // touchmove 事件 - 修复页顶页脚无法滑动问题
-            document.addEventListener('touchmove', function(e) {
-                // 如果目标元素是表单元素、可编辑元素或有特定类名，允许滚动
-                const target = e.target;
-                if (target.tagName === 'INPUT' || 
-                    target.tagName === 'TEXTAREA' || 
-                    target.isContentEditable ||
-                    target.closest('.scrollable-content')) {
-                    return;
-                }
-                
-                const touch = e.touches[0];
-                const deltaY = touch.clientY - lastTouchY;
-                lastTouchY = touch.clientY;
-                
-                // 检查是否在页面边缘
-                const scrollTop = window.scrollY || document.documentElement.scrollTop;
-                const scrollHeight = document.documentElement.scrollHeight;
-                const clientHeight = document.documentElement.clientHeight;
-                
-                const isAtTop = scrollTop <= 0;
-                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
-                
-                // 标记正在滚动
-                isScrolling = true;
-
-// 只在特定情况下阻止默认行为
-                if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
-                    // 允许小幅度的滚动，只在明显越界时阻止
-                    if (Math.abs(deltaY) > 30) {
-                        e.preventDefault();
-                    }
-                }
-            }, { passive: false });
-            
-            // touchend 事件
-            document.addEventListener('touchend', function() {
-                isScrolling = false;
-            }, { passive: true });
-            
-            // 防止双击放大 - 改进版本
-            let lastTouchEndTime = 0;
-            document.addEventListener('touchend', function(e) {
-                const now = Date.now();
-                if (now - lastTouchEndTime < 300 && e.touches.length === 0) {
-                    e.preventDefault();
-                }
-                lastTouchEndTime = now;
-            }, { passive: false });
-            
-            // 为所有按钮添加加载状态
-            document.addEventListener('click', function(e) {
-                const button = e.target.closest('button');
-                if (button && !button.hasAttribute('disabled')) {
-                    // 添加短暂的活动状态
-                    button.classList.add('button-active');
-                    setTimeout(() => {
-                        button.classList.remove('button-active');
-                    }, 300);
-                }
-            });
-            
-            // 键盘导航支持
-            document.addEventListener('keydown', function(e) {
-                // 空格键滚动
-                if (e.key === ' ' || e.key === 'Spacebar') {
-                    // 只有当焦点不在可输入元素上时才滚动
-                    const activeElement = document.activeElement;
-                    if (!activeElement || 
-                        (activeElement.tagName !== 'INPUT' && 
-                         activeElement.tagName !== 'TEXTAREA' && 
-                         !activeElement.isContentEditable)) {
-                        e.preventDefault();
-                        window.scrollBy({
-                            top: window.innerHeight * 0.8,
-                            behavior: 'smooth'
-                        });
-                    }
-                }
-                
-                // Home键回到顶部
-                if (e.key === 'Home') {
-                    e.preventDefault();
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                }
-                
-                // End键到底部
-                if (e.key === 'End') {
-                    e.preventDefault();
-                    window.scrollTo({
-                        top: document.documentElement.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }
-                
-                // Page Up/Down 键
-                if (e.key === 'PageUp') {
-                    e.preventDefault();
-                    window.scrollBy({
-                        top: -window.innerHeight * 0.9,
-                        behavior: 'smooth'
-                    });
-                }
-                
-                if (e.key === 'PageDown') {
-                    e.preventDefault();
-                    window.scrollBy({
-                        top: window.innerHeight * 0.9,
-                        behavior: 'smooth'
-                    });
-                }
-                
-                // R键快速跳转到注册页面
-                if (e.key === 'r' || e.key === 'R') {
-                    if (e.ctrlKey || e.metaKey) {
-                        e.preventDefault();
-                        window.location.href = 'login.html';
-                    }
-                }
-            });
-            
-            // 网络状态监控
-            if (navigator.connection) {
-                const connection = navigator.connection;
-                connection.addEventListener('change', function() {
-                    const speed = connection.effectiveType;
-                    console.log('网络类型:', speed);
-                    
-                    // 根据网络状况调整加载策略
-                    if (speed.includes('2g') || speed.includes('slow-2g')) {
-                        document.body.classList.add('slow-network');
-                    } else {
-                        document.body.classList.remove('slow-network');
-                    }
-                });
-            }
-            
-            // 电池状态监控（如果支持）
-            if ('getBattery' in navigator) {
-                navigator.getBattery().then(function(battery) {
-                    // 低电量模式
-                    if (battery.level < 0.2) {
-                        document.body.classList.add('low-battery');
-                    }
-                    
-                    battery.addEventListener('levelchange', function() {
-                        if (battery.level < 0.2) {
-                            document.body.classList.add('low-battery');
-                        } else {
-                            document.body.classList.remove('low-battery');
-                        }
-                    });
-                });
-            }
-            
-            // 滚动性能优化
-            let scrollTimeout;
-            window.addEventListener('scroll', function() {
-                // 清除之前的超时
-                if (scrollTimeout) {
-                    clearTimeout(scrollTimeout);
-                }
-                
-                // 设置新超时
-                scrollTimeout = setTimeout(function() {
-                    // 滚动停止后的操作
-                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-                    
-                    // 滚动到顶部时优化性能
-                    if (scrollTop < 100) {
-                        document.body.classList.add('scrolled-to-top');
-                    } else {
-                        document.body.classList.remove('scrolled-to-top');
-                    }
-                    
-                    // 滚动到底部时优化性能
-                    const scrollHeight = document.documentElement.scrollHeight;
-                    const clientHeight = document.documentElement.clientHeight;
-                    if (scrollTop + clientHeight >= scrollHeight - 50) {
-                        document.body.classList.add('scrolled-to-bottom');
-                    } else {
-                        document.body.classList.remove('scrolled-to-bottom');
-                    }
-                }, 100);
-            }, { passive: true });
-            
-            // 初始滚动状态检测
-            setTimeout(function() {
-                const scrollTop = window.scrollY || document.documentElement.scrollTop;
-                if (scrollTop === 0) {
-                    document.body.classList.add('scrolled-to-top');
-                }
-            }, 100);
-            
-            // 改进的iOS橡皮筋效果处理
-            if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-                // 针对iOS的优化
-                document.addEventListener('touchmove', function(e) {
-                    const target = e.target;
-                    const scrollable = target.closest('.scrollable-content, .scrollable');
-                    
-                    // 如果是在可滚动区域内，使用更宽松的策略
-                    if (scrollable) {
-                        const scrollTop = scrollable.scrollTop;
-                        const scrollHeight = scrollable.scrollHeight;
-                        const clientHeight = scrollable.clientHeight;
-                        
-                        const isAtTop = scrollTop <= 0;
-                        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
-                        
-                        if ((isAtTop || isAtBottom) && scrollable === document.documentElement) {
-                            // 允许正常的滚动
-                            return;
-                        }
-                    }
-                }, { passive: true });
-            }
         })();
-
-        // 监听卡片特效系统加载
-        document.addEventListener('DOMContentLoaded', function() {
-            // 等待自适应卡片系统加载
-            const checkCardSystem = setInterval(function() {
-                if (window.AdaptiveCardEffects) {
-                    clearInterval(checkCardSystem);
-                    
-                    const cards = document.querySelectorAll('.feature-card');
-                    console.log(`卡片特效系统已加载，共 ${cards.length} 张卡片`);
-                    
-                    // 为每张卡片添加数据属性
-                    cards.forEach((card, index) => {
-                        card.setAttribute('data-card-id', `card-${index + 1}`);
-                    });
-                }
-            }, 100);
-        });
     </script>
 </body>
 </html>
