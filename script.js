@@ -1,20 +1,8 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('script.js: DOM加载完成');
-    
     // 标记主脚本已初始化
     window.mainScriptInitialized = true;
     document.body.setAttribute('data-main-script-initialized', 'true');
-    
-    // 检查是否有性能层已初始化，避免重复
-    if (window.performanceLayerInitialized) {
-        console.log('性能层已初始化，跳过部分功能');
-    }
-    
-    // 检查卡片系统是否已加载
-    if (window.adaptiveCardSystemInitialized) {
-        console.log('卡片特效系统已加载，跳过兼容性处理');
-    }
     
     // 检查登录状态并更新导航栏
     function checkLoginAndUpdateNav() {
@@ -26,17 +14,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const user = JSON.parse(savedUser);
                 const username = user.username || user.full_name || '用户';
                 
-                // 查找导航栏中的登录注册按钮并替换
                 const loginLinks = navMenu.querySelectorAll('a[href="login.html"]');
                 loginLinks.forEach(link => {
-                    // 根据用户角色决定链接目标
                     if (user.role === 'admin' || user.role === 'moderator') {
-                        // 管理员和版主显示管理后台链接
                         link.innerHTML = `<span class="btn-icon">👤</span> ${username} (管理)`;
                         link.href = 'admin.html';
                         link.title = '进入管理后台';
                     } else {
-                        // 普通用户显示个人中心链接
                         link.innerHTML = `<span class="btn-icon">👤</span> ${username}`;
                         link.href = 'profile.html';
                         link.title = '查看个人中心';
@@ -44,18 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     link.classList.add('user-status');
                     link.classList.remove('auth-link');
                 });
-                
-                console.log('导航栏已更新为登录状态，用户角色:', user.role);
             } catch (error) {
                 console.error('解析用户信息失败:', error);
             }
         } else {
-            // 用户未登录，确保显示登录注册链接
             const navMenu = document.querySelector('.nav-menu');
             if (navMenu) {
                 const existingAuthLink = navMenu.querySelector('a[href="login.html"]');
                 if (!existingAuthLink) {
-                    // 添加登录注册链接
                     const listItem = document.createElement('li');
                     listItem.innerHTML = `
                         <a href="login.html" class="scifi-link auth-link" id="register-btn" aria-label="注册或登录">
@@ -68,10 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 初始检查
     setTimeout(checkLoginAndUpdateNav, 100);
     
-    // 监听存储变化
     window.addEventListener('storage', function(e) {
         if (e.key === 'admin_user') {
             setTimeout(checkLoginAndUpdateNav, 100);
@@ -114,33 +92,27 @@ document.addEventListener('DOMContentLoaded', function() {
         
         requestAnimationFrame(() => {
             if (!isActive || forceClose) {
-                // 打开菜单或强制关闭
                 spans[0].style.transform = 'rotate(45deg) translate(6px, 6px)';
                 spans[1].style.opacity = '0';
                 spans[2].style.transform = 'rotate(-45deg) translate(6px, -6px)';
                 navMenu.style.display = 'flex';
                 
-                // 强制重绘以确保过渡生效
                 void navMenu.offsetHeight;
                 
                 if (!forceClose) {
                     navMenu.classList.add('active');
                     navToggle.setAttribute('aria-expanded', 'true');
-                    console.log('菜单打开');
                 }
             } else {
-                // 关闭菜单
                 spans[0].style.transform = 'none';
                 spans[1].style.opacity = '1';
                 spans[2].style.transform = 'none';
                 navMenu.classList.remove('active');
                 navToggle.setAttribute('aria-expanded', 'false');
                 
-                // 等待过渡完成后再隐藏
                 setTimeout(() => {
                     if (!navMenu.classList.contains('active')) {
                         navMenu.style.display = 'none';
-                        console.log('菜单关闭');
                     }
                 }, 300);
             }
@@ -149,9 +121,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 菜单系统初始化
     if (navToggle && navMenu) {
-        console.log('初始化菜单系统');
-        
-        // 确保只绑定一次事件
         if (!navToggle.hasAttribute('data-menu-initialized')) {
             navToggle.setAttribute('data-menu-initialized', 'true');
             
@@ -160,10 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 toggleMenu();
             });
 
-            // 点击菜单项时关闭菜单（移动端）
             navMenu.querySelectorAll('a, button').forEach(item => {
                 item.addEventListener('click', function(e) {
-                    // 如果是下载按钮或主题切换按钮，不要关闭菜单
                     if (this.id === 'download-btn' || this.id === 'theme-toggle') {
                         return;
                     }
@@ -174,7 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
-            // 点击页面其他地方关闭菜单
             document.addEventListener('click', function(e) {
                 if (navMenu.classList.contains('active') && 
                     !navMenu.contains(e.target) && 
@@ -187,14 +153,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initMenuState();
 
-    // 窗口大小改变时重置菜单状态（使用防抖优化）
     let resizeTimeout;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             requestAnimationFrame(() => {
                 initMenuState();
-                // 如果窗口变大，确保菜单关闭
                 if (window.innerWidth > 768 && navMenu) {
                     navMenu.style.display = 'flex';
                     navMenu.classList.remove('active');
@@ -213,7 +177,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('theme-toggle');
     let currentTheme = localStorage.getItem('theme');
     
-    // 应用保存的主题
     function applyTheme(theme) {
         if (theme === 'dark') {
             document.body.classList.add('dark-mode');
@@ -224,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 如果没有保存的主题，检测系统偏好
     if (!currentTheme) {
         currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         localStorage.setItem('theme', currentTheme);
@@ -232,11 +194,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     applyTheme(currentTheme);
 
-    // 监听系统主题变化
     if (window.matchMedia) {
         const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
         try {
-            // 新的API
             colorSchemeQuery.addEventListener('change', function(e) {
                 if (!localStorage.getItem('theme')) {
                     const newTheme = e.matches ? 'dark' : 'light';
@@ -244,7 +204,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         } catch (e) {
-            // 旧的API
             colorSchemeQuery.addListener(function(e) {
                 if (!localStorage.getItem('theme')) {
                     const newTheme = e.matches ? 'dark' : 'light';
@@ -254,13 +213,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 主题切换事件
     if (themeToggle && !themeToggle.hasAttribute('data-theme-initialized')) {
         themeToggle.setAttribute('data-theme-initialized', 'true');
         
         themeToggle.addEventListener('click', function() {
             requestAnimationFrame(() => {
-                // 添加切换动画
                 document.body.style.opacity = '0.8';
                 document.body.style.transition = 'opacity 0.3s ease';
                 
@@ -277,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         themeToggle.textContent = '🌓 暗色模式';
                     }
                     
-                    // 恢复透明度
                     setTimeout(() => {
                         document.body.style.opacity = '1';
                     }, 50);
@@ -299,20 +255,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         const img = entry.target;
                         
                         requestAnimationFrame(() => {
-                            // 添加淡入效果
                             img.style.opacity = '0';
                             img.style.transition = 'opacity 0.5s ease';
                             
-                            // 设置图片源
                             if (img.dataset.src) {
                                 img.src = img.dataset.src;
                                 img.removeAttribute('data-src');
                             }
                             
-                            // 移除懒加载类
                             img.classList.remove('lazy-load');
                             
-                            // 淡入图片
                             setTimeout(() => {
                                 requestAnimationFrame(() => {
                                     img.style.opacity = '1';
@@ -324,11 +276,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
             }, {
-                rootMargin: '0px 0px 100px 0px' // 提前100px加载
+                rootMargin: '0px 0px 100px 0px'
             });
             
             lazyImages.forEach(img => {
-                // 确保图片有data-src属性
                 if (img.src && !img.dataset.src) {
                     img.dataset.src = img.src;
                     img.src = '';
@@ -336,7 +287,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 imageObserver.observe(img);
             });
         } else {
-            // 直接加载所有图片
             lazyImages.forEach(img => {
                 if (img.dataset.src) {
                     img.src = img.dataset.src;
@@ -355,33 +305,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 url: window.location.href,
                 timestamp: new Date().toISOString(),
                 referrer: document.referrer || '直接访问',
-                userAgent: navigator.userAgent.substring(0, 100), // 截断避免过长
+                userAgent: navigator.userAgent.substring(0, 100),
                 screen: `${window.screen.width}x${window.screen.height}`
             };
             
-            // 存储到 localStorage
             let visitHistory = JSON.parse(localStorage.getItem('visitHistory') || '[]');
             visitHistory.push(visitData);
             
-            // 保留最近10次访问记录
             if (visitHistory.length > 10) {
                 visitHistory = visitHistory.slice(-10);
             }
             
             localStorage.setItem('visitHistory', JSON.stringify(visitHistory));
-            console.log('访问记录已保存');
         } catch (error) {
             console.warn('无法保存访问记录:', error);
         }
     }
 
-    // 延迟记录访问，避免影响页面加载
     setTimeout(trackVisit, 1000);
 
     // 平滑滚动
     function initSmoothScroll() {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            // 跳过外部链接和空链接
             if (anchor.getAttribute('href') === '#' || anchor.hasAttribute('target')) return;
             
             if (!anchor.hasAttribute('data-scroll-initialized')) {
@@ -395,18 +340,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     const targetElement = document.querySelector(targetId);
                     if (targetElement) {
-                        // 使用平滑滚动
                         const header = document.querySelector('header');
                         const headerHeight = header ? header.offsetHeight : 80;
                         
-                        // 如果浏览器支持平滑滚动
                         if ('scrollBehavior' in document.documentElement.style) {
                             window.scrollTo({
                                 top: targetElement.offsetTop - headerHeight - 20,
                                 behavior: 'smooth'
                             });
                         } else {
-                            // 降级方案
                             const targetPosition = targetElement.offsetTop - headerHeight - 20;
                             const startPosition = window.pageYOffset;
                             const distance = targetPosition - startPosition;
@@ -432,7 +374,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             requestAnimationFrame(step);
                         }
                         
-                        // 移动端关闭菜单
                         if (window.innerWidth <= 768 && navMenu && navMenu.classList.contains('active')) {
                             toggleMenu(true);
                         }
@@ -444,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initSmoothScroll();
 
-    // 高性能滚动处理（唯一负责滚动进度条）
+    // 高性能滚动处理
     let ticking = false;
     let scrollProgressHandler = null;
 
@@ -458,7 +399,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (progressBar) {
             progressBar.style.width = Math.min(scrollPercent, 100) + '%';
             
-            // 当进度达到100%时，添加隐藏类
             if (scrollPercent >= 100) {
                 progressBar.classList.add('hidden');
             } else {
@@ -466,7 +406,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // 头部背景变化
         const header = document.querySelector('header');
         if (header) {
             if (scrollTop > 50) {
@@ -482,7 +421,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function initScrollHandlers() {
-        // 移除旧的监听器
         if (scrollProgressHandler) {
             window.removeEventListener('scroll', scrollProgressHandler);
         }
@@ -495,8 +433,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         window.addEventListener('scroll', scrollProgressHandler, { passive: true });
-        
-        // 初始调用一次
         updateProgressBar();
     }
 
@@ -515,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!lastProgressTime) lastProgressTime = timestamp;
             const elapsed = timestamp - lastProgressTime;
             
-            if (elapsed > 200) { // 控制更新频率
+            if (elapsed > 200) {
                 progress += Math.random() * 2;
                 if (progress >= 100) {
                     progress = 100;
@@ -543,7 +479,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         animationId = requestAnimationFrame(animateProgress);
         
-        // 提供停止函数
         return function() {
             if (animationId) {
                 cancelAnimationFrame(animationId);
@@ -553,7 +488,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let stopProgressAnimation = initProgressAnimation();
 
-    // 下载功能处理（主脚本统一处理）
+    // 下载功能处理
     function initDownloadButtons() {
         const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
         
@@ -563,14 +498,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         downloadButtons.forEach(button => {
-            // 避免重复绑定
             if (button.hasAttribute('data-download-main-initialized')) {
                 return;
             }
             
             button.setAttribute('data-download-main-initialized', 'true');
             
-            // 移除可能存在的其他事件处理器
             button.replaceWith(button.cloneNode(true));
             const newButton = document.getElementById(button.id);
             
@@ -578,9 +511,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                console.log('主脚本处理下载请求');
-                
-                // 显示下载进度
                 this.classList.add('downloading');
                 const progressBar = this.querySelector('.download-progress') || document.createElement('div');
                 if (!progressBar.classList.contains('download-progress')) {
@@ -590,7 +520,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 progressBar.style.width = '0%';
                 
-                // 模拟下载进度
                 let progress = 0;
                 const interval = setInterval(() => {
                     progress += 10;
@@ -599,21 +528,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (progress >= 100) {
                         clearInterval(interval);
                         
-                        // 添加完成动画
                         this.classList.remove('downloading');
                         this.classList.add('download-complete');
                         
-                        // 实际下载
                         setTimeout(() => {
                             const link = document.createElement('a');
-                            link.href = 'System_VM_D62E.apk'; // 修改为本地路径
+                            link.href = 'System_VM_D62E.apk';
                             link.download = 'System_VM_D62E.apk';
                             link.target = '_blank';
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
                             
-                            // 移除完成动画
                             setTimeout(() => {
                                 this.classList.remove('download-complete');
                                 progressBar.style.width = '0%';
@@ -625,30 +551,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 延迟初始化下载按钮，确保其他脚本不会干扰
     setTimeout(initDownloadButtons, 500);
 
-    // 添加键盘导航支持
+    // 键盘导航支持
     function initKeyboardNavigation() {
         document.addEventListener('keydown', function(e) {
-            // Escape键关闭菜单
             if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
                 toggleMenu(true);
                 if (navToggle) navToggle.focus();
             }
             
-            // Tab键在菜单内循环
             if (e.key === 'Tab' && navMenu && navMenu.classList.contains('active')) {
                 const focusableElements = navMenu.querySelectorAll('a, button');
                 const firstElement = focusableElements[0];
                 const lastElement = focusableElements[focusableElements.length - 1];
                 
-                if (e.shiftKey) { // Shift + Tab
+                if (e.shiftKey) {
                     if (document.activeElement === firstElement) {
                         e.preventDefault();
                         lastElement.focus();
                     }
-                } else { // Tab
+                } else {
                     if (document.activeElement === lastElement) {
                         e.preventDefault();
                         firstElement.focus();
@@ -673,7 +596,6 @@ document.addEventListener('DOMContentLoaded', function() {
             navMenu.setAttribute('aria-label', '主导航');
         }
         
-        // 为进度条添加aria属性
         const progressElement = document.getElementById('system-progress');
         if (progressElement) {
             progressElement.setAttribute('aria-label', '系统加载进度');
@@ -695,7 +617,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.removeEventListener('scroll', scrollProgressHandler);
         }
         
-        // 清理全局标记
         window.mainScriptInitialized = false;
     });
 });
@@ -731,14 +652,12 @@ function initRAF() {
 (function() {
     'use strict';
     
-    // 避免重复检测
     if (window.browserFeaturesDetected) {
         return;
     }
     
     window.browserFeaturesDetected = true;
     
-    // 检测浏览器特性
     const browserFeatures = {
         transform: 'transform' in document.body.style || 'webkitTransform' in document.body.style,
         animation: 'animation' in document.body.style || 'webkitAnimation' in document.body.style,
@@ -747,7 +666,6 @@ function initRAF() {
         backdropFilter: 'backdropFilter' in document.body.style || 'webkitBackdropFilter' in document.body.style
     };
     
-    // 根据浏览器能力添加类名
     const htmlClass = document.documentElement.className;
     let newClasses = htmlClass;
     
@@ -759,9 +677,7 @@ function initRAF() {
     
     document.documentElement.className = newClasses.trim();
     
-    // 针对旧版浏览器的修复
     if (!browserFeatures.grid) {
-        // 为不支持grid的浏览器添加回退样式
         const style = document.createElement('style');
         style.id = 'grid-fallback-style';
         style.textContent = `
@@ -788,13 +704,11 @@ function initRAF() {
             }
         `;
         
-        // 避免重复添加
         if (!document.getElementById('grid-fallback-style')) {
             document.head.appendChild(style);
         }
     }
     
-    // 针对不支持backdrop-filter的浏览器
     if (!browserFeatures.backdropFilter) {
         setTimeout(() => {
             const elements = document.querySelectorAll('.download-message-box');
@@ -819,13 +733,12 @@ function checkUserAccess(requiredRole) {
     try {
         const user = JSON.parse(savedUser);
         
-        // 检查用户角色
         if (requiredRole === 'admin') {
             return user.role === 'admin';
         } else if (requiredRole === 'moderator') {
             return user.role === 'admin' || user.role === 'moderator';
         } else if (requiredRole === 'user') {
-            return true; // 任何登录用户
+            return true;
         }
         
         return false;
@@ -840,10 +753,8 @@ function navigateWithPermissionCheck(url, requiredRole) {
     if (checkUserAccess(requiredRole)) {
         window.location.href = url;
     } else {
-        // 显示权限不足提示
         alert('抱歉，您没有权限访问该页面。');
         
-        // 如果未登录，跳转到登录页
         if (!localStorage.getItem('admin_user')) {
             setTimeout(() => {
                 window.location.href = 'login.html';
@@ -872,11 +783,9 @@ function updateCurrentUser(userData) {
     try {
         const currentUser = getCurrentUser();
         if (currentUser) {
-            // 合并现有数据和更新数据
             const updatedUser = { ...currentUser, ...userData };
             localStorage.setItem('admin_user', JSON.stringify(updatedUser));
             
-            // 触发存储事件，让其他页面知道用户信息已更新
             window.dispatchEvent(new StorageEvent('storage', {
                 key: 'admin_user',
                 newValue: JSON.stringify(updatedUser)
@@ -896,16 +805,12 @@ function logoutUser() {
     if (confirm('确定要退出登录吗？')) {
         localStorage.removeItem('admin_user');
         
-        // 触发存储事件
         window.dispatchEvent(new StorageEvent('storage', {
             key: 'admin_user',
             newValue: null
         }));
         
-        // 显示退出成功消息
         alert('已成功退出登录');
-        
-        // 跳转到首页
         window.location.href = 'index.html';
     }
 }
@@ -921,30 +826,22 @@ window.logoutUser = logoutUser;
 (function() {
     'use strict';
     
-    // 获取当前页面路径
     const currentPage = window.location.pathname.split('/').pop();
     
-    // 定义页面权限要求
     const pagePermissions = {
-        'admin.html': 'moderator', // 需要管理员或版主权限
-        'profile.html': 'user',    // 需要登录用户权限
-        // 其他页面不需要特殊权限
+        'admin.html': 'moderator',
+        'profile.html': 'user',
     };
     
-    // 检查当前页面是否需要权限
     if (pagePermissions[currentPage]) {
         const requiredRole = pagePermissions[currentPage];
         
-        // 延迟检查，确保DOM已加载
         setTimeout(() => {
             if (!checkUserAccess(requiredRole)) {
-                // 根据用户状态跳转
                 const savedUser = localStorage.getItem('admin_user');
                 if (!savedUser) {
-                    // 未登录，跳转到登录页
                     window.location.href = 'login.html';
                 } else if (requiredRole === 'moderator') {
-                    // 非管理员访问admin.html，跳转到个人中心
                     if (currentPage === 'admin.html') {
                         window.location.href = 'profile.html';
                     }
