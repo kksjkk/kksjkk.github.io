@@ -4,15 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System_VM_D62E - 个人中心</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #00f3ff;
-            --secondary-color: #9400d3;
-            --background-dark: #0a0a1a;
-            --card-bg: rgba(30, 35, 60, 0.8);
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -20,12 +12,11 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
             color: #e0e0e0;
             line-height: 1.6;
             min-height: 100vh;
-            position: relative;
         }
         
         /* 网格背景 */
@@ -41,12 +32,6 @@
             background-size: 40px 40px;
             pointer-events: none;
             z-index: -1;
-            animation: gridMove 30s linear infinite;
-        }
-        
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(40px, 40px); }
         }
         
         /* 头部 */
@@ -59,7 +44,6 @@
             z-index: 1000;
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-            box-shadow: 0 2px 20px rgba(0, 212, 255, 0.15);
         }
         
         .header-container {
@@ -77,7 +61,6 @@
             font-size: 1.8rem;
             font-weight: 700;
             text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-            letter-spacing: 1px;
             text-decoration: none;
         }
         
@@ -112,7 +95,6 @@
         
         .btn-logout:hover {
             background: rgba(255, 50, 50, 0.2);
-            transform: translateY(-2px);
         }
         
         /* 主内容 */
@@ -131,7 +113,6 @@
             font-size: 2.5rem;
             margin-bottom: 10px;
             color: #00f3ff;
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
         }
         
         .welcome-subtitle {
@@ -148,18 +129,11 @@
         }
         
         .profile-card {
-            background: var(--card-bg);
+            background: rgba(30, 35, 60, 0.8);
             border: 1px solid rgba(0, 243, 255, 0.15);
             border-radius: 12px;
             padding: 30px;
-            transition: all 0.3s ease;
             backdrop-filter: blur(10px);
-        }
-        
-        .profile-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 243, 255, 0.3);
-            box-shadow: 0 10px 20px rgba(0, 243, 255, 0.1);
         }
         
         .card-header {
@@ -189,7 +163,6 @@
             color: #00f3ff;
             border-radius: 20px;
             font-size: 0.9rem;
-            font-weight: 500;
         }
         
         .info-item {
@@ -231,7 +204,6 @@
         .feature-item:hover {
             background: rgba(0, 243, 255, 0.1);
             border-color: rgba(0, 243, 255, 0.3);
-            transform: translateY(-3px);
         }
         
         .feature-icon {
@@ -249,7 +221,6 @@
         .feature-desc {
             font-size: 0.9rem;
             color: #a0a0a0;
-            line-height: 1.5;
         }
         
         /* 统计卡片 */
@@ -284,22 +255,17 @@
         .btn-primary {
             background: rgba(0, 243, 255, 0.1);
             border: 1px solid rgba(0, 243, 255, 0.3);
-            color: var(--primary-color);
+            color: #00f3ff;
             padding: 12px 24px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 1rem;
             transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
             text-decoration: none;
         }
         
         .btn-primary:hover {
             background: rgba(0, 243, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 243, 255, 0.2);
         }
         
         /* 操作按钮 */
@@ -324,12 +290,6 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            transition: all 0.3s ease;
-        }
-        
-        .notification-item:hover {
-            background: rgba(0, 243, 255, 0.05);
-            border-color: rgba(0, 243, 255, 0.2);
         }
         
         .notification-icon {
@@ -384,25 +344,6 @@
                 flex-direction: column;
                 text-align: center;
             }
-            
-            .action-buttons {
-                justify-content: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-actions {
-                gap: 10px;
-            }
-            
-            .nav-link, .btn-logout {
-                padding: 6px 12px;
-                font-size: 0.9rem;
-            }
         }
         
         /* 页脚 */
@@ -426,55 +367,6 @@
             color: #00f3ff;
             text-decoration: none;
         }
-        
-        .footer-link:hover {
-            text-decoration: underline;
-        }
-        
-        /* 加载动画 */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(0, 243, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* 错误消息 */
-        .error-message {
-            background: rgba(255, 50, 50, 0.1);
-            border: 1px solid rgba(255, 50, 50, 0.3);
-            color: #ff3232;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        /* 成功消息 */
-        .success-message {
-            background: rgba(0, 255, 128, 0.1);
-            border: 1px solid rgba(0, 255, 128, 0.3);
-            color: #00ff80;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            display: none;
-        }
-        
-        .success-message.show {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -488,7 +380,7 @@
             <div class="nav-actions">
                 <a href="index.html" class="nav-link">返回首页</a>
                 <button class="btn-logout" id="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                    退出登录
                 </button>
             </div>
         </div>
@@ -501,9 +393,6 @@
             <h1 class="welcome-title" id="welcome-title">欢迎回来！</h1>
             <p class="welcome-subtitle">这是您的个人中心，在这里您可以管理您的账户信息</p>
         </section>
-        
-        <!-- 错误消息区域 -->
-        <div class="error-message" id="error-message"></div>
         
         <!-- 用户信息 -->
         <div class="profile-grid">
@@ -528,21 +417,16 @@
                 </div>
                 
                 <div class="info-item">
-                    <span class="info-label">注册时间</span>
-                    <span class="info-value" id="info-register-date">-</span>
-                </div>
-                
-                <div class="info-item">
                     <span class="info-label">账户状态</span>
                     <span class="info-value" id="info-status">-</span>
                 </div>
                 
                 <div class="action-buttons">
                     <button class="btn-primary" id="edit-profile-btn">
-                        <i class="fas fa-edit"></i> 编辑资料
+                        编辑资料
                     </button>
                     <button class="btn-primary" id="change-password-btn">
-                        <i class="fas fa-key"></i> 修改密码
+                        修改密码
                     </button>
                 </div>
             </div>
@@ -553,33 +437,25 @@
                 
                 <div class="features-grid">
                     <div class="feature-item" id="feature-download">
-                        <div class="feature-icon">
-                            <i class="fas fa-download"></i>
-                        </div>
+                        <div class="feature-icon">↓</div>
                         <div class="feature-title">下载中心</div>
                         <div class="feature-desc">下载系统工具和应用程序</div>
                     </div>
                     
                     <div class="feature-item" id="feature-settings">
-                        <div class="feature-icon">
-                            <i class="fas fa-cog"></i>
-                        </div>
+                        <div class="feature-icon">⚙️</div>
                         <div class="feature-title">偏好设置</div>
                         <div class="feature-desc">个性化您的使用体验</div>
                     </div>
                     
                     <div class="feature-item" id="feature-history">
-                        <div class="feature-icon">
-                            <i class="fas fa-history"></i>
-                        </div>
+                        <div class="feature-icon">📜</div>
                         <div class="feature-title">活动记录</div>
                         <div class="feature-desc">查看您的操作历史</div>
                     </div>
                     
                     <div class="feature-item" id="feature-support">
-                        <div class="feature-icon">
-                            <i class="fas fa-headset"></i>
-                        </div>
+                        <div class="feature-icon">💬</div>
                         <div class="feature-title">技术支持</div>
                         <div class="feature-desc">获取帮助和解决问题</div>
                     </div>
@@ -606,11 +482,6 @@
                     <div class="stat-value" id="stat-active-days">0</div>
                     <div class="stat-label">活跃天数</div>
                 </div>
-                
-                <div class="stat-item">
-                    <div class="stat-value" id="stat-last-login">-</div>
-                    <div class="stat-label">最后登录</div>
-                </div>
             </div>
         </div>
         
@@ -620,7 +491,7 @@
             
             <div class="notification-item">
                 <div class="notification-icon" style="background: rgba(0, 243, 255, 0.1); color: #00f3ff;">
-                    <i class="fas fa-info-circle"></i>
+                    ℹ️
                 </div>
                 <div class="notification-content">
                     <div class="notification-title">欢迎使用个人中心</div>
@@ -630,21 +501,11 @@
             
             <div class="notification-item">
                 <div class="notification-icon" style="background: rgba(0, 255, 128, 0.1); color: #00ff80;">
-                    <i class="fas fa-check-circle"></i>
+                    ✓
                 </div>
                 <div class="notification-content">
                     <div class="notification-title">账户验证成功</div>
                     <div class="notification-time">1小时前</div>
-                </div>
-            </div>
-            
-            <div class="notification-item">
-                <div class="notification-icon" style="background: rgba(148, 0, 211, 0.1); color: #9400d3;">
-                    <i class="fas fa-gift"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">新功能上线通知</div>
-                    <div class="notification-time">昨天</div>
                 </div>
             </div>
         </div>
@@ -656,73 +517,11 @@
         <div class="footer-links">
             <a href="#" class="footer-link">隐私政策</a>
             <a href="#" class="footer-link">服务条款</a>
-            <a href="#" class="footer-link">联系我们</a>
+            <a href="mailto:3820332398@qq.com" class="footer-link">联系我们</a>
         </div>
     </footer>
     
-    <!-- 编辑资料弹窗 -->
-    <div class="modal" id="edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center;">
-        <div class="profile-card" style="max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #00f3ff;">编辑个人资料</h3>
-                <button id="close-edit-modal" style="background: none; border: none; color: #a0a0a0; font-size: 1.5rem; cursor: pointer;">&times;</button>
-            </div>
-            
-            <form id="edit-form">
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a0a0a0;">姓名</label>
-                    <input type="text" id="edit-fullname" style="width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 4px; color: white;">
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a0a0a0;">电子邮箱</label>
-                    <input type="email" id="edit-email" style="width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 4px; color: white;">
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="button" id="cancel-edit" style="flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 4px; color: white; cursor: pointer;">取消</button>
-                    <button type="submit" id="save-edit" style="flex: 1; padding: 10px; background: rgba(0, 243, 255, 0.2); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 4px; color: #00f3ff; cursor: pointer;">保存更改</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- 修改密码弹窗 -->
-    <div class="modal" id="password-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center;">
-        <div class="profile-card" style="max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #00f3ff;">修改密码</h3>
-                <button id="close-password-modal" style="background: none; border: none; color: #a0a0a0; font-size: 1.5rem; cursor: pointer;">&times;</button>
-            </div>
-            
-            <form id="password-form">
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a0a0a0;">当前密码</label>
-                    <input type="password" id="current-password" style="width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 4px; color: white;">
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a0a0a0;">新密码</label>
-                    <input type="password" id="new-password" style="width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 4px; color: white;">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a0a0a0;">确认新密码</label>
-                    <input type="password" id="confirm-password" style="width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 4px; color: white;">
-                </div>
-                
-                <div style="display: flex; gap: 10px;">
-                    <button type="button" id="cancel-password" style="flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 4px; color: white; cursor: pointer;">取消</button>
-                    <button type="submit" id="save-password" style="flex: 1; padding: 10px; background: rgba(0, 243, 255, 0.2); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 4px; color: #00f3ff; cursor: pointer;">更新密码</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
     <script>
-        // 全局变量
-        let currentUser = null;
-        
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 检查登录状态
@@ -743,60 +542,46 @@
                 window.location.href = 'login.html';
                 return;
             }
-            
-            try {
-                currentUser = JSON.parse(savedUser);
-                console.log('当前用户:', currentUser);
-            } catch (error) {
-                console.error('解析用户信息失败:', error);
-                showErrorMessage('用户信息加载失败，请重新登录');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
-            }
         }
         
         // 加载用户信息
         function loadUserProfile() {
-            if (!currentUser) return;
+            const savedUser = localStorage.getItem('admin_user');
+            if (!savedUser) return;
             
-            // 更新欢迎信息
-            document.getElementById('welcome-title').textContent = `欢迎回来，${currentUser.full_name || currentUser.username}！`;
-            
-            // 更新基本信息
-            document.getElementById('user-name').textContent = currentUser.full_name || currentUser.username;
-            document.getElementById('info-username').textContent = currentUser.username;
-            document.getElementById('info-email').textContent = currentUser.email || '-';
-            
-            // 更新角色
-            let roleText = '普通用户';
-            if (currentUser.role === 'admin') roleText = '管理员';
-            if (currentUser.role === 'moderator') roleText = '版主';
-            document.getElementById('user-role').textContent = roleText;
-            
-            // 更新状态
-            let statusText = '活跃';
-            let statusColor = '#00ff80';
-            if (currentUser.status === 'inactive') {
-                statusText = '未激活';
-                statusColor = '#ffa500';
-            } else if (currentUser.status === 'suspended') {
-                statusText = '已封禁';
-                statusColor = '#ff3232';
+            try {
+                const currentUser = JSON.parse(savedUser);
+                
+                // 更新欢迎信息
+                document.getElementById('welcome-title').textContent = `欢迎回来，${currentUser.full_name || currentUser.username}！`;
+                
+                // 更新基本信息
+                document.getElementById('user-name').textContent = currentUser.full_name || currentUser.username;
+                document.getElementById('info-username').textContent = currentUser.username;
+                document.getElementById('info-email').textContent = currentUser.email || '-';
+                
+                // 更新角色
+                let roleText = '普通用户';
+                if (currentUser.role === 'admin') roleText = '管理员';
+                if (currentUser.role === 'moderator') roleText = '版主';
+                document.getElementById('user-role').textContent = roleText;
+                
+                // 更新状态
+                let statusText = '活跃';
+                if (currentUser.status === 'inactive') {
+                    statusText = '未激活';
+                } else if (currentUser.status === 'suspended') {
+                    statusText = '已封禁';
+                }
+                document.getElementById('info-status').textContent = statusText;
+                
+                // 更新统计信息
+                updateStatistics();
+                
+            } catch (error) {
+                console.error('解析用户信息失败:', error);
+                window.location.href = 'login.html';
             }
-            document.getElementById('info-status').textContent = statusText;
-            document.getElementById('info-status').style.color = statusColor;
-            
-            // 更新注册时间（如果没有则使用当前时间）
-            if (currentUser.created_at) {
-                const date = new Date(currentUser.created_at);
-                document.getElementById('info-register-date').textContent = date.toLocaleDateString('zh-CN');
-            } else {
-                document.getElementById('info-register-date').textContent = new Date().toLocaleDateString('zh-CN');
-            }
-            
-            // 更新统计信息
-            updateStatistics();
         }
         
         // 更新统计信息
@@ -805,14 +590,12 @@
             const stats = {
                 loginCount: Math.floor(Math.random() * 50) + 10,
                 downloadCount: Math.floor(Math.random() * 20) + 5,
-                activeDays: Math.floor(Math.random() * 30) + 1,
-                lastLogin: '今天 10:30'
+                activeDays: Math.floor(Math.random() * 30) + 1
             };
             
             document.getElementById('stat-login-count').textContent = stats.loginCount;
             document.getElementById('stat-download-count').textContent = stats.downloadCount;
             document.getElementById('stat-active-days').textContent = stats.activeDays;
-            document.getElementById('stat-last-login').textContent = stats.lastLogin;
         }
         
         // 绑定事件
@@ -827,12 +610,12 @@
             
             // 编辑资料按钮
             document.getElementById('edit-profile-btn').addEventListener('click', function() {
-                showEditModal();
+                alert('编辑资料功能正在开发中...');
             });
             
             // 修改密码按钮
             document.getElementById('change-password-btn').addEventListener('click', function() {
-                showPasswordModal();
+                alert('修改密码功能正在开发中...');
             });
             
             // 功能卡片点击事件
@@ -841,212 +624,17 @@
             });
             
             document.getElementById('feature-settings').addEventListener('click', function() {
-                showErrorMessage('偏好设置功能正在开发中...');
+                alert('偏好设置功能正在开发中...');
             });
             
             document.getElementById('feature-history').addEventListener('click', function() {
-                showErrorMessage('活动记录功能正在开发中...');
+                alert('活动记录功能正在开发中...');
             });
             
             document.getElementById('feature-support').addEventListener('click', function() {
                 window.open('mailto:3820332398@qq.com', '_blank');
             });
-            
-            // 编辑弹窗
-            document.getElementById('close-edit-modal').addEventListener('click', function() {
-                hideEditModal();
-            });
-            
-            document.getElementById('cancel-edit').addEventListener('click', function() {
-                hideEditModal();
-            });
-            
-            document.getElementById('edit-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveProfileChanges();
-            });
-            
-            // 密码弹窗
-            document.getElementById('close-password-modal').addEventListener('click', function() {
-                hidePasswordModal();
-            });
-            
-            document.getElementById('cancel-password').addEventListener('click', function() {
-                hidePasswordModal();
-            });
-            
-            document.getElementById('password-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                changePassword();
-            });
-            
-            // 点击弹窗外部关闭
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.style.display = 'none';
-                    }
-                });
-            });
         }
-        
-        // 显示编辑弹窗
-        function showEditModal() {
-            const modal = document.getElementById('edit-modal');
-            const fullnameInput = document.getElementById('edit-fullname');
-            const emailInput = document.getElementById('edit-email');
-            
-            // 填充当前数据
-            fullnameInput.value = currentUser.full_name || '';
-            emailInput.value = currentUser.email || '';
-            
-            modal.style.display = 'flex';
-        }
-        
-        // 隐藏编辑弹窗
-        function hideEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-            document.getElementById('edit-form').reset();
-        }
-        
-        // 保存资料修改
-        function saveProfileChanges() {
-            const fullname = document.getElementById('edit-fullname').value.trim();
-            const email = document.getElementById('edit-email').value.trim();
-            const saveBtn = document.getElementById('save-edit');
-            
-            // 验证邮箱格式
-            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showErrorMessage('请输入有效的邮箱地址');
-                return;
-            }
-            
-            // 显示加载状态
-            saveBtn.innerHTML = '<span class="loading"></span> 保存中...';
-            saveBtn.disabled = true;
-            
-            // 模拟保存操作
-            setTimeout(() => {
-                // 更新用户信息
-                currentUser.full_name = fullname || currentUser.username;
-                currentUser.email = email;
-                
-                // 保存到本地存储
-                localStorage.setItem('admin_user', JSON.stringify(currentUser));
-                
-                // 更新UI
-                loadUserProfile();
-                
-                // 显示成功消息
-                showSuccessMessage('个人资料已更新');
-                
-                // 恢复按钮状态
-                saveBtn.innerHTML = '保存更改';
-                saveBtn.disabled = false;
-                
-                // 关闭弹窗
-                hideEditModal();
-            }, 1000);
-        }
-        
-        // 显示密码弹窗
-        function showPasswordModal() {
-            document.getElementById('password-modal').style.display = 'flex';
-        }
-        
-        // 隐藏密码弹窗
-        function hidePasswordModal() {
-            document.getElementById('password-modal').style.display = 'none';
-            document.getElementById('password-form').reset();
-        }
-        
-        // 修改密码
-        function changePassword() {
-            const currentPassword = document.getElementById('current-password').value;
-            const newPassword = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const saveBtn = document.getElementById('save-password');
-            
-            // 验证输入
-            if (!currentPassword) {
-                showErrorMessage('请输入当前密码');
-                return;
-            }
-            
-            if (!newPassword) {
-                showErrorMessage('请输入新密码');
-                return;
-            }
-            
-            if (newPassword.length < 8) {
-                showErrorMessage('新密码长度至少8位');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                showErrorMessage('两次输入的新密码不一致');
-                return;
-            }
-            
-            // 显示加载状态
-            saveBtn.innerHTML = '<span class="loading"></span> 更新中...';
-            saveBtn.disabled = true;
-            
-            // 模拟密码验证和修改
-            setTimeout(() => {
-                // 这里应该进行实际的密码验证和修改
-                // 暂时模拟成功
-                
-                // 显示成功消息
-                showSuccessMessage('密码修改成功，下次登录请使用新密码');
-                
-                // 恢复按钮状态
-                saveBtn.innerHTML = '更新密码';
-                saveBtn.disabled = false;
-                
-                // 关闭弹窗
-                hidePasswordModal();
-            }, 1500);
-        }
-        
-        // 显示错误消息
-        function showErrorMessage(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 5000);
-        }
-        
-        // 显示成功消息
-        function showSuccessMessage(message) {
-            // 创建临时成功消息
-            const successDiv = document.createElement('div');
-            successDiv.className = 'success-message show';
-            successDiv.textContent = message;
-            successDiv.style.position = 'fixed';
-            successDiv.style.top = '100px';
-            successDiv.style.right = '20px';
-            successDiv.style.zIndex = '3000';
-            successDiv.style.maxWidth = '300px';
-            
-            document.body.appendChild(successDiv);
-            
-            setTimeout(() => {
-                successDiv.classList.remove('show');
-                setTimeout(() => {
-                    if (successDiv.parentNode) {
-                        successDiv.parentNode.removeChild(successDiv);
-                    }
-                }, 300);
-            }, 3000);
-        }
-        
-        // 全局暴露函数
-        window.showErrorMessage = showErrorMessage;
-        window.showSuccessMessage = showSuccessMessage;
     </script>
 </body>
 </html>
