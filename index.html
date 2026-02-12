@@ -10,68 +10,237 @@
     <link rel="stylesheet" href="style-optimized.css">
     <link rel="stylesheet" href="adaptive-card-styles.css">
     
-    <!-- 针对4张卡片的优化样式 -->
+    <!-- 移动端汉堡菜单专用样式 - 紧凑型菜单 -->
     <style>
-        /* 针对4张卡片的布局优化 */
-        @media (min-width: 1024px) and (max-width: 1199px) {
-            .features {
-                grid-template-columns: repeat(2, minmax(300px, 1fr));
-            }
+        /* ----- 汉堡菜单样式（强制生效）----- */
+        .hamburger-btn {
+            display: none !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            width: 30px !important;
+            height: 24px !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            margin-left: 20px !important;
+            z-index: 1002 !important;
+            position: relative !important;
         }
         
-        @media (min-width: 1200px) and (max-width: 1399px) {
-            .features {
-                grid-template-columns: repeat(2, minmax(350px, 1fr));
-            }
+        .hamburger-btn span {
+            display: block !important;
+            width: 100% !important;
+            height: 3px !important;
+            background: #00f3ff !important;
+            border-radius: 3px !important;
+            transition: all 0.3s ease !important;
         }
         
-        @media (min-width: 1400px) {
-            .features {
-                grid-template-columns: repeat(2, minmax(400px, 1fr));
-            }
+        .hamburger-btn.active span:nth-child(1) {
+            transform: translateY(10px) rotate(45deg) !important;
         }
         
-        /* 移动端4张卡片优化 */
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0 !important;
+        }
+        
+        .hamburger-btn.active span:nth-child(3) {
+            transform: translateY(-10px) rotate(-45deg) !important;
+        }
+        
+        /* ----- 头部导航栏布局优化 ----- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 80px;
+            position: relative;
+        }
+        
+        .navbar {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+            margin-right: 0;
+        }
+        
+        /* 汉堡菜单容器 - 放置在导航栏最右端 */
+        .hamburger-wrapper {
+            display: none !important;
+            align-items: center !important;
+            margin-left: 20px !important;
+        }
+        
+        /* ----- 移动端紧凑型菜单（按钮大小适配）----- */
         @media (max-width: 768px) {
-            .features {
-                grid-template-columns: repeat(2, minmax(150px, 1fr));
-                gap: 1rem;
+            .navbar {
+                margin-left: 0;
             }
             
-            .feature-card {
-                min-height: 200px;
-                padding: 1.2rem 0.8rem;
+            /* 紧凑型侧边菜单 - 不占满整个右边 */
+            .nav-menu {
+                position: fixed !important;
+                top: 80px !important; /* 紧贴header下方 */
+                right: -320px !important; /* 初始隐藏在右侧外部 */
+                width: 280px !important;
+                max-width: 85vw !important; /* 最大宽度为视口85%，不占满 */
+                height: auto !important; /* 高度自适应，不占满全屏 */
+                max-height: calc(100vh - 100px) !important; /* 最大高度限制，留出边距 */
+                background: rgba(8, 12, 25, 0.98) !important;
+                backdrop-filter: blur(15px) !important;
+                flex-direction: column !important;
+                padding: 16px !important; /* 减小内边距 */
+                transition: right 0.3s ease !important;
+                z-index: 1001 !important;
+                border: 1px solid rgba(0, 243, 255, 0.3) !important;
+                border-radius: 12px 0 0 12px !important; /* 左侧圆角 */
+                box-shadow: -5px 5px 30px rgba(0, 212, 255, 0.3) !important;
+                margin: 0 !important;
+                list-style: none !important;
+                display: flex !important;
+                gap: 8px !important; /* 减小间距 */
+                overflow-y: auto !important; /* 内容过多时可滚动 */
             }
             
-            .card-icon {
-                font-size: 2rem;
+            .nav-menu.active {
+                right: 0 !important; /* 激活时显示在右侧边缘 */
             }
             
-            .feature-card h3 {
-                font-size: 1.1rem;
-                margin-bottom: 0.5rem;
+            /* 菜单项样式 - 紧凑设计 */
+            .nav-menu li {
+                width: 100% !important;
+                margin: 4px 0 !important; /* 减小外边距 */
             }
             
-            .feature-card p {
+            .nav-menu li a,
+            .nav-menu li button {
+                width: 100% !important;
+                text-align: left !important;
+                padding: 12px 16px !important; /* 减小内边距 */
+                border-radius: 8px !important;
+                border: 1px solid rgba(0, 243, 255, 0.15) !important;
+                background: rgba(0, 0, 0, 0.2) !important;
+                color: #e0e0e0 !important;
+                font-size: 0.95rem !important; /* 稍微减小字体 */
+                display: flex !important;
+                align-items: center !important;
+                gap: 12px !important;
+                transition: all 0.2s ease !important;
+                min-height: 44px !important; /* 保持触摸友好尺寸 */
+            }
+            
+            .nav-menu li a:hover,
+            .nav-menu li button:hover {
+                background: rgba(0, 243, 255, 0.15) !important;
+                border-color: rgba(0, 243, 255, 0.5) !important;
+                color: #00f3ff !important;
+                transform: translateX(4px) !important; /* 轻微右移效果 */
+            }
+            
+            /* 图标样式优化 */
+            .nav-menu li a .btn-icon,
+            .nav-menu li button .btn-icon {
+                font-size: 1.1rem !important;
+                min-width: 24px !important;
+                text-align: center !important;
+            }
+            
+            /* 用户状态特殊样式 */
+            .nav-menu li a.user-status {
+                background: rgba(0, 243, 255, 0.08) !important;
+                border-color: rgba(0, 243, 255, 0.3) !important;
+                color: #00f3ff !important;
+                font-weight: 500 !important;
+            }
+            
+            /* 下载按钮特殊样式 */
+            .nav-menu li .download-btn-main {
+                background: rgba(0, 243, 255, 0.12) !important;
+                border-color: rgba(0, 243, 255, 0.4) !important;
+            }
+            
+            /* 主题切换按钮特殊样式 */
+            .nav-menu li .theme-btn {
+                background: rgba(255, 255, 255, 0.05) !important;
+            }
+            
+            /* 汉堡菜单包装器 - 在移动端显示 */
+            .hamburger-wrapper {
+                display: flex !important;
+            }
+            
+            .hamburger-btn {
+                display: flex !important;
+            }
+            
+            /* 遮罩层 - 半透明不干扰视觉 */
+            .menu-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(2px);
+                z-index: 1000;
+            }
+            
+            .menu-overlay.active {
+                display: block;
+            }
+            
+            /* 菜单头部指示器（可选） */
+            .nav-menu::before {
+                content: '菜单';
+                display: block;
+                padding: 8px 16px;
+                margin-bottom: 8px;
                 font-size: 0.85rem;
-                line-height: 1.4;
+                color: rgba(0, 243, 255, 0.7);
+                border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+                letter-spacing: 2px;
+                text-transform: uppercase;
             }
         }
         
-        @media (max-width: 480px) {
-            .features {
-                grid-template-columns: 1fr;
-                max-width: 320px;
-                margin: 2rem auto 0;
+        @media (min-width: 769px) {
+            .hamburger-wrapper {
+                display: none !important;
+            }
+            .hamburger-btn {
+                display: none !important;
+            }
+            .menu-overlay {
+                display: none !important;
             }
             
-            .feature-card {
-                min-height: 180px;
-                padding: 1.5rem 1rem;
+            /* 桌面端隐藏菜单头部指示器 */
+            .nav-menu::before {
+                display: none !important;
             }
         }
         
-        /* 登录状态显示样式 */
+        /* 登录状态样式 */
         .user-status {
             display: flex;
             align-items: center;
@@ -93,13 +262,6 @@
             font-weight: 500;
         }
         
-        .auth-link:hover {
-            background: rgba(0, 243, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
-        }
-        
-        /* 注册按钮大样式 */
         .auth-btn-large {
             display: inline-flex;
             flex-direction: column;
@@ -115,8 +277,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
             width: 100%;
             max-width: 280px;
             margin-left: auto;
@@ -124,30 +284,10 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
-        .auth-btn-large:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* 已登录用户大按钮样式 */
         .user-btn-large {
             background: linear-gradient(135deg, #00c9ff 0%, #007acc 100%);
         }
         
-        /* 移动端适配 */
-        @media (max-width: 768px) {
-            .auth-link {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.9rem;
-            }
-            
-            .auth-btn-large {
-                padding: 1rem 1.5rem;
-                max-width: 250px;
-            }
-        }
-        
-        /* 登录状态指示器 */
         .login-indicator {
             display: none;
             position: fixed;
@@ -169,13 +309,49 @@
         }
         
         @keyframes slideInDown {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* 当前时间样式 */
+        #current-time {
+            color: #00f3ff;
+            font-weight: 500;
+        }
+        
+        /* 全局提示样式 */
+        .click-outside-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 243, 255, 0.15);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: #00f3ff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 移动端适配优化 */
+        @media (max-width: 480px) {
+            .nav-menu {
+                width: 260px !important;
+                padding: 14px !important;
             }
-            to {
-                transform: translateY(0);
-                opacity: 1;
+            
+            .nav-menu li a,
+            .nav-menu li button {
+                padding: 10px 14px !important;
+                font-size: 0.9rem !important;
             }
         }
     </style>
@@ -198,10 +374,14 @@
         已登录
     </div>
     
-    <!-- 头部导航 -->
+    <!-- 遮罩层 -->
+    <div class="menu-overlay" id="menu-overlay"></div>
+    
+    <!-- 头部导航 - 汉堡菜单已移动到导航栏最右端 -->
     <header>
         <div class="header-container">
             <h1 class="scifi-title">System_VM_D62E</h1>
+            
             <nav class="navbar">
                 <ul class="nav-menu" id="nav-menu">
                     <li><a href="#about" class="scifi-link">关于UP</a></li>
@@ -210,11 +390,18 @@
                     <!-- 动态身份验证按钮 -->
                     <li id="auth-nav-item"></li>
                     
-                    <li><button class="scifi-button download-btn-main" id="download-btn">
-                        下载PC端
-                    </button></li>
+                    <li><button class="scifi-button download-btn-main" id="download-btn">下载PC端</button></li>
                     <li><button id="theme-toggle" class="theme-btn scifi-button">🌓 暗色模式</button></li>
                 </ul>
+                
+                <!-- 汉堡菜单包装器 - 位于导航栏最右端 -->
+                <div class="hamburger-wrapper">
+                    <button class="hamburger-btn" id="hamburger-btn">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
             </nav>
         </div>
         <div class="progress-bar"></div>
@@ -224,77 +411,69 @@
     <main>
         <section class="hero">
             <div class="hero-content">
-                <!-- Logo区域 -->
                 <div class="logo-container">
-                    <img src="drawcut_1768537221502.png" 
-                         data-src="drawcut_1768537221502.png" 
-                         alt="System_VM_D62E Logo" 
-                         class="logo lazy-load">
+                    <img src="drawcut_1768537221502.png" data-src="drawcut_1768537221502.png" alt="System_VM_D62E Logo" class="logo lazy-load">
+                    <div class="logo-glow"></div>
                 </div>
                 
-                <!-- 标题和描述 -->
                 <h2 class="scifi-heading">欢迎来到 <span class="highlight">System_VM_D62E</span> 官方网页</h2>
                 <p class="scifi-text">探索技术与创意的无限可能</p>
                 
-                <!-- 进度条 -->
                 <div class="progress-container">
-                    <label for="system-progress">系统加载进度:</label>
+                    <label for="system-progress" class="scifi-label">系统加载进度:</label>
                     <div class="progress-wrapper">
                         <progress id="system-progress" value="75" max="100">75%</progress>
+                        <div class="progress-glow" style="width: 75%;"></div>
                     </div>
                     <span class="progress-text">75%</span>
                 </div>
                 
-                <!-- 主下载按钮区域 -->
                 <div class="download-section">
-                    <button class="scifi-button download-btn-large hero-download-btn" 
-                            id="hero-download-btn">
-                        <span class="btn-icon">💻 </span>
+                    <button class="scifi-button download-btn-large hero-download-btn" id="hero-download-btn">
+                        <span class="btn-icon">💻</span>
                         <span class="btn-text">下载 PC版</span>
                         <span class="btn-subtext">v0.9.8 • 测试版本</span>
                     </button>
-                    
-                    <!-- 动态身份验证按钮 -->
                     <div id="hero-auth-section"></div>
                 </div>
             </div>
         </section>
         
-        <!-- 关于UP主区域 -->
         <section id="about" class="about-section">
             <div class="container">
                 <h2 class="scifi-heading">关于UP主</h2>
                 <p class="scifi-text">根据 2026年2月9日晚上统计，up的粉丝是2456人，视频播放17.6万，177条弹幕，4155条评论，7826个点赞。代表作：《全网最全的Windows网页版，你值得拥有！！！》，最新稿件：《什么才是真正好的工具？这五个应用才是真的装机必备！好用到爆！！！》，粉丝团名称：D云团。</p>
                 
-                <!-- 特性卡片区域 - 4张卡片 -->
                 <div class="features">
                     <div class="feature-card" tabindex="0" data-card-type="tech">
                         <div class="card-icon">💻</div>
                         <h3>技术分享</h3>
                         <p>前沿技术解析与实践经验</p>
+                        <div class="card-glow"></div>
                     </div>
                     
                     <div class="feature-card" tabindex="0" data-card-type="creative">
                         <div class="card-icon">🎨</div>
                         <h3>创意作品</h3>
                         <p>原创项目与设计思路</p>
+                        <div class="card-glow"></div>
                     </div>
                     
                     <div class="feature-card" tabindex="0" data-card-type="community">
                         <div class="card-icon">👥</div>
                         <h3>社区互动</h3>
                         <p>与粉丝交流分享心得</p>
+                        <div class="card-glow"></div>
                     </div>
                     
-                    <!-- 新增的第四张卡片 -->
                     <div class="feature-card" tabindex="0" data-card-type="optimization">
                         <div class="card-icon">⚡</div>
                         <h3>系统优化</h3>
                         <p>性能调优与用户体验提升</p>
+                        <div class="card-glow"></div>
                     </div>
                 </div>
                 
-                <!-- 卡片说明 -->
                 <div style="margin-top: 3rem; text-align: center; opacity: 0.7;">
                     <p class="scifi-text" style="font-size: 0.9rem;">
                         共 <span style="color: #00f3ff; font-weight: bold;">4</span> 张特效卡片，点击体验交互效果
@@ -303,7 +482,6 @@
             </div>
         </section>
         
-        <!-- 功能提示区域 -->
         <section class="hint-section" style="padding: 1rem; text-align: center; opacity: 0.7;">
             <p class="scifi-text" style="font-size: 0.9rem;">
                 💡 提示：点击卡片体验特效，点击其他地方恢复原状
@@ -314,15 +492,11 @@
         </section>
     </main>
 
-    <!-- 页脚 -->
     <footer id="contact">
         <div class="footer-container">
             <p class="scifi-text">&copy; 2025 System_VM_D62E 版权所有</p>
             <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
-            
-            <!-- 动态身份验证链接 -->
             <p class="scifi-text" style="margin-top: 1rem;" id="footer-auth-link"></p>
-            
             <p class="scifi-text" style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">
                 本站已优化支持：Chrome、Firefox、Safari、Edge、百度浏览器、Via浏览器、夸克浏览器
             </p>
@@ -337,12 +511,87 @@
     <script src="adaptive-card-system.js" defer></script>
     <script src="script.js" defer></script>
     
-    <!-- 内联脚本 -->
+    <!-- 内联脚本 - 菜单功能和登录状态管理 -->
     <script>
         (function() {
             'use strict';
             
-            // 检查登录状态并更新UI
+            // ==== 汉堡菜单功能（独立运行，不依赖其他脚本）====
+            function initHamburgerMenu() {
+                const hamburgerBtn = document.getElementById('hamburger-btn');
+                const navMenu = document.getElementById('nav-menu');
+                const menuOverlay = document.getElementById('menu-overlay');
+                
+                if (!hamburgerBtn || !navMenu || !menuOverlay) {
+                    console.error('菜单元素未找到');
+                    return;
+                }
+                
+                // 初始状态
+                hamburgerBtn.classList.remove('active');
+                navMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                
+                // 切换菜单
+                function toggleMenu() {
+                    const isActive = hamburgerBtn.classList.contains('active');
+                    
+                    if (isActive) {
+                        // 关闭
+                        hamburgerBtn.classList.remove('active');
+                        navMenu.classList.remove('active');
+                        menuOverlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                    } else {
+                        // 打开
+                        hamburgerBtn.classList.add('active');
+                        navMenu.classList.add('active');
+                        menuOverlay.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+                
+                // 关闭菜单
+                function closeMenu() {
+                    hamburgerBtn.classList.remove('active');
+                    navMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                
+                // 点击汉堡按钮
+                hamburgerBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleMenu();
+                });
+                
+                // 点击遮罩层关闭
+                menuOverlay.addEventListener('click', closeMenu);
+                
+                // 点击菜单项关闭
+                navMenu.querySelectorAll('a, button').forEach(function(item) {
+                    item.addEventListener('click', closeMenu);
+                });
+                
+                // 窗口大小变化
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        closeMenu();
+                    }
+                });
+                
+                // ESC键关闭
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && hamburgerBtn.classList.contains('active')) {
+                        closeMenu();
+                    }
+                });
+                
+                console.log('紧凑型汉堡菜单初始化成功');
+            }
+            
+            // ==== 登录状态管理 ====
             function updateAuthUI() {
                 const savedUser = localStorage.getItem('admin_user');
                 const authNavItem = document.getElementById('auth-nav-item');
@@ -357,53 +606,50 @@
                         const username = user.username || user.full_name || '用户';
                         const userRole = user.role || 'user';
                         
-                        // 导航栏
+                        // 更新导航栏用户状态
                         if (authNavItem) {
-                            let adminLink = userRole === 'admin' || userRole === 'moderator' ? 
-                                '<a href="admin.html" class="scifi-link user-status" title="进入管理后台"><span class="btn-icon">👤</span> ' + username + ' (管理)</a>' :
-                                '<span class="scifi-link user-status" title="已登录"><span class="btn-icon">👤</span> ' + username + '</span>';
-                            
-                            authNavItem.innerHTML = adminLink;
-                        }
-                        
-                        // 主内容区域
-                        if (heroAuthSection) {
+                            let userLink = '';
                             if (userRole === 'admin' || userRole === 'moderator') {
-                                heroAuthSection.innerHTML = `
-                                    <a href="admin.html" class="scifi-button auth-btn-large user-btn-large" 
-                                       style="margin-top: 1.5rem;">
-                                        <span class="btn-icon">⚙️</span>
-                                        <span class="btn-text">管理后台</span>
-                                        <span class="btn-subtext">${username}</span>
-                                    </a>
-                                `;
+                                userLink = '<a href="admin.html" class="scifi-link user-status"><span class="btn-icon">👤</span> ' + username + ' (管理)</a>';
                             } else {
-                                heroAuthSection.innerHTML = `
-                                    <a href="admin.html" class="scifi-button auth-btn-large user-btn-large" 
-                                       style="margin-top: 1.5rem;">
-                                        <span class="btn-icon">👤</span>
-                                        <span class="btn-text">个人中心</span>
-                                        <span class="btn-subtext">${username}</span>
-                                    </a>
-                                `;
+                                userLink = '<a href="profile.html" class="scifi-link user-status"><span class="btn-icon">👤</span> ' + username + '</a>';
                             }
+                            authNavItem.innerHTML = userLink;
                         }
                         
-                        // 提示信息
+                        // 更新英雄区认证部分
+                        if (heroAuthSection) {
+                            let adminLink = (userRole === 'admin' || userRole === 'moderator') ? '管理后台' : '个人中心';
+                            let icon = (userRole === 'admin' || userRole === 'moderator') ? '⚙️' : '👤';
+                            
+                            heroAuthSection.innerHTML = `
+                                <a href="${userRole === 'admin' || userRole === 'moderator' ? 'admin.html' : 'profile.html'}" class="scifi-button auth-btn-large user-btn-large" style="margin-top: 1.5rem;">
+                                    <span class="btn-icon">${icon}</span>
+                                    <span class="btn-text">${adminLink}</span>
+                                    <span class="btn-subtext">${username}</span>
+                                </a>
+                            `;
+                        }
+                        
+                        // 更新提示文本
                         if (authHint) {
-                            authHint.innerHTML = `👋 欢迎回来，${username}！<a href="admin.html" style="color: #00f3ff; text-decoration: underline;">查看个人中心</a>`;
+                            authHint.innerHTML = `👋 欢迎回来，${username}！<a href="${userRole === 'admin' || userRole === 'moderator' ? 'admin.html' : 'profile.html'}" style="color: #00f3ff; text-decoration: underline;">${userRole === 'admin' || userRole === 'moderator' ? '进入管理后台' : '查看个人中心'}</a>`;
                         }
                         
-                      
-                        // 显示登录状态指示器
+                        // 更新页脚认证链接
+                        if (footerAuthLink) {
+                            footerAuthLink.innerHTML = `<a href="#" onclick="logoutUser(); return false;" class="scifi-link" style="color: #ff6b6b; font-weight: bold;">🔓 退出登录 (${username})</a>`;
+                        }
+                        
+                        // 显示登录指示器
                         if (loginIndicator) {
+                            loginIndicator.textContent = `👋 已登录 - ${username}`;
                             loginIndicator.classList.add('visible');
-                            setTimeout(() => {
-                                loginIndicator.classList.remove('visible');
-                            }, 3000);
+                            setTimeout(() => loginIndicator.classList.remove('visible'), 3000);
                         }
                         
                     } catch (error) {
+                        console.error('解析用户信息失败:', error);
                         showLoginUI();
                     }
                 } else {
@@ -411,27 +657,19 @@
                 }
             }
             
-            // 显示登录注册界面
             function showLoginUI() {
                 const authNavItem = document.getElementById('auth-nav-item');
                 const heroAuthSection = document.getElementById('hero-auth-section');
                 const authHint = document.getElementById('auth-hint');
                 const footerAuthLink = document.getElementById('footer-auth-link');
                 
-                // 导航栏
                 if (authNavItem) {
-                    authNavItem.innerHTML = `
-                        <a href="login.html" class="scifi-link auth-link">
-                            <span class="btn-icon">🔐</span> 注册/登录
-                        </a>
-                    `;
+                    authNavItem.innerHTML = '<a href="login.html" class="scifi-link auth-link"><span class="btn-icon">🔐</span> 注册/登录</a>';
                 }
                 
-                // 主内容区域
                 if (heroAuthSection) {
                     heroAuthSection.innerHTML = `
-                        <a href="login.html" class="scifi-button auth-btn-large" 
-                           style="margin-top: 1.5rem;">
+                        <a href="login.html" class="scifi-button auth-btn-large" style="margin-top: 1.5rem;">
                             <span class="btn-icon">🔐</span>
                             <span class="btn-text">注册 / 登录</span>
                             <span class="btn-subtext">体验完整功能</span>
@@ -439,74 +677,63 @@
                     `;
                 }
                 
-                // 提示信息
                 if (authHint) {
                     authHint.innerHTML = '🔐 <a href="login.html" style="color: #00f3ff; text-decoration: underline;">注册账户</a> 解锁更多个性化功能';
                 }
                 
-                // 页脚链接
                 if (footerAuthLink) {
-                    footerAuthLink.innerHTML = `
-                        <a href="login.html" class="scifi-link" style="color: #00f3ff; font-weight: bold;">
-                            🔐 点击这里注册或登录
-                        </a>
-                    `;
+                    footerAuthLink.innerHTML = '<a href="login.html" class="scifi-link" style="color: #00f3ff; font-weight: bold;">🔐 点击这里注册或登录</a>';
                 }
             }
             
             // 退出登录函数
-            function logoutUser() {
+            window.logoutUser = function() {
                 if (confirm('确定要退出登录吗？')) {
                     localStorage.removeItem('admin_user');
                     alert('已成功退出登录');
                     window.location.reload();
                 }
-            }
+            };
             
-            // 全局暴露退出登录函数
-            window.logoutUser = logoutUser;
-            
-            // 页面加载完成后初始化
-            window.addEventListener('load', function() {
-                document.body.setAttribute('data-page-loaded', 'true');
-                
-                // 更新登录状态UI
+            // ==== 初始化 ====
+            function init() {
+                initHamburgerMenu();
                 updateAuthUI();
                 
-                // 更新当前时间
+                // 更新时间
                 function updateTime() {
-                    const now = new Date();
-                    const timeElement = document.getElementById('current-time');
-                    if (timeElement) {
-                        timeElement.textContent = now.toLocaleString('zh-CN');
+                    const el = document.getElementById('current-time');
+                    if (el) {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        el.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
                     }
                 }
-                
                 updateTime();
-                setInterval(updateTime, 60000);
+                setInterval(updateTime, 1000);
                 
-                // 显示功能提示
-                setTimeout(function() {
+                // 提示框
+                setTimeout(() => {
                     const hint = document.getElementById('click-hint');
                     if (hint) {
                         hint.style.display = 'block';
-                        setTimeout(function() {
-                            hint.style.display = 'none';
-                        }, 3000);
+                        setTimeout(() => hint.style.display = 'none', 3000);
                     }
                 }, 1000);
-            });
-            
-            // 初始加载时检查登录状态
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    updateAuthUI();
-                });
-            } else {
-                updateAuthUI();
             }
             
-            // 监听其他页面的登录事件
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+            
+            // 监听本地存储变化
             window.addEventListener('storage', function(e) {
                 if (e.key === 'admin_user') {
                     setTimeout(updateAuthUI, 100);
