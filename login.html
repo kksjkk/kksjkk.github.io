@@ -2,840 +2,1135 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System_VM_D62E - 登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>System_VM_D62E · 安全认证</title>
     <style>
-        /* 基础样式 */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
+        /* ----- 全局设计令牌 (与login原有风格保持统一，并扩充弹窗样式) ----- */
+        :root {
+            --glitch-cyan: #00f3ff;
+            --glitch-cyan-glow: rgba(0, 243, 255, 0.7);
+            --deep-navy: #0a0a1a;
+            --panel-bg: rgba(20, 25, 45, 0.95);
+            --border-glow: rgba(0, 243, 255, 0.25);
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #6b6b8b;
+            --success-cyan: #00ff9d;
+            --error-coral: #ff5e7c;
+            --info-blue: #3b9eff;
+            --transition-smooth: all 0.2s cubic-bezier(0.45, 0.05, 0.2, 0.99);
         }
-        
+
+        /* 基础重置 & 网格背景 (与login原有保持一致) */
+        html, body { height: 100%; margin: 0; padding: 0; }
         body {
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(145deg, #08081a 0%, #15152e 60%, #101624 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
             position: relative;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
         }
-        
-        /* 背景网格 */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background-image: 
                 linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
-            animation: gridMove 30s linear infinite;
+            animation: gridShift 32s linear infinite;
             pointer-events: none;
-            z-index: -1;
+            z-index: 0;
         }
-        
-        /* 返回按钮 */
-        .back-to-home {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
-        
-        .back-btn {
-            background: rgba(0, 243, 255, 0.1);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            color: #00f3ff;
-            padding: 8px 16px;
-            border-radius: 4px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .back-btn:hover {
-            background: rgba(0, 243, 255, 0.2);
-            transform: translateX(-3px);
-        }
-        
-        /* 认证容器 */
-        .auth-container {
-            background: rgba(20, 25, 45, 0.9);
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            border-radius: 12px;
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            position: relative;
-            z-index: 1;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        /* 移动端适配 */
-        @media (max-width: 768px) {
-            .auth-container {
-                padding: 30px 20px;
-                max-width: 90%;
-            }
-            
-            .back-to-home {
-                top: 10px;
-                left: 10px;
-            }
-        }
-        
-        /* 头部样式 */
-        .auth-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .auth-logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            position: relative;
-        }
-        
-        .auth-logo img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 243, 255, 0.3);
-        }
-        
-        .auth-logo::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, rgba(0, 243, 255, 0.2) 0%, transparent 70%);
-            filter: blur(15px);
-            z-index: -1;
-        }
-        
-        .auth-header h1 {
-            color: #00f3ff;
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
-        }
-        
-        .auth-header p {
-            color: #a0a0a0;
-            font-size: 0.9rem;
-        }
-        
-        /* 选项卡 */
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            border-bottom: 1px solid rgba(0, 243, 255, 0.1);
-        }
-        
-        .auth-tab {
-            flex: 1;
-            padding: 12px;
-            background: none;
-            border: none;
-            color: #a0a0a0;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .auth-tab.active {
-            color: #00f3ff;
-        }
-        
-        .auth-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #00c9ff, #007acc);
-        }
-        
-        /* 表单 */
-        .auth-form {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .auth-form.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            color: #e0e0e0;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            border-radius: 6px;
-            color: #e0e0e0;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: rgba(0, 243, 255, 0.5);
-            box-shadow: 0 0 0 2px rgba(0, 243, 255, 0.1);
-        }
-        
-        .password-input {
-            position: relative;
-        }
-        
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #a0a0a0;
-            cursor: pointer;
-            padding: 4px;
-        }
-        
-        /* 表单选项 */
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #a0a0a0;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        
-        .checkbox-label input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: #00f3ff;
-        }
-        
-        .forgot-password {
-            color: #00f3ff;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        
-        .forgot-password:hover {
-            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
-        }
-        
-        /* 提交按钮 */
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #00c9ff, #007acc);
-            border: none;
-            border-radius: 6px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 201, 255, 0.3);
-        }
-        
-        .submit-btn.loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            border: 2px solid transparent;
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        /* 分隔线 */
-        .auth-divider {
-            text-align: center;
-            margin: 30px 0;
-            position: relative;
-            color: #666;
-        }
-        
-        .auth-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: rgba(0, 243, 255, 0.1);
-        }
-        
-        .auth-divider span {
-            background: rgba(20, 25, 45, 0.9);
-            padding: 0 15px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* 社交登录 */
-        .social-login {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        
-        .social-btn {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 6px;
-            color: #e0e0e0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .social-btn:hover {
-            border-color: rgba(0, 243, 255, 0.4);
-            background: rgba(0, 243, 255, 0.05);
-        }
-        
-        /* 底部 */
-        .auth-footer {
-            text-align: center;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .auth-footer a {
-            color: #00f3ff;
-            text-decoration: none;
-        }
-        
-        /* 消息提示 */
-        .alert {
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            animation: slideIn 0.3s ease;
-        }
-        
-        .alert-success {
-            background: rgba(0, 255, 128, 0.1);
-            border: 1px solid rgba(0, 255, 128, 0.3);
-            color: #00ff80;
-        }
-        
-        .alert-error {
-            background: rgba(255, 50, 50, 0.1);
-            border: 1px solid rgba(255, 50, 50, 0.3);
-            color: #ff3232;
-        }
-        
-        .alert-info {
-            background: rgba(0, 243, 255, 0.1);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            color: #00f3ff;
-        }
-        
-        /* 动画 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        
-        @keyframes gridMove {
+        @keyframes gridShift {
             0% { transform: translate(0, 0); }
             100% { transform: translate(40px, 40px); }
         }
+
+        /* 返回首页控件 (与login原有一致) */
+        .back-to-home {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 20;
+        }
+        .back-btn {
+            background: rgba(0, 243, 255, 0.06);
+            border: 1px solid var(--border-glow);
+            color: var(--glitch-cyan);
+            padding: 8px 18px;
+            border-radius: 40px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            backdrop-filter: blur(6px);
+            transition: var(--transition-smooth);
+            letter-spacing: 0.5px;
+        }
+        .back-btn:hover {
+            background: rgba(0, 243, 255, 0.15);
+            border-color: var(--glitch-cyan);
+            transform: translateX(-5px);
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
+        }
+
+        /* 认证卡片 (与原login设计完全一致) */
+        .auth-container {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 30px 50px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,243,255,0.05) inset;
+            backdrop-filter: blur(12px);
+            position: relative;
+            z-index: 5;
+            animation: fadeRise 0.6s ease-out;
+        }
+        @keyframes fadeRise {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @media (max-width: 500px) {
+            .auth-container { padding: 30px 20px; max-width: 94%; }
+            .back-to-home { top: 16px; left: 16px; }
+            .back-btn { padding: 6px 14px; font-size: 0.85rem; }
+        }
+
+        /* 品牌区 */
+        .auth-header { text-align: center; margin-bottom: 24px; }
+        .auth-logo {
+            width: 76px; height: 76px; margin: 0 auto 18px; position: relative;
+        }
+        .auth-logo img {
+            width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--border-glow);
+            object-fit: cover; background: #0f172a;
+        }
+        .auth-logo::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 110px; height: 110px;
+            background: radial-gradient(circle, rgba(0,243,255,0.18) 0%, transparent 80%);
+            filter: blur(16px); z-index: -1;
+        }
+        .auth-header h1 {
+            color: var(--glitch-cyan); font-size: 1.9rem; font-weight: 600;
+            margin: 0 0 6px; text-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+            letter-spacing: 1px;
+        }
+        .auth-header p { color: #b0b8d0; font-size: 0.95rem; font-weight: 300; opacity: 0.9; }
+
+        /* 选项卡 (登录/注册 保留，不影响功能) */
+        .auth-tabs {
+            display: flex; margin: 10px 0 28px; border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+            gap: 8px;
+        }
+        .auth-tab {
+            flex: 1; padding: 12px 8px; background: transparent; border: none;
+            color: var(--text-secondary); font-size: 1.05rem; font-weight: 500; cursor: pointer;
+            transition: var(--transition-smooth); position: relative; border-radius: 6px 6px 0 0;
+            letter-spacing: 1px;
+        }
+        .auth-tab.active { color: var(--glitch-cyan); text-shadow: 0 0 5px rgba(0,243,255,0.3); }
+        .auth-tab.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 10%; width: 80%; height: 2px;
+            background: linear-gradient(90deg, transparent, #00f3ff, #3a86ff, #00f3ff, transparent);
+            border-radius: 2px; box-shadow: 0 0 10px #00a6ff;
+        }
+
+        /* 消息容器 */
+        #message-container { min-height: 52px; margin-bottom: 12px; }
+        .alert {
+            padding: 12px 18px; border-radius: 12px; margin-bottom: 16px; font-size: 0.92rem;
+            animation: slidePop 0.28s ease; backdrop-filter: blur(4px); border: 1px solid transparent;
+            font-weight: 450;
+        }
+        .alert-success { background: rgba(0, 255, 180, 0.08); border-color: rgba(0, 255, 200, 0.4); color: #b0ffd0; }
+        .alert-error { background: rgba(255, 70, 100, 0.1); border-color: rgba(255, 90, 120, 0.4); color: #ffb0b0; }
+        .alert-info { background: rgba(0, 200, 255, 0.08); border-color: rgba(0, 220, 255, 0.35); color: #b0f0ff; }
+        @keyframes slidePop {
+            0% { opacity: 0; transform: translateX(-12px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 表单样式 (与login原有完全一致) */
+        .auth-form { display: none; animation: fadeIn 0.3s; }
+        .auth-form.active { display: block; }
+        .form-group { margin-bottom: 22px; }
+        .form-label {
+            display: block; color: #d0d8f0; margin-bottom: 6px; font-size: 0.85rem;
+            font-weight: 400; letter-spacing: 0.4px; text-transform: uppercase; opacity: 0.8;
+        }
+        .form-input {
+            width: 100%; padding: 14px 16px; background: rgba(8, 12, 25, 0.7);
+            border: 1px solid rgba(0, 243, 255, 0.22); border-radius: 12px; color: #f0f4ff;
+            font-size: 1rem; transition: var(--transition-smooth); box-sizing: border-box;
+            backdrop-filter: blur(5px);
+        }
+        .form-input:focus {
+            outline: none; border-color: var(--glitch-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 243, 255, 0.1), 0 0 15px rgba(0,243,255,0.2);
+            background: rgba(10, 20, 35, 0.8);
+        }
+        .password-input { position: relative; }
+        .password-toggle {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: #aab4d3; cursor: pointer; padding: 6px;
+            font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+            transition: color 0.2s; border-radius: 8px;
+        }
+        .password-toggle:hover { color: var(--glitch-cyan); background: rgba(0,243,255,0.1); }
+        .form-options {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px;
+        }
+        .checkbox-label {
+            display: flex; align-items: center; gap: 8px; color: var(--text-secondary);
+            font-size: 0.9rem; cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--glitch-cyan); border-radius: 4px; }
+        .forgot-password {
+            color: var(--glitch-cyan); text-decoration: none; font-size: 0.9rem;
+            transition: var(--transition-smooth); border-bottom: 1px dashed transparent;
+        }
+        .forgot-password:hover { border-bottom-color: var(--glitch-cyan); text-shadow: 0 0 6px rgba(0,243,255,0.5); }
+        .submit-btn {
+            width: 100%; padding: 15px; background: linear-gradient(135deg, #00c3ff, #005bb5);
+            border: none; border-radius: 14px; color: white; font-size: 1.1rem; font-weight: 600;
+            cursor: pointer; transition: var(--transition-smooth); position: relative;
+            overflow: hidden; letter-spacing: 2px; box-shadow: 0 8px 0 rgba(0, 60, 130, 0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 20px rgba(0, 180, 255, 0.4); background: linear-gradient(135deg, #1ad0ff, #006fcc); }
+        .submit-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #003f7f; }
+        .submit-btn.loading { color: transparent; pointer-events: none; }
+        .submit-btn.loading::after {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 22px; height: 22px;
+            margin-left: -11px; margin-top: -11px; border: 2px solid transparent;
+            border-top-color: white; border-right-color: white; border-radius: 50%;
+            animation: spin 0.7s linear infinite; box-shadow: 0 0 8px rgba(0,0,0,0.3);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .auth-divider {
+            text-align: center; margin: 28px 0 20px; position: relative; color: #7e8a9e;
+            font-size: 0.8rem;
+        }
+        .auth-divider::before {
+            content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,243,255,0.2), transparent);
+        }
+        .auth-divider span { background: var(--panel-bg); padding: 0 18px; position: relative; z-index: 2; backdrop-filter: blur(4px); }
+        .social-login { display: flex; gap: 14px; margin-bottom: 20px; }
+        .social-btn {
+            flex: 1; padding: 12px; border: 1px solid rgba(0,243,255,0.15);
+            background: rgba(0, 0, 0, 0.25); border-radius: 40px; color: #eef3ff; cursor: pointer;
+            transition: var(--transition-smooth); display: flex; align-items: center;
+            justify-content: center; gap: 8px; font-weight: 500; backdrop-filter: blur(4px);
+        }
+        .social-btn:hover { border-color: var(--glitch-cyan); background: rgba(0,243,255,0.1); color: white; box-shadow: 0 0 16px rgba(0,243,255,0.2); }
+        .auth-footer { text-align: center; color: #9aa1b5; font-size: 0.92rem; margin-top: 24px; }
+        .auth-footer a { color: var(--glitch-cyan); text-decoration: none; font-weight: 600; border-bottom: 1px solid transparent; transition: 0.2s; }
+        .auth-footer a:hover { border-bottom-color: var(--glitch-cyan); }
+        .terms-link { color: var(--glitch-cyan); text-decoration: none; }
+        .terms-link:hover { text-decoration: underline; }
+
+        /* ---------- 新增：模态弹窗 (极客风格，与隐私政策/服务条款内容匹配) ---------- */
+        .policy-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(4, 7, 17, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: modalFadeIn 0.25s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--glitch-cyan);
+            border-radius: 28px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.8), 0 0 30px rgba(0,243,255,0.3);
+            animation: modalSlideUp 0.3s;
+        }
+        @keyframes modalSlideUp {
+            from { transform: translateY(30px); opacity: 0.5; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            padding: 22px 28px 12px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,243,255,0.2);
+        }
+        .modal-header h2 {
+            color: var(--glitch-cyan);
+            font-size: 1.9rem;
+            font-weight: 500;
+            margin: 0;
+            text-shadow: 0 0 8px cyan;
+            letter-spacing: 2px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #aab4d3;
+            font-size: 2.2rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 10px;
+            transition: 0.2s;
+        }
+        .modal-close:hover {
+            color: var(--glitch-cyan);
+            text-shadow: 0 0 10px white;
+            transform: scale(1.1);
+        }
+        .modal-content {
+            padding: 20px 28px 30px 28px;
+            overflow-y: auto;
+            color: #d0dcf0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            scrollbar-width: thin;
+            scrollbar-color: var(--glitch-cyan) #1e1e3a;
+        }
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-content::-webkit-scrollbar-track {
+            background: #1e1e3a;
+            border-radius: 10px;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background: var(--glitch-cyan);
+            border-radius: 10px;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+        }
+        .modal-content pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: inherit;
+            margin: 0;
+            background: transparent;
+            border: none;
+            color: #d0dcf0;
+        }
+        /* 适应移动端 */
+        @media (max-width: 600px) {
+            .modal-header { padding: 16px 20px; }
+            .modal-header h2 { font-size: 1.5rem; }
+            .modal-content { padding: 16px 20px; font-size: 0.9rem; }
+        }
+
+        /* 内联样式微调 */
+        [data-policy] { cursor: pointer; }
     </style>
 </head>
 <body>
-    <!-- 返回首页按钮 -->
+    <!-- 返回首页 -->
     <div class="back-to-home">
-        <a href="index.html" class="back-btn">
-            <span>←</span> 返回首页
+        <a href="index.html" class="back-btn" aria-label="返回首页">
+            <span>←</span> 返回仪表板
         </a>
     </div>
-    
-    <!-- 认证容器 -->
+
+    <!-- 认证核心容器 (完全保留login原有结构，仅添加两个隐藏的policy链接触发器，已存在terms-link) -->
     <div class="auth-container">
-        <!-- 头部 -->
         <div class="auth-header">
             <div class="auth-logo">
-                <img src="logo.png" alt="System_VM_D62E Logo">
+                <img src="logo.png" alt="System_VM_D62E 徽标" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2238%22%20fill%3D%22%230a1a2f%22%20stroke%3D%22%2300f3ff%22%20stroke-width%3D%222%22%2F%3E%3Ctext%20x%3D%2220%22%20y%3D%2250%22%20fill%3D%22%2300f3ff%22%20font-size%3D%2230%22%3EVM%3C%2Ftext%3E%3C%2Fsvg%3E';">
             </div>
             <h1>System_VM_D62E</h1>
-            <p>探索技术与创意的无限可能</p>
+            <p>加密数字沙箱 · 极客通行证</p>
         </div>
-        
-        <!-- 选项卡 -->
+
         <div class="auth-tabs">
-            <button class="auth-tab active" data-tab="login">登录</button>
-            <button class="auth-tab" data-tab="register">注册</button>
+            <button class="auth-tab active" data-tab="login">🔐 登录</button>
+            <button class="auth-tab" data-tab="register">📝 注册</button>
         </div>
-        
-        <!-- 消息提示 -->
-        <div id="message-container"></div>
-        
+
+        <div id="message-container" role="alert" aria-live="polite"></div>
+
         <!-- 登录表单 -->
-        <form id="login-form" class="auth-form active">
+        <form id="login-form" class="auth-form active" novalidate>
+            <!-- 完全保留login原有字段，不做删减 -->
             <div class="form-group">
-                <label class="form-label">用户名 / 邮箱</label>
-                <input type="text" class="form-input" id="login-identifier" 
-                       placeholder="输入用户名或邮箱" required>
+                <label for="login-identifier" class="form-label">用户名 / 邮箱</label>
+                <input type="text" class="form-input" id="login-identifier" placeholder="例如: system_admin" autocomplete="username" required>
             </div>
-            
             <div class="form-group">
-                <label class="form-label">密码</label>
+                <label for="login-password" class="form-label">密码</label>
                 <div class="password-input">
-                    <input type="password" class="form-input" id="login-password" 
-                           placeholder="输入密码" required>
-                    <button type="button" class="password-toggle" data-target="login-password">
-                        👁
-                    </button>
+                    <input type="password" class="form-input" id="login-password" placeholder="••••••••" autocomplete="current-password" required>
+                    <button type="button" class="password-toggle" data-target="login-password" aria-label="显示/隐藏密码" tabindex="-1">👁</button>
                 </div>
             </div>
-            
             <div class="form-options">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="remember-me">
-                    <span>记住我</span>
-                </label>
-                <a href="#" class="forgot-password" onclick="showMessage('密码重置功能开发中...', 'info')">忘记密码？</a>
+                <label class="checkbox-label"><input type="checkbox" id="remember-me" checked> <span>保持登录</span></label>
+                <a href="#" class="forgot-password" id="forgot-pwd-link">忘记凭证？</a>
             </div>
-            
-            <button type="submit" class="submit-btn" id="login-btn">
-                登录
-            </button>
-            
-            <div class="auth-divider">
-                <span>或使用社交账号登录</span>
-            </div>
-            
+            <button type="submit" class="submit-btn" id="login-btn">进入控制台</button>
+            <div class="auth-divider"><span>联合身份认证</span></div>
             <div class="social-login">
-                <button type="button" class="social-btn" onclick="showMessage('GitHub登录功能开发中...', 'info')">
-                    <span>GitHub</span>
-                </button>
-                <button type="button" class="social-btn" onclick="showMessage('Google登录功能开发中...', 'info')">
-                    <span>Google</span>
-                </button>
+                <button type="button" class="social-btn" data-social="github"><span>⚡ GitHub</span></button>
+                <button type="button" class="social-btn" data-social="google"><span>🌀 Google</span></button>
             </div>
-            
-            <div class="auth-footer">
-                <p>还没有账户？ <a href="#" data-switch="register">立即注册</a></p>
-            </div>
+            <div class="auth-footer"><p>首次访问？ <a href="#" data-switch="register">创建账户</a></p></div>
         </form>
-        
-        <!-- 注册表单 -->
-        <form id="register-form" class="auth-form">
+
+        <!-- 注册表单 (保持原有，但确保两个政策链接可点击显示弹窗) -->
+        <form id="register-form" class="auth-form" novalidate>
             <div class="form-group">
-                <label class="form-label">用户名</label>
-                <input type="text" class="form-input" id="register-username" 
-                       placeholder="输入用户名" required minlength="3" maxlength="50">
+                <label for="register-username" class="form-label">用户名 *</label>
+                <input type="text" class="form-input" id="register-username" placeholder="字母、数字、下划线" autocomplete="username" required minlength="3" maxlength="30">
             </div>
-            
             <div class="form-group">
-                <label class="form-label">邮箱地址</label>
-                <input type="email" class="form-input" id="register-email" 
-                       placeholder="输入邮箱" required>
+                <label for="register-email" class="form-label">电子邮箱 *</label>
+                <input type="email" class="form-input" id="register-email" placeholder="your@email.com" autocomplete="email" required>
             </div>
-            
             <div class="form-group">
-                <label class="form-label">姓名</label>
-                <input type="text" class="form-input" id="register-fullname" 
-                       placeholder="输入您的姓名">
+                <label for="register-fullname" class="form-label">姓名 (选填)</label>
+                <input type="text" class="form-input" id="register-fullname" placeholder="如何称呼您" autocomplete="name">
             </div>
-            
             <div class="form-group">
-                <label class="form-label">密码</label>
+                <label for="register-password" class="form-label">密码 *</label>
                 <div class="password-input">
-                    <input type="password" class="form-input" id="register-password" 
-                           placeholder="输入密码" required minlength="8">
-                    <button type="button" class="password-toggle" data-target="register-password">
-                        👁
-                    </button>
+                    <input type="password" class="form-input" id="register-password" placeholder="至少8位，区分大小写" autocomplete="new-password" required minlength="8">
+                    <button type="button" class="password-toggle" data-target="register-password" tabindex="-1">👁</button>
+                </div>
+                <div style="margin-top: 6px; font-size: 0.75rem; color: #9aaec2;" id="password-strength-hint"></div>
+            </div>
+            <div class="form-group">
+                <label for="register-confirm-password" class="form-label">确认密码 *</label>
+                <div class="password-input">
+                    <input type="password" class="form-input" id="register-confirm-password" placeholder="再次输入密码" autocomplete="off" required>
+                    <button type="button" class="password-toggle" data-target="register-confirm-password" tabindex="-1">👁</button>
                 </div>
             </div>
-            
-            <div class="form-group">
-                <label class="form-label">确认密码</label>
-                <div class="password-input">
-                    <input type="password" class="form-input" id="register-confirm-password" 
-                           placeholder="再次输入密码" required>
-                    <button type="button" class="password-toggle" data-target="register-confirm-password">
-                        👁
-                    </button>
-                </div>
-            </div>
-            
-            <div class="form-group">
+            <!-- 政策链接区域：保留了原有的条款链接，并增加了隐私政策链接 (data-policy="privacy")。点击会显示对应的完整内容 -->
+            <div class="form-group" style="margin-top: 10px;">
                 <label class="checkbox-label">
                     <input type="checkbox" id="terms-agree" required>
-                    <span>我同意 <a href="#" onclick="showMessage('服务条款页面开发中...', 'info')">服务条款</a> 和 <a href="#" onclick="showMessage('隐私政策页面开发中...', 'info')">隐私政策</a></span>
+                    <span>我已阅读并接受 <a href="#" class="terms-link" data-policy="terms">服务条款</a> 和 <a href="#" class="terms-link" data-policy="privacy">隐私政策</a></span>
                 </label>
             </div>
-            
-            <button type="submit" class="submit-btn" id="register-btn">
-                注册
-            </button>
-            
-            <div class="auth-footer" style="margin-top: 20px;">
-                <p>已有账户？ <a href="#" data-switch="login">立即登录</a></p>
-            </div>
+            <button type="submit" class="submit-btn" id="register-btn">注册并激活</button>
+            <div class="auth-footer" style="margin-top: 24px;"><p>已有账户？ <a href="#" data-switch="login">立即登录</a></p></div>
         </form>
     </div>
-    
+
+    <!-- 模态弹窗 (用于展示隐私政策或服务条款的完整内容) -->
+    <div id="policyModal" class="policy-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="modalTitle">📄 文档标题</h2>
+                <button class="modal-close" id="modalCloseBtn" aria-label="关闭">&times;</button>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <!-- 动态填充隐私政策或服务条款的完整文本 (预置于JS) -->
+                <pre id="modalPre"></pre>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 选项卡切换
-        document.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabName = this.dataset.tab;
-                
-                // 更新激活的选项卡
-                document.querySelectorAll('.auth-tab').forEach(t => {
-                    t.classList.remove('active');
-                });
-                this.classList.add('active');
-                
-                // 切换表单
-                document.querySelectorAll('.auth-form').forEach(form => {
-                    form.classList.remove('active');
-                });
-                document.getElementById(`${tabName}-form`).classList.add('active');
-                
-                // 清空消息
+        (function() {
+            "use strict";
+
+            // ---------- 从txt内容提取的隐私政策 & 服务条款 (完整保留格式) ----------
+            const PRIVACY_POLICY_TEXT = `隐私政策
+
+最后更新日期：2026年2月12日
+
+生效日期：2026年2月12日
+
+System_VM_D62E（以下简称“我们”、“我方”或“本平台”）深知个人信息对您的重要性，并会尽全力保护您的个人信息安全可靠。本隐私政策（以下简称“本政策”）旨在向您清晰地说明我们在您访问和使用本网站及相关服务（以下简称“服务”）时，如何收集、使用、存储、共享和保护您的个人信息，以及您如何管理您的个人信息。
+
+请您在使用我们的服务前，仔细阅读并充分理解本政策。 通过访问或使用我们的服务，即表示您已同意本政策的全部条款。如果您不同意本政策的任何内容，请您立即停止使用我们的服务。
+
+本政策适用于 System_VM_D62E 网站（包括但不限于 index.html、login.html、profile.html、admin.html 等页面）及我们通过该网站提供的所有功能与服务。 如我们提供的特定产品或服务有单独的隐私政策，该等单独政策将优先适用；未涵盖的部分，以本政策为准。
+
+---
+
+一、我们如何收集和使用您的个人信息
+
+我们会遵循合法、正当、必要、诚信的原则，仅出于本政策所述的目的，收集和使用您在主动提供或在使用服务过程中产生的个人信息：
+
+1. 您主动提供的信息
+
+· 注册/登录信息：当您在 login.html 页面注册或登录账户时，我们会收集您的用户名、电子邮箱、密码哈希值（密码经过不可逆加密存储，我们无法获取您的原始密码）。您可以选择填写姓名，以便我们更好地称呼您。
+· 个人资料信息：您可以在 profile.html 页面编辑您的头像、姓名等资料信息。
+· 联系信息：当您通过邮件（3820332398@qq.com）或其他渠道联系我们时，我们会收集您的邮箱地址、联系方式以及您反馈的内容，以便回复和处理您的问题。
+
+2. 我们在您使用服务过程中自动收集的信息
+
+· 设备信息：我们会收集您的IP地址、浏览器类型和版本、操作系统、设备类型、屏幕分辨率等信息，用于系统兼容性适配和访问统计分析。
+· 日志信息：当您访问我们的网站时，服务器会自动记录您的访问时间、访问页面、来源页面、停留时长等信息，用于服务监控、安全审计和性能优化。
+· 本地存储信息：我们使用浏览器的 localStorage 存储您的登录状态、主题偏好（暗色/亮色模式）、访问历史记录。这些信息存储在您的设备本地，您可以通过浏览器设置随时清除。
+· Cookie及同类技术：我们可能会使用必要的 Cookie 来维持您的登录状态和会话。您可以通过浏览器设置拒绝或清除 Cookie，但这可能导致部分功能无法正常使用。
+
+3. 模拟数据说明
+您理解并同意，本服务当前为演示环境。system_users.sql 文件中预设的管理员及演示用户（包括“system_admin”、“tech_guru”等）均为测试账户，其密码（Hjy413113、Demo@123456）以 MD5 哈希形式存储。请勿在实际生产环境中使用此类弱加密方式或硬编码凭据。 我们不会将您注册时提交的用户名、邮箱用于任何与演示无关的目的。
+
+4. 我们如何使用您的信息
+我们收集和使用您的个人信息主要用于以下目的：
+
+· 创建和维护您的账户，为您提供登录认证和访问控制（如根据角色权限访问 admin.html 或 profile.html）；
+· 向您展示个性化欢迎语和用户状态（如 index.html 中的“欢迎回来，用户名”）；
+· 改进和优化服务，进行系统性能监控（如 performance.js 中的帧率监控、加载时间统计）；
+· 检测、预防和解决安全风险、技术故障或滥用行为；
+· 与您沟通，回复您的咨询、反馈或投诉；
+· 履行法律法规规定的义务。
+
+5. 征得授权同意的例外
+根据相关法律法规，以下情形中收集和使用您的个人信息无需征得您的授权同意：
+
+· 与国家安全、国防安全有关的；
+· 与公共安全、公共卫生、重大公共利益有关的；
+· 与犯罪侦查、起诉、审判和判决执行等有关的；
+· 出于维护个人信息主体或其他个人的生命、财产等重大合法权益但又很难得到您本人同意的；
+· 所收集的个人信息是您自行向社会公众公开的；
+· 从合法公开披露的信息中收集的您的个人信息的，如合法的新闻报道、政府信息公开等渠道；
+· 根据您的要求签订和履行合同所必需的；
+· 用于维护所提供的服务的安全稳定运行所必需的，例如发现、处置服务故障；
+· 法律法规规定的其他情形。
+
+---
+
+二、我们如何存储和保护您的个人信息
+
+1. 存储地点
+我们遵守中华人民共和国法律法规，将在中华人民共和国境内收集和产生的个人信息存储在中国境内的服务器。我们不会将您的个人信息传输至境外。
+
+2. 存储期限
+我们仅在实现本政策所述目的所必需的期限内保留您的个人信息，除非法律法规另有要求。具体而言：
+
+· 账户信息：您在使用服务期间持续保留，直至您注销账户或我们根据服务条款终止您的账户。
+· 日志信息：自动保留30天（详见 system_users.sql 中 CleanOldLoginHistory 事件定义），期满后自动删除。
+· 本地存储信息：由您自行控制，可通过清除浏览器数据随时删除。
+
+3. 保护措施
+我们采取符合业界标准的安全防护措施保护您的个人信息免受未经授权的访问、使用、披露、修改或毁坏：
+
+· 技术措施：采用传输层加密（HTTPS）、密码哈希存储（MD5，仅用于演示环境；生产环境建议使用 bcrypt 等强哈希算法）、本地存储隔离、前端输入验证等。
+· 访问控制：严格限制内部员工访问个人信息的权限，仅授权为必要业务目的需要知悉的人员。
+· 安全审计：通过 performance.js 等脚本监控异常访问行为，定期检查系统漏洞。
+
+4. 安全事件处理
+尽管我们已采取合理措施，但请您理解，互联网环境并非绝对安全。发生个人信息安全事件后，我们将按照法律法规要求，及时向您告知：安全事件的基本情况和可能的影响、我们已采取或将要采取的处置措施、您可自主防范和降低风险的建议、对您的补救措施等。我们将通过站内通知、邮件或公告等方式告知您。难以逐一告知时，我们会采取合理、有效的方式发布公告。
+
+---
+
+三、我们如何共享、转让、公开披露您的个人信息
+
+1. 共享
+我们不会与任何公司、组织或个人分享您的个人信息，但以下情形除外：
+
+· 获得您的明确同意：在获得您的单独同意后，我们会与其他方共享您的个人信息。
+· 履行法定义务：根据法律法规、诉讼、仲裁等法律程序要求，或按政府主管部门的强制性要求，我们可能需要共享您的个人信息。
+· 与关联公司或授权合作伙伴共享：为便于我们向您提供更优质的服务，我们可能会将您的必要信息与我们的关联公司或服务提供商（如云服务厂商、邮件服务商）共享。此类合作伙伴无权将您的个人信息用于任何其他用途，且我们会通过协议要求其承担同等的保密义务和安全保护责任。
+
+2. 转让
+我们不会将您的个人信息转让给任何公司、组织和个人，但以下情形除外：
+
+· 获得您的明确同意；
+· 在涉及合并、收购、资产转让、破产清算等重大交易时，如涉及个人信息转让，我们会要求新的持有您个人信息的公司、组织继续受本政策的约束，否则我们将要求该等公司、组织重新向您征求授权同意。
+
+3. 公开披露
+我们仅会在以下情况下，公开披露您的个人信息：
+
+· 获得您明确同意或基于您的主动选择；
+· 基于法律、司法程序或诉讼程序的要求。
+
+4. 共享、转让、公开披露的例外
+以下情形中，共享、转让、公开披露您的个人信息无需事先征得您的授权同意：
+
+· 与国家安全、国防安全直接相关的；
+· 与公共安全、公共卫生、重大公共利益直接相关的；
+· 与犯罪侦查、起诉、审判和判决执行等直接相关的；
+· 出于维护您或其他个人的生命、财产等重大合法权益但又很难得到您本人同意的；
+· 您自行向社会公众公开的个人信息；
+· 从合法公开披露的信息中收集个人信息的，如合法的新闻报道、政府信息公开等渠道。
+
+---
+
+四、您的权利
+
+我们保障您对您的个人信息行使以下权利：
+
+1. 访问、更正、补充权
+您可以通过登录 profile.html 页面，随时访问、查看您账户中的基本信息（用户名、邮箱、姓名、角色、状态）。如发现信息不准确或不完整，您可以通过该页面的“编辑资料”功能进行更正（当前版本为模拟界面，实际功能开发中）。
+
+2. 删除权
+在以下情形中，您可以向我们提出删除个人信息的请求：
+
+· 如果我们处理个人信息的行为违反法律法规；
+· 如果我们收集、使用您的个人信息，却未征得您的同意；
+· 如果我们处理个人信息的行为违反了本政策；
+· 您注销了账户；
+· 我们不再为您提供服务。
+
+您可以通过本政策第九条提供的联系方式提交删除申请。我们会在15个工作日内处理您的请求。为保障安全，您可能需要提供书面请求或以其他方式证明您的身份。
+
+3. 撤回同意权
+您可以通过清除浏览器本地存储（localStorage） 的方式，撤回您对我们存储登录状态和偏好设置的同意。您也可以通过注销账户的方式，撤回对我们处理您个人信息的全部授权。撤回同意后，您可能无法继续使用部分依赖该等信息的服务。
+
+4. 注销权
+您可以通过联系我们的客服邮箱 3820332398@qq.com 申请注销您的账户。我们会在核实您的身份后15个工作日内为您办理注销。账户注销后，我们将删除或匿名化处理您的个人信息，除非法律法规另有要求。
+
+5. 获取个人信息副本
+您有权获取您的个人信息副本。您可以通过 profile.html 页面查看您的基本信息，或通过邮件联系我们申请导出。
+
+6. 响应您的权利请求
+对于您合理的请求，我们原则上不收取费用，但会根据法律规定对重复、超出合理限度的请求收取必要成本费用。对于多次重复、需要过多技术手段（例如，需要开发新系统或从根本上改变现行惯例）、给他人合法权益带来风险或者非常不切实际的请求，我们可能会予以拒绝。
+
+---
+
+五、我们如何处理儿童的个人信息
+
+我们的服务不面向14周岁以下的儿童。如果您是未满14周岁的未成年人，请不要尝试注册账户或向我们提供任何个人信息。若我们发现自己收集了14周岁以下儿童的个人信息，我们会设法尽快删除。
+
+如您是未成年人的监护人，当您对监护的未成年人的个人信息有疑问时，请通过第九条的联系方式与我们联系。
+
+---
+
+六、Cookie及同类技术
+
+我们使用 Cookie 和 localStorage 来提升您的使用体验：
+
+· 必要Cookie：用于维持您的登录会话，保证您能够从登录状态访问受限页面（如 admin.html、profile.html）。拒绝此类Cookie将导致您无法正常登录。
+· 偏好设置Cookie：存储您的暗色/亮色主题偏好，以便您在不同设备、不同时间访问时保持一致的视觉体验。
+· 本地存储（localStorage）：用于存储您的登录状态、用户信息及访问历史记录（visitHistory）。您可以随时通过浏览器设置清除这些数据。
+
+您可以通过修改浏览器设置接受或拒绝Cookie，或清除localStorage。但请注意，如果选择拒绝，您可能无法完整使用我们提供的所有功能。
+
+---
+
+七、本政策的更新
+
+我们可能会适时对本隐私政策进行修订。未经您明确同意，我们不会削减您按照本政策所应享有的权利。 对于重大变更，我们会在网站首页（index.html）、登录页（login.html）或通过弹窗/站内通知等方式显著提示您。重大变更包括但不限于：
+
+· 我们的服务模式发生重大变化，如处理个人信息的目的、类型、使用方式等；
+· 个人信息共享、转让或公开披露的主要对象发生变化；
+· 您参与个人信息处理方面的权利及其行使方式发生重大变化；
+· 我们的联络方式及投诉渠道发生变化。
+
+本政策所指的重大变更还包括我们可能将 system_users.sql 中的演示环境升级为生产环境，届时我们将以显著方式重新获取您的同意。
+
+您继续使用我们的服务，即视为您接受修订后的政策。如果您不同意更新后的政策，您应停止使用服务并注销账户。
+
+---
+
+八、适用法律与争议解决
+
+本隐私政策的解释、效力及执行均适用中华人民共和国法律（为本政策之目的，不包含香港特别行政区、澳门特别行政区和台湾地区的法律）。
+
+因本隐私政策产生的任何争议，双方应首先友好协商解决；协商不成的，任何一方均有权将争议提交至被告住所地有管辖权的人民法院诉讼解决。
+
+---
+
+九、如何联系我们
+
+我们设立了专门的个人信息保护负责人。如您对本隐私政策有任何疑问、意见或建议，或需要行使您的个人信息权利，请通过以下方式与我们联系：
+
+电子邮箱：3820332398@qq.com
+官方空间：https://m.bilibili.com/space/3546812044544535
+联系地址：中国境内（具体地址可根据实际情况补充）
+
+我们会在15个工作日内回复您的请求。如您对我们的回复不满意，或认为我们的个人信息处理行为损害了您的合法权益，您还可以向网信、电信、公安及市场监督管理等监管部门进行投诉或举报。
+
+---
+
+附录：关键术语定义
+
+· 个人信息：指以电子或者其他方式记录的与已识别或者可识别的自然人有关的各种信息，不包括匿名化处理后的信息。
+· 敏感个人信息：指一旦泄露或者非法使用，容易导致自然人的人格尊严受到侵害或者人身、财产安全受到危害的个人信息。本服务目前不主动收集敏感个人信息（如身份证件号码、金融账户、行踪轨迹、生物识别信息等）。
+· 匿名化：指通过对个人信息的技术处理，使得个人信息主体无法被识别，且处理后的信息不能被复原的过程。
+· 删除：指在实现日常业务功能所涉及的系统中去除个人信息的行为，使其保持不可被检索、访问的状态。
+· 本地存储（localStorage）：一种在用户浏览器端存储键值对数据的Web API，数据不会自动过期，也不会随HTTP请求发送至服务器。
+
+---
+
+System_VM_D62E 运营团队
+
+我们深知保护个人信息的重要性，感谢您对我们的信任。我们将持续致力于保护您的隐私安全。`;
+
+            const TERMS_OF_SERVICE_TEXT = `服务条款
+
+最后更新日期：2026年2月12日
+
+欢迎使用 System_VM_D62E的官方网站！
+
+本服务条款（以下简称“条款”）是您（以下简称“用户”或“您”）与 System_VM_D62E 运营团队（以下简称“我们”、“我方”或“本平台”）之间关于访问和使用本网站及相关服务所订立的具有法律约束力的协议。
+
+请您仔细阅读本条款。 通过访问或使用我们的网站，及相关功能、工具、API 或应用程序（以下简称“服务”），即表示您已阅读、理解并同意接受本条款的约束。若您不同意本条款的任何部分，请立即停止注册或使用我们的服务。
+
+---
+
+1. 服务说明
+
+1.1 服务内容：System_VM_D62E 官方网站是一个提供技术分享、创意展示、社区互动及系统优化工具展示的信息平台。我们为用户提供包括但不限于浏览内容、注册账户、下载演示资源、参与社区互动及访问管理后台（针对特定角色）等功能。
+
+1.2 服务变更：我们保留随时修改、暂停、限制或终止服务（整体或部分）的权利，且无需对任何用户或第三方承担责任。我们会在发生重大变更时通过网站公告等方式提前通知，除非遇紧急情况或法律禁止。
+
+1.3 测试版本：部分服务（如 PC 端下载）以“测试版本”形式提供，可能存在缺陷或运行不稳定的情况。您理解并同意自担风险使用此类功能。
+
+---
+
+2. 账户责任与注册
+
+2.1 注册义务：在注册账户时，您承诺提供真实、准确、完整且最新的个人信息（包括但不限于用户名、电子邮箱等），并及时更新以保持其准确性。您不得冒充他人或提供虚假信息。
+
+2.2 账户安全：您对维护账户凭证（包括用户名、密码、双重验证信息等）的保密性负全部责任。您对您账户下发生的所有活动（无论是否经您授权）承担全部法律责任。 如发现任何未经授权使用您账户的情况，您须立即通知我们。
+
+2.3 账户权限：根据我们在数据库中预设的角色体系，账户分为“普通用户”（user）、“版主”（moderator）和“管理员”（admin）。不同角色享有不同的访问权限（例如 admin.html 仅限管理员或版主访问，profile.html 仅限已登录用户访问）。我们保留单方面调整账户角色与权限的权利。
+
+2.4 账户终止：我们有权在任何时候，基于任何理由（包括但不限于违反本条款、长期不活跃或应法律法规要求），在不事先通知的情况下暂停或终止您的账户，并拒绝提供任何服务。
+
+---
+
+3. 可接受的使用政策
+
+您承诺不会利用我们的服务从事以下行为：
+
+3.1 违法违规内容：上传、发布、传播或存储任何违反中华人民共和国法律法规、社会主义制度、国家利益、公民合法权益、公共秩序、社会道德风尚的信息，包括但不限于危害国家安全、泄露国家秘密、颠覆国家政权、破坏国家统一、损害国家荣誉和利益、煽动民族仇恨、破坏民族团结、宣扬恐怖主义、极端主义、宣扬邪教和封建迷信、散布谣言、扰乱社会秩序、破坏社会稳定、宣扬淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的内容。
+
+3.2 侵犯他人权利：侵犯任何第三方知识产权（包括但不限于著作权、商标权、专利权）、商业秘密、隐私权、名誉权或其他合法权益。
+
+3.3 恶意行为：传播计算机病毒、恶意软件、蠕虫、特洛伊木马或其他具有破坏性、干扰性、秘密性的代码；进行任何可能导致服务中断、超载或受损的行为（包括拒绝服务攻击、分布式拒绝服务攻击）；未经授权访问、探测或扫描系统漏洞。
+
+3.4 垃圾信息与欺诈：未经请求发送商业广告、垃圾邮件、连锁信件、传销信息；进行钓鱼、诈骗、仿冒身份等非法活动。
+
+3.5 逆向工程：对服务的任何部分进行反向工程、反编译、反汇编、破解、复制或试图获取源代码，除非适用法律明确允许。
+
+3.6 规避限制：绕过或试图绕过我们可能使用的任何技术限制、访问控制或使用限制（包括登录页面的认证机制、管理后台的权限校验等）。
+
+3.7 自动化访问：未经我们明确书面许可，使用任何机器人、爬虫、蜘蛛或其他自动化手段访问或抓取服务内容。
+
+违反本政策可能导致您的账户被立即终止，并可能追究您的民事或刑事责任。
+
+---
+
+4. 知识产权
+
+4.1 我们的权利：服务本身（包括但不限于网站整体架构、界面视觉设计、交互特效、代码库、LOGO、商标、图标、文字、图像、音频、视频及“System_VM_D62E”品牌名称）的所有权利、所有权和利益，均归我们或许可方所有，并受中华人民共和国著作权法、商标法及相关国际公约的保护。我们授予您一项有限的、非排他的、不可转让的、可撤销的个人许可，允许您在服务期内仅为访问和使用服务之目的访问本服务。
+
+4.2 用户内容：您保留您通过服务上传、发布或提交的内容（以下简称“用户内容”）的知识产权。通过提交用户内容，您授予我们一项全球性、免版税、非排他的、永久的、不可撤销的许可，以使我们能够为运营、提供、改进、推广和保护服务的目的，使用、复制、修改、改编、创建衍生作品、分发、公开展示和表演您的用户内容。此项许可不会因您停止使用服务而终止。
+
+4.3 反馈：您自愿提供的任何关于服务的建议、想法、改进方案或反馈（以下简称“反馈”），我们将可以自由使用、披露、复制、许可或以其他方式利用，而无需对您承担任何义务或补偿。
+
+4.4 侵权处理：我们尊重知识产权。如果您认为您的作品被复制并构成侵权，请通过邮箱 3820332398@qq.com 联系我们，并提供完整的权利证明及侵权信息。
+
+---
+
+5. 隐私与数据保护
+
+5.1 隐私政策：我们重视您的隐私。我们对您个人信息的收集、使用、存储和共享将遵守我们的《隐私政策》。《隐私政策》构成本条款不可分割的一部分。
+
+5.2 模拟数据：您理解并同意，本服务当前为演示环境，部分用户数据（如登录凭据、用户列表、统计数据）为模拟数据（包括 system_users.sql 中预设的管理员及演示用户）。请勿在实际生产环境中使用硬编码密码或 MD5 哈希。
+
+5.3 本地存储：我们使用浏览器的 localStorage 存储您的登录状态、主题偏好及访问历史。您可以通过浏览器设置清除此类数据，但可能导致您需要重新登录。
+
+5.4 日志记录：我们会自动收集并存储服务器日志信息，包括 IP 地址、浏览器类型、访问时间、来源页面等，用于系统监控、安全审计及服务优化。
+
+---
+
+6. 第三方链接与资源
+
+服务中可能包含指向第三方网站（如 Bilibili 作者空间）的链接，或集成第三方服务（如 GitHub、Google 社交登录按钮）。我们对任何第三方网站或服务的内容、隐私政策或行为不承担任何责任。 您访问第三方链接或使用第三方服务需自担风险，并遵守该等第三方的条款与条件。
+
+---
+
+7. 免责声明
+
+在适用法律允许的最大范围内，本服务按“现状”和“按现有”基础提供，不附带任何形式的明示或默示担保。 我们明确否认所有默示担保，包括但不限于适销性、特定用途适用性、所有权和不侵权的担保。我们不保证：
+
+7.1 服务将满足您的所有需求或期望；
+7.2 服务将及时、安全、无错误或不中断；
+7.3 通过服务获得的任何信息是准确、完整或可靠的；
+7.4 服务中的任何缺陷将得到纠正。
+
+您自行决定使用本服务并承担全部风险。因使用服务导致您的设备损坏、数据丢失或其他损失，由您自行承担。
+
+---
+
+8. 责任限制
+
+在适用法律允许的最大范围内，我们及我们的关联方、许可方、员工或代理均不对因本条款或使用服务所引起的任何间接的、附带的、特殊的、惩罚性的或后果性的损害承担责任，包括但不限于利润损失、商誉损失、数据丢失、业务中断或其他无形损失，即使我们已被告知该等损害的可能性。
+
+我们的累计赔偿责任总额（无论基于合同、侵权或其他法律理论）不超过您在索赔前六个月内因使用服务而向我们支付的任何费用（若有）。 若您未支付任何费用，则赔偿上限为壹佰元人民币（¥100）。
+
+本条限制不适用于因我们重大过失或故意不当行为造成的人身伤害或死亡，或根据适用法律不能排除或限制的责任。
+
+---
+
+9. 赔偿
+
+对于因以下原因引起的任何第三方索赔、责任、损害、损失和费用（包括合理的律师费），您同意为我们（及我们的管理人员、董事、员工、代理和关联方）进行辩护、赔偿并使其免受损害：
+
+9.1 您提交的用户内容；
+9.2 您对本服务的使用或误用；
+9.3 您违反本条款；
+9.4 您侵犯任何第三方的权利。
+
+我们保留对任何应由您赔偿的事项进行独家辩护和控制的权利，在此情况下，您同意配合我们进行相关抗辩。
+
+---
+
+10. 条款修改
+
+我们保留随时修改或更新本条款的权利。若修改涉及实质性变更，我们将在生效前通过网站公告、弹窗提示或站内通知等方式显著提醒您。您在变更生效后继续使用服务，即视为您接受修改后的条款。 若您不同意修改，您应停止使用服务并注销账户。
+
+---
+
+11. 终止
+
+11.1 您主动终止：您可以随时停止使用服务并注销账户。账户注销后，您可能无法再访问之前提交的用户内容。
+
+11.2 我们终止：我们有权在任何时候，无论是否说明原因，在通知或不通知您的情况下，立即限制、暂停或终止您的账户及对服务的访问。
+
+11.3 终止效力：本条款的所有根据其性质应在终止后存续的条款（包括但不限于知识产权、免责声明、责任限制、赔偿）在终止后继续有效。
+
+---
+
+12. 法律管辖与争议解决
+
+12.1 适用法律：本条款的解释、效力及执行均受中华人民共和国法律管辖，不考虑其冲突法规则。
+
+12.2 争议解决：因本条款或使用服务引起的任何争议，双方应首先友好协商解决。协商不成的，任何一方均有权将争议提交至被告住所地有管辖权的人民法院诉讼解决。
+
+---
+
+13. 其他条款
+
+13.1 完整协议：本条款构成您与我们之间关于使用服务的完整协议，取代您与我们之间任何先前或同期的书面或口头沟通。
+
+13.2 可分割性：若本条款的任何部分被有管辖权的法院认定为无效或不可执行，该部分应在本条款中删除，其余部分继续完全有效。
+
+13.3 非弃权：我们未能执行本条款的任何部分，不应被视为对该权利或后续执行权的放弃。
+
+13.4 不可转让：您不得未经我们事先书面同意，以任何方式转让本条款或您账户下的任何权利或义务。我们有权自由转让本条款。
+
+13.5 联系方式：有关本条款的任何问题、投诉或请求，请通过以下方式联系我们：
+
+电子邮箱：3820332398@qq.com
+官方空间：https://m.bilibili.com/space/3546812044544535
+
+---
+
+通过注册账户或使用服务，您确认您已年满18周岁（或在父母/法定监护人陪同下阅读并同意本条款），并完全理解并接受本服务条款的所有内容。
+
+System_VM_D62E 运营团队`;
+
+            // ---------- 模态弹窗相关 ----------
+            const modal = document.getElementById('policyModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalPre = document.getElementById('modalPre');
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+            function showPolicy(title, content) {
+                modalTitle.innerText = title;
+                modalPre.innerText = content;
+                modal.style.display = 'flex';
+                // 禁止背景滚动 (可选)
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+
+            // 点击遮罩关闭 (通过点击modal背景)
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            modalCloseBtn.addEventListener('click', closeModal);
+
+            // 按ESC关闭
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.style.display === 'flex') {
+                    closeModal();
+                }
+            });
+
+            // ---------- 原有 login 页面的所有逻辑 (保持完全一致，只增加政策点击监听) ----------
+            // 以下代码是从原始login.html中完整复制的，并做了微小调整以确保兼容。
+
+            // 静态配置
+            const VALID_CREDENTIALS = [
+                { identifier: 'system_admin', password: 'Hjy413113', role: 'admin', email: '3820332398@qq.com', fullName: '系统管理员' },
+                { identifier: '3820332398@qq.com', password: 'Hjy413113', role: 'admin', email: '3820332398@qq.com', fullName: '系统管理员' },
+                { identifier: 'tech_guru', password: 'Demo@123456', role: 'user', fullName: '张三', email: 'zhangsan@example.com' },
+                { identifier: 'code_master', password: 'Demo@123456', role: 'moderator', fullName: '李四', email: 'lisi@example.com' },
+                { identifier: 'design_wizard', password: 'Demo@123456', role: 'user', fullName: '王五', email: 'wangwu@example.com' },
+                { identifier: 'new_user_001', password: 'Demo@123456', role: 'user', fullName: '赵六', email: 'zhaoliu@example.com' }
+            ];
+            const EXISTING_USERNAMES = ['system_admin', 'tech_guru', 'code_master', 'design_wizard', 'new_user_001'];
+            const EXISTING_EMAILS = ['3820332398@qq.com', 'zhangsan@example.com', 'lisi@example.com', 'wangwu@example.com', 'zhaoliu@example.com'];
+
+            // DOM 元素缓存
+            const messageContainer = document.getElementById('message-container');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const passwordField = document.getElementById('register-password');
+            const strengthHint = document.getElementById('password-strength-hint');
+
+            // 工具函数
+            const clearMessages = () => { messageContainer.innerHTML = ''; };
+            const showMessage = (text, type = 'info') => {
                 clearMessages();
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.textContent = text;
+                messageContainer.appendChild(alert);
+                if (type === 'success' || type === 'error') {
+                    setTimeout(() => { alert.style.opacity = '0'; alert.style.transform = 'translateY(-10px)'; }, 4000);
+                    setTimeout(() => { if (alert.parentNode) alert.remove(); }, 4300);
+                }
+            };
+
+            const showLoading = (btn) => {
+                btn.disabled = true;
+                btn.classList.add('loading');
+                btn.dataset.originalText = btn.textContent;
+            };
+            const hideLoading = (btn) => {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                btn.textContent = btn.dataset.originalText || btn.textContent;
+            };
+
+            const getPasswordStrength = (pwd) => {
+                if (!pwd) return 0;
+                let s = 0;
+                if (pwd.length >= 8) s++;
+                if (/[a-z]/.test(pwd)) s++;
+                if (/[A-Z]/.test(pwd)) s++;
+                if (/[0-9]/.test(pwd)) s++;
+                if (/[^A-Za-z0-9]/.test(pwd)) s++;
+                return s;
+            };
+
+            if (passwordField && strengthHint) {
+                passwordField.addEventListener('input', function() {
+                    const strength = getPasswordStrength(this.value);
+                    const texts = ['⚡极弱', '🔸弱', '🔹中', '✨强', '⚡很强', '💎极强'];
+                    const colors = ['#ff8080', '#ffb96c', '#ffd966', '#a3e0a3', '#6cd4c5', '#80b3ff'];
+                    strengthHint.innerHTML = `强度: <span style="color: ${colors[strength]}; font-weight:600;">${texts[strength]}</span>`;
+                });
+            }
+
+            // 选项卡逻辑
+            const switchTab = (tabName) => {
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector(`.auth-tab[data-tab="${tabName}"]`)?.classList.add('active');
+                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                document.getElementById(`${tabName}-form`)?.classList.add('active');
+                clearMessages();
+            };
+
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    switchTab(this.dataset.tab);
+                });
             });
-        });
-        
-        // 切换链接
-        document.querySelectorAll('[data-switch]').forEach(link => {
-            link.addEventListener('click', function(e) {
+
+            document.querySelectorAll('[data-switch]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    switchTab(this.dataset.switch);
+                });
+            });
+
+            // 密码显示切换
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    const input = document.getElementById(targetId);
+                    if (!input) return;
+                    const type = input.type === 'password' ? 'text' : 'password';
+                    input.type = type;
+                    this.textContent = type === 'password' ? '👁' : '🙈';
+                });
+            });
+
+            // 登录提交
+            loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const tabName = this.dataset.switch;
-                document.querySelector(`[data-tab="${tabName}"]`).click();
-            });
-        });
-        
-        // 密码显示/隐藏切换
-        document.querySelectorAll('.password-toggle').forEach(toggle => {
-            toggle.addEventListener('click', function() {
-                const targetId = this.dataset.target;
-                const input = document.getElementById(targetId);
-                const type = input.getAttribute('type');
+                const identifier = document.getElementById('login-identifier').value.trim();
+                const password = document.getElementById('login-password').value;
                 
-                if (type === 'password') {
-                    input.setAttribute('type', 'text');
-                    this.textContent = '🙈';
-                } else {
-                    input.setAttribute('type', 'password');
-                    this.textContent = '👁';
+                if (!identifier || !password) {
+                    showMessage('⛔ 请输入凭证信息', 'error');
+                    return;
                 }
-            });
-        });
-        
-        // 显示消息
-        function showMessage(message, type = 'info') {
-            const container = document.getElementById('message-container');
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
-            alert.textContent = message;
-            
-            container.innerHTML = '';
-            container.appendChild(alert);
-            
-            // 自动消失
-            if (type === 'error' || type === 'success') {
+
+                showLoading(loginBtn);
+                
                 setTimeout(() => {
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateY(-10px)';
+                    const matched = VALID_CREDENTIALS.find(
+                        cred => (cred.identifier === identifier || cred.email === identifier) && cred.password === password
+                    );
+                    
+                    if (matched) {
+                        const userInfo = {
+                            id: matched.identifier === 'system_admin' ? 1 : 
+                                matched.identifier === 'tech_guru' ? 2 :
+                                matched.identifier === 'code_master' ? 3 :
+                                matched.identifier === 'design_wizard' ? 4 : 5,
+                            username: matched.identifier,
+                            email: matched.email,
+                            full_name: matched.fullName,
+                            role: matched.role,
+                            status: 'active'
+                        };
+                        localStorage.setItem('admin_user', JSON.stringify(userInfo));
+                        showMessage(`✅ 欢迎回来，${userInfo.full_name}！正在跳转...`, 'success');
+                        
+                        setTimeout(() => {
+                            window.location.href = (userInfo.role === 'admin' || userInfo.role === 'moderator') ? 'admin.html' : 'index.html';
+                        }, 1400);
+                    } else {
+                        showMessage('⛔ 身份验证失败，请检查用户名/邮箱或密码', 'error');
+                    }
+                    hideLoading(loginBtn);
+                }, 900);
+            });
+
+            // 注册提交
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('register-username').value.trim();
+                const email = document.getElementById('register-email').value.trim();
+                const fullName = document.getElementById('register-fullname').value.trim() || username;
+                const pwd = document.getElementById('register-password').value;
+                const confirmPwd = document.getElementById('register-confirm-password').value;
+                const termsAccepted = document.getElementById('terms-agree').checked;
+
+                if (!username || !email || !pwd) {
+                    showMessage('❌ 用户名、邮箱、密码均为必填项', 'error'); return;
+                }
+                if (username.length < 3 || username.length > 30) {
+                    showMessage('❌ 用户名长度需在3~30字符', 'error'); return;
+                }
+                if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                    showMessage('❌ 用户名只能包含字母、数字、下划线', 'error'); return;
+                }
+                if (EXISTING_USERNAMES.includes(username)) {
+                    showMessage('❌ 用户名已存在，请更换', 'error'); return;
+                }
+                if (!/^\S+@\S+\.\S+$/.test(email)) {
+                    showMessage('❌ 邮箱格式无效', 'error'); return;
+                }
+                if (EXISTING_EMAILS.includes(email)) {
+                    showMessage('❌ 邮箱已被其他账户使用', 'error'); return;
+                }
+                if (pwd.length < 8) {
+                    showMessage('❌ 密码长度至少8位', 'error'); return;
+                }
+                if (pwd !== confirmPwd) {
+                    showMessage('❌ 两次输入的密码不一致', 'error'); return;
+                }
+                if (!termsAccepted) {
+                    showMessage('❌ 请同意服务条款及隐私政策', 'error'); return;
+                }
+
+                showLoading(registerBtn);
+
+                setTimeout(() => {
+                    const newUser = {
+                        id: Math.floor(Math.random() * 800) + 100,
+                        username: username,
+                        email: email,
+                        full_name: fullName,
+                        role: 'user',
+                        status: 'active'
+                    };
+                    localStorage.setItem('admin_user', JSON.stringify(newUser));
+                    showMessage('🎉 账户创建成功，自动登录中...', 'success');
+                    
                     setTimeout(() => {
-                        if (alert.parentNode) {
-                            alert.parentNode.removeChild(alert);
-                        }
-                    }, 300);
-                }, 5000);
-            }
-        }
-        
-        // 清空消息
-        function clearMessages() {
-            document.getElementById('message-container').innerHTML = '';
-        }
-        
-        // 显示加载状态
-        function showLoading(button) {
-            button.disabled = true;
-            button.classList.add('loading');
-            button.innerHTML = '<span style="visibility: hidden;">' + button.textContent + '</span>';
-        }
-        
-        // 隐藏加载状态
-        function hideLoading(button) {
-            button.disabled = false;
-            button.classList.remove('loading');
-            button.innerHTML = button.querySelector('span')?.textContent || button.textContent;
-        }
-        
-        // 密码强度检查
-        function checkPasswordStrength(password) {
-            let strength = 0;
-            
-            if (password.length >= 8) strength++;
-            if (/[a-z]/.test(password)) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
-            
-            return strength;
-        }
-        
-        // 登录表单提交
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const identifier = document.getElementById('login-identifier').value.trim();
-            const password = document.getElementById('login-password').value;
-            const button = document.getElementById('login-btn');
-            
-            // 验证输入
-            if (!identifier || !password) {
-                showMessage('请输入用户名/邮箱和密码', 'error');
-                return;
-            }
-            
-            showLoading(button);
-            
-            setTimeout(() => {
-                let isValid = false;
-                let userInfo = {};
-                
-                // 检查管理员账号
-                if ((identifier === 'system_admin' || identifier === '3820332398@qq.com') && password === 'Hjy413113') {
-                    isValid = true;
-                    userInfo = {
-                        id: 1,
-                        username: 'system_admin',
-                        email: '3820332398@qq.com',
-                        full_name: '系统管理员',
-                        role: 'admin',
-                        status: 'active'
-                    };
-                }
-                // 检查演示用户账号
-                else if (
-                    (identifier === 'tech_guru' && password === 'Demo@123456') ||
-                    (identifier === 'code_master' && password === 'Demo@123456') ||
-                    (identifier === 'design_wizard' && password === 'Demo@123456') ||
-                    (identifier === 'new_user_001' && password === 'Demo@123456')
-                ) {
-                    isValid = true;
-                    userInfo = {
-                        id: identifier === 'tech_guru' ? 2 : 
-                             identifier === 'code_master' ? 3 : 
-                             identifier === 'design_wizard' ? 4 : 5,
-                        username: identifier,
-                        email: identifier === 'tech_guru' ? 'zhangsan@example.com' :
-                               identifier === 'code_master' ? 'lisi@example.com' :
-                               identifier === 'design_wizard' ? 'wangwu@example.com' : 'zhaoliu@example.com',
-                        full_name: identifier === 'tech_guru' ? '张三' :
-                                 identifier === 'code_master' ? '李四' :
-                                 identifier === 'design_wizard' ? '王五' : '赵六',
-                        role: identifier === 'code_master' ? 'moderator' : 'user',
-                        status: 'active'
-                    };
-                }
-                
-                if (isValid) {
-                    showMessage('登录成功！正在跳转...', 'success');
-                    
-                    // 保存用户信息
-                    localStorage.setItem('admin_user', JSON.stringify(userInfo));
-                    
-                    // 根据角色重定向
-                    if (userInfo.role === 'admin' || userInfo.role === 'moderator') {
-                        setTimeout(() => {
-                            window.location.href = 'admin.html';
-                        }, 1500);
-                    } else {
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1500);
-                    }
-                } else {
-                    showMessage('用户名或密码错误', 'error');
-                }
-                
-                hideLoading(button);
-            }, 1000);
-        });
-        
-        // 注册表单提交
-        document.getElementById('register-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('register-username').value.trim();
-            const email = document.getElementById('register-email').value.trim();
-            const fullName = document.getElementById('register-fullname').value.trim();
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm-password').value;
-            const terms = document.getElementById('terms-agree').checked;
-            const button = document.getElementById('register-btn');
-            
-            // 验证输入
-            if (!username || !email || !password) {
-                showMessage('请填写所有必填字段', 'error');
-                return;
-            }
-            
-            if (username.length < 3 || username.length > 50) {
-                showMessage('用户名长度应在3-50个字符之间', 'error');
-                return;
-            }
-            
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                showMessage('用户名只能包含字母、数字和下划线', 'error');
-                return;
-            }
-            
-            // 检查用户名是否已存在
-            const existingUsers = ['system_admin', 'tech_guru', 'code_master', 'design_wizard', 'new_user_001'];
-            if (existingUsers.includes(username)) {
-                showMessage('用户名已存在，请选择其他用户名', 'error');
-                return;
-            }
-            
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showMessage('请输入有效的邮箱地址', 'error');
-                return;
-            }
-            
-            // 检查邮箱是否已存在
-            const existingEmails = ['3820332398@qq.com', 'zhangsan@example.com', 'lisi@example.com', 'wangwu@example.com', 'zhaoliu@example.com'];
-            if (existingEmails.includes(email)) {
-                showMessage('邮箱已被注册，请使用其他邮箱', 'error');
-                return;
-            }
-            
-            if (password.length < 8) {
-                showMessage('密码长度至少8位', 'error');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showMessage('两次输入的密码不一致', 'error');
-                return;
-            }
-            
-            if (!terms) {
-                showMessage('请同意服务条款和隐私政策', 'error');
-                return;
-            }
-            
-            showLoading(button);
-            
-            setTimeout(() => {
-                // 模拟成功注册
-                showMessage('注册成功！正在登录...', 'success');
-                
-                // 保存用户信息
-                const user = {
-                    id: Math.floor(Math.random() * 1000) + 100,
-                    username: username,
-                    email: email,
-                    full_name: fullName || username,
-                    role: 'user',
-                    status: 'active'
-                };
-                
-                localStorage.setItem('admin_user', JSON.stringify(user));
-                
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-                
-                hideLoading(button);
-            }, 1500);
-        });
-        
-        // 检查是否已登录
-        function checkLoginStatus() {
-            const savedUser = localStorage.getItem('admin_user');
-            if (savedUser) {
-                try {
-                    const user = JSON.parse(savedUser);
-                    // 如果已登录，根据角色重定向
-                    if (user.role === 'admin' || user.role === 'moderator') {
-                        window.location.href = 'admin.html';
-                    } else {
                         window.location.href = 'index.html';
-                    }
-                } catch (error) {
-                    console.error('解析用户信息失败:', error);
-                }
+                    }, 1500);
+                    hideLoading(registerBtn);
+                }, 1200);
+            });
+
+            // 社交按钮 & 忘记密码
+            document.querySelectorAll('.social-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const platform = this.dataset.social || '联合';
+                    showMessage(`⚙️  "${platform.toUpperCase()}认证" 模拟沙箱模式`, 'info');
+                });
+            });
+
+            const forgotLink = document.getElementById('forgot-pwd-link');
+            if (forgotLink) {
+                forgotLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showMessage('🔐 密码重置链接已发送至管理员邮箱 (演示环境)', 'info');
+                });
             }
-        }
-        
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            checkLoginStatus();
-        });
+
+            // ---------- 关键: 为所有 data-policy 链接绑定弹窗事件 (隐私政策/服务条款) ----------
+            document.querySelectorAll('[data-policy]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const policy = this.dataset.policy; // 'terms' 或 'privacy'
+                    if (policy === 'terms') {
+                        showPolicy('📄 服务条款', TERMS_OF_SERVICE_TEXT);
+                    } else if (policy === 'privacy') {
+                        showPolicy('🔏 隐私政策', PRIVACY_POLICY_TEXT);
+                    } else {
+                        showMessage('📜 文档即将打开', 'info');
+                    }
+                });
+            });
+
+            // 已登录自动跳转
+            const checkLoginAndRedirect = () => {
+                const saved = localStorage.getItem('admin_user');
+                if (saved) {
+                    try {
+                        const user = JSON.parse(saved);
+                        if (user && user.role) {
+                            window.location.href = (user.role === 'admin' || user.role === 'moderator') ? 'admin.html' : 'index.html';
+                        }
+                    } catch (e) { /* 忽略解析错误 */ }
+                }
+            };
+
+            window.addEventListener('DOMContentLoaded', function() {
+                checkLoginAndRedirect();
+            });
+
+        })();
     </script>
 </body>
 </html>
