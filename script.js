@@ -488,70 +488,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let stopProgressAnimation = initProgressAnimation();
 
-    // 下载功能处理
-    function initDownloadButtons() {
-        const downloadButtons = document.querySelectorAll('#download-btn, #hero-download-btn');
-        
-        if (downloadButtons.length === 0) {
-            setTimeout(initDownloadButtons, 1000);
-            return;
-        }
-        
-        downloadButtons.forEach(button => {
-            if (button.hasAttribute('data-download-main-initialized')) {
-                return;
-            }
-            
-            button.setAttribute('data-download-main-initialized', 'true');
-            
-            button.replaceWith(button.cloneNode(true));
-            const newButton = document.getElementById(button.id);
-            
-            newButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                this.classList.add('downloading');
-                const progressBar = this.querySelector('.download-progress') || document.createElement('div');
-                if (!progressBar.classList.contains('download-progress')) {
-                    progressBar.className = 'download-progress';
-                    this.appendChild(progressBar);
-                }
-                
-                progressBar.style.width = '0%';
-                
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 10;
-                    progressBar.style.width = progress + '%';
-                    
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        
-                        this.classList.remove('downloading');
-                        this.classList.add('download-complete');
-                        
-                        setTimeout(() => {
-                            const link = document.createElement('a');
-                            link.href = 'System_VM_D62E.apk';
-                            link.download = 'System_VM_D62E.apk';
-                            link.target = '_blank';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            
-                            setTimeout(() => {
-                                this.classList.remove('download-complete');
-                                progressBar.style.width = '0%';
-                            }, 1000);
-                        }, 500);
-                    }
-                }, 100);
-            });
-        });
-    }
-
-    setTimeout(initDownloadButtons, 500);
+    // 注意：原有的下载模拟功能已移除，现在使用<a>标签直接下载
+    // 下载按钮已修改为指向 https://kksjkk.github.io/signed.apk
 
     // 键盘导航支持
     function initKeyboardNavigation() {
