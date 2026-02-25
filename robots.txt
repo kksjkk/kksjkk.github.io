@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kksjkk.github.io/sitemap.xml
