@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <title>选择版本 · System_VM_D62E 下载</title>
+    <!-- 保持与原站相同的样式连接 (相对路径假设在同一目录) -->
+    <link rel="stylesheet" href="style-optimized.css">
+    <link rel="stylesheet" href="adaptive-card-styles.css">
+    <!-- 复用紧凑汉堡菜单/导航风格，并加入下载选择器专用样式 -->
+    <style>
+        /* ----- 继承原站的汉堡菜单 & 核心样式 (保证视觉一致) ----- */
+        .hamburger-btn {
+            display: none !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            width: 30px !important;
+            height: 24px !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            margin-left: 20px !important;
+            z-index: 1002 !important;
+            position: relative !important;
+        }
+        .hamburger-btn span {
+            display: block !important;
+            width: 100% !important;
+            height: 3px !important;
+            background: #00f3ff !important;
+            border-radius: 3px !important;
+            transition: all 0.3s ease !important;
+        }
+        .hamburger-btn.active span:nth-child(1) { transform: translateY(10px) rotate(45deg) !important; }
+        .hamburger-btn.active span:nth-child(2) { opacity: 0 !important; }
+        .hamburger-btn.active span:nth-child(3) { transform: translateY(-10px) rotate(-45deg) !important; }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 80px;
+            position: relative;
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+            margin-right: 0;
+        }
+        .hamburger-wrapper {
+            display: none !important;
+            align-items: center !important;
+            margin-left: 20px !important;
+        }
+
+        /* 移动端侧滑菜单 — 完全复制原站紧凑样式 */
+        @media (max-width: 768px) {
+            .navbar { margin-left: 0; }
+            .nav-menu {
+                position: fixed !important;
+                top: 80px !important;
+                right: -320px !important;
+                width: 280px !important;
+                max-width: 85vw !important;
+                height: auto !important;
+                max-height: calc(100vh - 100px) !important;
+                background: rgba(8, 12, 25, 0.98) !important;
+                backdrop-filter: blur(15px) !important;
+                flex-direction: column !important;
+                padding: 16px !important;
+                transition: right 0.3s ease !important;
+                z-index: 1001 !important;
+                border: 1px solid rgba(0, 243, 255, 0.3) !important;
+                border-radius: 12px 0 0 12px !important;
+                box-shadow: -5px 5px 30px rgba(0, 212, 255, 0.3) !important;
+                margin: 0 !important;
+                list-style: none !important;
+                display: flex !important;
+                gap: 8px !important;
+                overflow-y: auto !important;
+            }
+            .nav-menu.active { right: 0 !important; }
+            .nav-menu li { width: 100% !important; margin: 4px 0 !important; }
+            .nav-menu li a, .nav-menu li button {
+                width: 100% !important;
+                text-align: left !important;
+                padding: 12px 16px !important;
+                border-radius: 8px !important;
+                border: 1px solid rgba(0, 243, 255, 0.15) !important;
+                background: rgba(0, 0, 0, 0.2) !important;
+                color: #e0e0e0 !important;
+                font-size: 0.95rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 12px !important;
+                transition: all 0.2s ease !important;
+                min-height: 44px !important;
+            }
+            .nav-menu li a:hover, .nav-menu li button:hover {
+                background: rgba(0, 243, 255, 0.15) !important;
+                border-color: rgba(0, 243, 255, 0.5) !important;
+                color: #00f3ff !important;
+                transform: translateX(4px) !important;
+            }
+            .nav-menu li a .btn-icon, .nav-menu li button .btn-icon { font-size: 1.1rem !important; min-width: 24px !important; }
+            .hamburger-wrapper { display: flex !important; }
+            .hamburger-btn { display: flex !important; }
+            .menu-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(2px);
+                z-index: 1000;
+            }
+            .menu-overlay.active { display: block; }
+            .nav-menu::before {
+                content: '下载选择';
+                display: block;
+                padding: 8px 16px;
+                margin-bottom: 8px;
+                font-size: 0.85rem;
+                color: rgba(0, 243, 255, 0.7);
+                border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+        }
+        @media (min-width: 769px) {
+            .hamburger-wrapper, .hamburger-btn, .menu-overlay { display: none !important; }
+            .nav-menu::before { display: none !important; }
+        }
+
+        /* 原站常用工具类 & 科幻背景 */
+        .scifi-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; background: #0a0c16; overflow: hidden;
+        }
+        .grid-lines {
+            position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px; transform: rotate(0deg); animation: gridMove 20s linear infinite;
+        }
+        @keyframes gridMove { 0% { transform: rotate(0deg) translate(0,0); } 100% { transform: rotate(0deg) translate(50px,50px); } }
+        .floating-particles { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at 30% 40%, rgba(0,243,255,0.08) 0%, transparent 30%); }
+
+        .login-indicator, .click-outside-hint {
+            position: fixed; background: rgba(0,243,255,0.15); backdrop-filter: blur(10px); border:1px solid rgba(0,243,255,0.3); color:#00f3ff; padding:6px 12px; border-radius:20px; z-index:1001;
+        }
+        .login-indicator { top: 10px; right: 10px; display: none; }
+        .click-outside-hint { bottom: 20px; left: 20px; }
+
+        /* 下载选择页面特有样式：双卡片选择 */
+        .version-selector {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 60px;
+        }
+        .selector-container {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(8, 12, 25, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            border-radius: 40px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 30px rgba(0, 243, 255, 0.3);
+            text-align: center;
+        }
+        .selector-title {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            letter-spacing: 4px;
+        }
+        .selector-sub {
+            color: #a0b0c0;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            border-bottom: 1px dashed rgba(0,243,255,0.3);
+            padding-bottom: 1.5rem;
+        }
+        .card-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .download-card {
+            flex: 1 1 280px;
+            max-width: 360px;
+            background: rgba(15, 20, 35, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 32px;
+            padding: 2.5rem 1.5rem;
+            backdrop-filter: blur(8px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .download-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.5);
+            border-color: #00f3ff;
+        }
+        .card-glow-layer {
+            position: absolute; top: -30%; left: -30%; width: 160%; height: 160%;
+            background: radial-gradient(circle at 30% 30%, rgba(0,243,255,0.15), transparent 70%);
+            opacity: 0; transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .download-card:hover .card-glow-layer { opacity: 1; }
+        .card-icon-large {
+            font-size: 5rem;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 15px #00f3ff);
+        }
+        .card-platform {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #00f3ff;
+            text-shadow: 0 0 15px #00f3ff;
+            margin-bottom: 0.8rem;
+        }
+        .card-description {
+            color: #b0c0d0;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            min-height: 3.5rem;
+        }
+        .card-badge {
+            display: inline-block;
+            background: linear-gradient(145deg, #00c8ff, #0066aa);
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1.8rem;
+            border-radius: 40px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px #00f3ff;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 1.1rem;
+        }
+        .card-meta {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #8090a0;
+        }
+        .back-link {
+            margin-top: 3.5rem;
+            display: inline-block;
+            color: #00f3ff;
+            text-decoration: none;
+            border: 1px solid rgba(0,243,255,0.3);
+            padding: 0.6rem 2rem;
+            border-radius: 50px;
+            transition: all 0.2s;
+            background: rgba(0,0,0,0.2);
+        }
+        .back-link:hover {
+            background: rgba(0,243,255,0.1);
+            border-color: #00f3ff;
+            box-shadow: 0 0 20px #00f3ff;
+        }
+        /* 小提示 */
+        .info-note {
+            margin-top: 2rem;
+            color: #80a0c0;
+            font-size: 0.95rem;
+            background: rgba(0,243,255,0.05);
+            padding: 1rem;
+            border-radius: 60px;
+            border: 1px dashed rgba(0,243,255,0.2);
+        }
+        /* 模拟原站登录状态样式 */
+        .user-status { display: flex; align-items: center; gap:0.5rem; color:#00f3ff; }
+        .auth-link { display: inline-flex; align-items: center; padding:0.5rem 1rem; border:1px solid rgba(0,243,255,0.3); border-radius:4px; background:rgba(0,243,255,0.05); color:#00f3ff; }
+        .footer-container { max-width:1200px; margin:0 auto; padding:2rem 20px; text-align:center; }
+        .scifi-link { color:#00f3ff; text-decoration:none; transition:0.2s; }
+        .scifi-link:hover { text-shadow:0 0 10px #00f3ff; }
+        .scifi-title { font-size:1.8rem; background: linear-gradient(135deg,#fff,#00f3ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .progress-bar { height:2px; background: linear-gradient(90deg,#00f3ff,#aa88ff); width:30%; }
+    </style>
+</head>
+<body>
+    <!-- 科幻背景 -->
+    <div class="scifi-bg">
+        <div class="grid-lines"></div>
+        <div class="floating-particles"></div>
+    </div>
+
+    <!-- 全局提示 / 登录指示器 (仿原站) -->
+    <div class="click-outside-hint" id="click-hint">⬇️ 选择你的平台版本</div>
+    <div class="login-indicator" id="login-indicator">已登录</div>
+    <div class="menu-overlay" id="menu-overlay"></div>
+
+    <!-- 头部导航 (完全复制原站风格，但链接微调指向当前页或主页) -->
+    <header>
+        <div class="header-container">
+            <h1 class="scifi-title">System_VM_D62E</h1>
+            <nav class="navbar">
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="index.html#about" class="scifi-link">关于UP</a></li>
+                    <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" class="scifi-link">作者信息</a></li>
+                    <li id="auth-nav-item"><a href="login.html" class="scifi-link auth-link"><span class="btn-icon">🔐</span> 注册/登录</a></li>
+                    <!-- 当前页面虽然是下载选择，仍保留一个下载按钮指向本页（标识） -->
+                    <li><a href="download.html" class="scifi-button download-btn-main" style="background:rgba(0,243,255,0.2); border-color:#00f3ff;">📦 选择版本</a></li>
+                    <li><button id="theme-toggle" class="theme-btn scifi-button">🌓 暗色模式</button></li>
+                </ul>
+                <div class="hamburger-wrapper">
+                    <button class="hamburger-btn" id="hamburger-btn">
+                        <span></span><span></span><span></span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+        <div class="progress-bar"></div>
+    </header>
+
+    <main>
+        <!-- 下载选择卡片区域 -->
+        <section class="version-selector">
+            <div class="selector-container">
+                <h2 class="scifi-heading selector-title">⚡ 选择您的版本 ⚡</h2>
+                <div class="selector-sub">适用于不同设备，体验一致的核心功能</div>
+
+                <div class="card-row">
+                    <!-- 安卓 APK 卡片 - 大小改为 3.2MB -->
+                    <a href="https://kksjkk.github.io/signed.apk" 
+                       class="download-card" 
+                       download="System_VM_D62E.apk"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        <div class="card-glow-layer"></div>
+                        <div class="card-icon-large">📱</div>
+                        <div class="card-platform">Android APK</div>
+                        <div class="card-description">适用于安卓手机/平板<br>版本 v1.2.1.0 (测试版)</div>
+                        <span class="card-badge">下载 APK</span>
+                        <div class="card-meta">签名已优化 · 3.2MB</div>
+                    </a>
+
+                    <!-- Windows EXE 卡片 - 大小标注为“未知” -->
+                    <a href="#" 
+                       class="download-card" 
+                       id="exe-download-link"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        <div class="card-glow-layer"></div>
+                        <div class="card-icon-large">🖥️</div>
+                        <div class="card-platform">Windows EXE</div>
+                        <div class="card-description">适用于 Windows 10/11<br>版本 v1.0.2 (稳定版)</div>
+                        <span class="card-badge">下载 EXE</span>
+                        <div class="card-meta">兼容 x64 · 未知</div>
+                    </a>
+                </div>
+
+                <!-- 临时提示：exe 尚未发布，点击会模拟弹窗并跳转回主页 (保持友好) -->
+                <div class="info-note" id="exe-notice">
+                    💡 EXE版本正在内部测试，点击后将获得通知。APK可直接下载。
+                </div>
+
+                <a href="index.html" class="back-link">← 返回主页</a>
+            </div>
+        </section>
+
+        <!-- 简单提示 -->
+        <section style="padding: 0 1rem 2rem; text-align: center;">
+            <p class="scifi-text" style="opacity:0.7;">✨ 点击卡片开始下载，交互效果与原站卡片一致</p>
+        </section>
+    </main>
+
+    <!-- 底部复用原站风格 -->
+    <footer id="contact">
+        <div class="footer-container">
+            <p class="scifi-text">&copy; 2025 System_VM_D62E 版权所有</p>
+            <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
+            <p class="scifi-text" style="margin-top: 1rem;" id="footer-auth-link"><a href="login.html" class="scifi-link">🔐 注册/登录</a></p>
+            <p class="scifi-text" style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">支持全平台 · 下载选择页</p>
+            <p class="scifi-text" style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.4;">当前时间：<span id="current-time"></span></p>
+        </div>
+    </footer>
+
+    <!-- 引用原站的脚本 (可选，但不影响核心功能) + 内联菜单与交互 -->
+    <script src="performance.js" defer></script>
+    <script src="adaptive-card-system.js" defer></script>
+    <script src="script.js" defer></script>
+    <script>
+        (function() {
+            'use strict';
+
+            // ---------- 汉堡菜单（完全复用原版逻辑）----------
+            function initHamburgerMenu() {
+                const hamburgerBtn = document.getElementById('hamburger-btn');
+                const navMenu = document.getElementById('nav-menu');
+                const menuOverlay = document.getElementById('menu-overlay');
+                if (!hamburgerBtn || !navMenu || !menuOverlay) return;
+                hamburgerBtn.classList.remove('active');
+                navMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+
+                function closeMenu() {
+                    hamburgerBtn.classList.remove('active');
+                    navMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                hamburgerBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isActive = hamburgerBtn.classList.contains('active');
+                    if (isActive) closeMenu();
+                    else {
+                        hamburgerBtn.classList.add('active');
+                        navMenu.classList.add('active');
+                        menuOverlay.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+                menuOverlay.addEventListener('click', closeMenu);
+                navMenu.querySelectorAll('a, button').forEach(item => item.addEventListener('click', closeMenu));
+                window.addEventListener('resize', function() { if (window.innerWidth > 768) closeMenu(); });
+                document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && hamburgerBtn.classList.contains('active')) closeMenu(); });
+            }
+
+            // ---------- 登录状态模拟 (与原站一致) ----------
+            function updateAuthUI() {
+                const savedUser = localStorage.getItem('admin_user');
+                const authNavItem = document.getElementById('auth-nav-item');
+                const footerAuthLink = document.getElementById('footer-auth-link');
+                const loginIndicator = document.getElementById('login-indicator');
+                if (savedUser) {
+                    try {
+                        const user = JSON.parse(savedUser);
+                        const username = user.username || '用户';
+                        const role = user.role || 'user';
+                        if (authNavItem) {
+                            authNavItem.innerHTML = `<a href="${role==='admin'?'admin.html':'profile.html'}" class="scifi-link user-status"><span class="btn-icon">👤</span> ${username}${role==='admin'?'(管理)':''}</a>`;
+                        }
+                        if (footerAuthLink) {
+                            footerAuthLink.innerHTML = `<a href="#" onclick="logoutUser(); return false;" class="scifi-link" style="color:#ff6b6b;">🔓 退出登录 (${username})</a>`;
+                        }
+                        if (loginIndicator) {
+                            loginIndicator.textContent = `👋 ${username}`;
+                            loginIndicator.classList.add('visible');
+                            setTimeout(() => loginIndicator.classList.remove('visible'), 2000);
+                        }
+                    } catch (e) { showLoginUI(); }
+                } else { showLoginUI(); }
+            }
+            function showLoginUI() {
+                const authNavItem = document.getElementById('auth-nav-item');
+                const footerAuthLink = document.getElementById('footer-auth-link');
+                if (authNavItem) authNavItem.innerHTML = '<a href="login.html" class="scifi-link auth-link"><span class="btn-icon">🔐</span> 注册/登录</a>';
+                if (footerAuthLink) footerAuthLink.innerHTML = '<a href="login.html" class="scifi-link">🔐 注册/登录</a>';
+            }
+            window.logoutUser = function() {
+                if (confirm('确定退出？')) {
+                    localStorage.removeItem('admin_user');
+                    alert('已退出');
+                    window.location.reload();
+                }
+            };
+
+            // ---------- EXE 特殊处理：尚无真实链接，点击后提示 ----------
+            function setupExeNotice() {
+                const exeLink = document.getElementById('exe-download-link');
+                const notice = document.getElementById('exe-notice');
+                if (exeLink) {
+                    exeLink.addEventListener('click', function(e) {
+                        e.preventDefault();  // 阻止空链接跳转
+                        if (notice) {
+                            notice.innerHTML = '⚠️ EXE版本尚未发布，敬请期待。你可以先下载APK体验。';
+                            notice.style.background = 'rgba(255,100,100,0.2)';
+                            notice.style.borderColor = '#ff6666';
+                        }
+                        // 同时弹出简洁提示
+                        const hint = document.getElementById('click-hint');
+                        if (hint) {
+                            hint.textContent = 'EXE即将到来，关注up主获取最新动态';
+                            hint.style.display = 'block';
+                            setTimeout(() => hint.style.display = 'none', 2500);
+                        }
+                    });
+                }
+            }
+
+            // ---------- 更新时间 ----------
+            function initTime() {
+                function updateTime() {
+                    const el = document.getElementById('current-time');
+                    if (!el) return;
+                    const now = new Date();
+                    el.textContent = now.toISOString().slice(0,19).replace('T',' ');
+                }
+                updateTime();
+                setInterval(updateTime, 1000);
+            }
+
+            // ---------- 提示框 (类似原站) ----------
+            function showHint() {
+                setTimeout(() => {
+                    const hint = document.getElementById('click-hint');
+                    if (hint) { hint.style.display = 'block'; setTimeout(() => hint.style.display = 'none', 3000); }
+                }, 800);
+            }
+
+            // 初始化
+            function initAll() {
+                initHamburgerMenu();
+                updateAuthUI();
+                initTime();
+                showHint();
+                setupExeNotice();
+
+                // 主题切换模拟(只是占位)
+                const themeBtn = document.getElementById('theme-toggle');
+                if (themeBtn) {
+                    themeBtn.addEventListener('click', function() {
+                        alert('主题切换演示 (风格与原站一致)');
+                    });
+                }
+            }
+
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll);
+            else initAll();
+
+            // 本地存储跨标签同步
+            window.addEventListener('storage', (e) => { if (e.key === 'admin_user') setTimeout(updateAuthUI, 50); });
+        })();
+    </script>
+    <!-- 确保卡片点击后下载apk正常，exe链接已被拦截提示，但原站下载按钮保留真实apk地址 -->
+</body>
+</html>
