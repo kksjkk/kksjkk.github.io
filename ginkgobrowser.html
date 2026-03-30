@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>银杏浏览器 - 轻如银杏，极速直达 | 未来浏览器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Noto Sans', sans-serif;
+            background: #050510;
+            color: #e0e0ff;
+            line-height: 1.4;
+            overflow-x: hidden;
+        }
+
+        /* 动态渐变背景 - 火绒式彩色光晕效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(0,255,200,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(255,100,200,0.12) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(100,150,255,0.1) 0%, transparent 60%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 粒子画布 - 增强视差效果 */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 鼠标跟随光晕 - 火绒式动态光效 */
+        .mouse-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0,255,200,0.08) 0%, rgba(0,200,255,0.04) 30%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s ease-out;
+            will-change: transform;
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 导航栏 - 修复左端对齐 */
+        .navbar {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+            backdrop-filter: blur(20px);
+            background: rgba(5, 5, 20, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .ginkgo-icon {
+            width: 44px;
+            height: 44px;
+            background: radial-gradient(circle at 30% 20%, rgba(0,255,200,0.3), rgba(0,200,255,0.15));
+            border-radius: 22px 12px 22px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0,255,200,0.3);
+            transition: all 0.3s ease;
+            animation: icon-pulse 3s infinite;
+        }
+
+        @keyframes icon-pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(0,255,200,0.3); transform: scale(1); }
+            50% { box-shadow: 0 0 30px rgba(0,255,200,0.6); transform: scale(1.02); }
+        }
+
+        .ginkgo-icon svg {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 0 3px #00ffcc);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: linear-gradient(120deg, #00ffcc, #00ccff, #ff66aa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-size: 200% auto;
+            animation: gradient-shift 5s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .btn-nav {
+            background: linear-gradient(135deg, #00ffcc, #00ccff);
+            color: #0a0a1a !important;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            box-shadow: 0 0 15px rgba(0,255,200,0.3);
+            cursor: pointer;
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 30px rgba(0,255,200,0.6);
+        }
+
+        .btn-about {
+            background: linear-gradient(135deg, #ff66aa, #ff3388);
+            color: white !important;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(255,51,136,0.3);
+            cursor: pointer;
+        }
+
+        .btn-about:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 30px rgba(255,51,136,0.5);
+        }
+
+        /* hero 区域 - 视差滚动效果 */
+        .hero {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 80px 0 60px;
+            gap: 48px;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .hero-text {
+            flex: 1.2;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-badge {
+            background: rgba(0, 255, 200, 0.15);
+            backdrop-filter: blur(10px);
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #00ffcc;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,255,200,0.3);
+            animation: badge-glow 2s infinite;
+        }
+
+        @keyframes badge-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0,255,200,0.2); }
+            50% { box-shadow: 0 0 15px rgba(0,255,200,0.4); }
+        }
+
+        .hero-text h1 {
+            font-size: 3.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff, #00ffcc, #ff88cc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-size: 200% auto;
+            animation: gradient-shift 8s ease infinite;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #aaccff;
+            max-width: 520px;
+            margin-bottom: 32px;
+        }
+
+        .download-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ffcc, #00ccff);
+            color: #0a0a1a;
+            padding: 14px 32px;
+            border-radius: 48px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0,255,200,0.3);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 40px rgba(0,255,200,0.6);
+        }
+
+        .hero-graphic {
+            flex: 0.9;
+            background: rgba(0, 255, 200, 0.03);
+            border-radius: 64px 32px 64px 32px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0,255,200,0.2);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+        }
+
+        /* 全息投影手机模型 */
+        .holo-phone {
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .phone-frame {
+            background: linear-gradient(135deg, rgba(0,255,200,0.2), rgba(0,200,255,0.1));
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 12px;
+            border: 1px solid rgba(0,255,200,0.5);
+            box-shadow: 0 0 40px rgba(0,255,200,0.2);
+        }
+
+        .phone-screen {
+            background: linear-gradient(135deg, rgba(10,10,40,0.9), rgba(5,5,30,0.95));
+            border-radius: 28px;
+            padding: 20px;
+            min-height: 380px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-stream {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(0,255,200,0.1) 50%, transparent 100%);
+            animation: scan 4s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .holo-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .neural-icon {
+            width: 70px;
+            height: 70px;
+            margin: 15px auto;
+            background: linear-gradient(135deg, #00ffcc, #00ccff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-soft 2s infinite;
+        }
+
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 20px rgba(0,255,200,0.3); }
+            50% { transform: scale(1.08); opacity: 1; box-shadow: 0 0 40px rgba(0,255,200,0.6); }
+        }
+
+        .stats {
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 8px;
+            border-bottom: 1px solid rgba(0,255,200,0.2);
+        }
+
+        .stat-label {
+            color: #00ffcc;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        /* 功能卡片 - 增强滚动动画 */
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin: 80px 0 40px;
+            background: linear-gradient(135deg, #ffffff, #00ffcc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #00ffcc, #ff66aa, #00ccff);
+            margin: 12px auto 0;
+            border-radius: 4px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin: 40px 0 60px;
+        }
+
+        .feature-card {
+            background: rgba(10, 10, 30, 0.5);
+            backdrop-filter: blur(15px);
+            border-radius: 32px;
+            padding: 28px 24px;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 255, 200, 0.6);
+            box-shadow: 0 20px 40px -12px rgba(0,255,200,0.2);
+            background: rgba(10, 10, 30, 0.7);
+        }
+
+        .feature-icon {
+            font-size: 2.4rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #00ffcc;
+        }
+
+        .feature-card p {
+            color: #aaccff;
+            line-height: 1.45;
+        }
+
+        .badge-tag {
+            display: inline-block;
+            background: rgba(0, 255, 200, 0.15);
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 16px;
+            color: #00ffcc;
+            border: 1px solid rgba(0,255,200,0.3);
+        }
+
+        /* 特色模块 - 火绒式光效边框 */
+        .sniffer-showcase {
+            background: rgba(0, 40, 40, 0.4);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 48px 32px;
+            margin: 60px 0;
+            color: #e0e0ff;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 32px;
+            border: 1px solid rgba(0,255,200,0.3);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.6s ease;
+        }
+
+        .sniffer-showcase.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .sniffer-showcase::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,255,200,0.08) 0%, transparent 60%);
+            animation: rotate-slow 20s linear infinite;
+        }
+
+        @keyframes rotate-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .sniffer-info {
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sniffer-info h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #00ffcc, #ffffff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .sniffer-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .sniffer-info li {
+            margin: 14px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* 下载引导区 - 增强光效 */
+        .download-zone {
+            background: rgba(0, 40, 40, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 50px 32px;
+            text-align: center;
+            margin: 50px 0;
+            border: 1px solid rgba(0,255,200,0.3);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.6s ease;
+        }
+
+        .download-zone.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .download-zone::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffcc, #ff66aa, #00ccff, transparent);
+            animation: border-flow 3s linear infinite;
+        }
+
+        @keyframes border-flow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* footer */
+        .footer {
+            margin-top: 80px;
+            padding: 40px 0 30px;
+            border-top: 1px solid rgba(0, 255, 200, 0.2);
+            text-align: center;
+            color: #88aaff;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 760px) {
+            .hero-text h1 {
+                font-size: 2.2rem;
+            }
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .hero {
+                padding: 40px 0;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .nav-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .logo-area {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mouse-glow" id="mouseGlow"></div>
+<canvas id="particles-canvas"></canvas>
+
+<div class="container">
+    <!-- 导航栏 - 修复左端对齐 -->
+    <div class="navbar">
+        <div class="logo-area">
+            <div class="ginkgo-icon">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="leafGrad" x1="20%" y1="20%" x2="80%" y2="80%">
+                            <stop offset="0%" stop-color="#B0FFE0"/>
+                            <stop offset="50%" stop-color="#00FFCC"/>
+                            <stop offset="100%" stop-color="#00CCAA"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M50,22 C38,28 30,40 28,52 C26,64 30,76 40,83 C48,88 58,87 66,80 C74,73 78,63 74,53 C71,45 64,40 56,42 C50,44 46,48 48,56 C49,62 55,66 62,62 C66,59 68,55 66,50" fill="url(#leafGrad)" stroke="#FFFFFF" stroke-width="1.2" stroke-opacity="0.6"/>
+                    <path d="M50,22 L50,48 M50,48 L44,60 M50,48 L56,60" stroke="white" stroke-width="1" stroke-linecap="round" stroke-opacity="0.7"/>
+                    <circle cx="50" cy="48" r="2.5" fill="#FFFFFF"/>
+                </svg>
+            </div>
+            <span class="logo-text">银杏浏览器</span>
+        </div>
+        <div class="nav-buttons">
+            <a href="https://m.bilibili.com/space/3546812044544535" class="btn-about" target="_blank" rel="noopener noreferrer">🎮 关于UP</a>
+            <a href="https://ginkgobrowser.github.io/browser.apk" class="btn-nav" target="_blank" rel="noopener noreferrer">下载应用</a>
+        </div>
+    </div>
+
+    <!-- hero 主视觉 -->
+    <div class="hero">
+        <div class="hero-text">
+            <div class="hero-badge">⚡ 量子引擎 · 未来已来</div>
+            <h1>银杏 <span style="color:#00ffcc">NEO</span><br>超维度浏览器</h1>
+            <p>AI智能嗅探 · 量子级加速 · 全息交互界面，重新定义移动浏览体验。</p>
+            <div class="download-buttons">
+                <a href="https://ginkgobrowser.github.io/browser.apk" class="btn-primary" target="_blank" rel="noopener noreferrer">🚀 立即下载 NEO 版本</a>
+            </div>
+            <div style="margin-top: 24px; font-size: 0.8rem; color:#00ffcc;">✨ AI神经网络 · 实时数据流分析 · 量子加密保护</div>
+        </div>
+        <div class="hero-graphic">
+            <div class="holo-phone">
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="data-stream"></div>
+                        <div class="holo-content">
+                            <div class="neural-icon">
+                                <svg width="45" height="45" viewBox="0 0 100 100" fill="none">
+                                    <circle cx="50" cy="50" r="15" stroke="#00ffcc" stroke-width="2" fill="none"/>
+                                    <circle cx="50" cy="50" r="25" stroke="#00ccff" stroke-width="1" fill="none"/>
+                                    <path d="M50 25 L50 35 M50 65 L50 75 M25 50 L35 50 M65 50 L75 50" stroke="#00ffcc" stroke-width="2"/>
+                                    <circle cx="50" cy="50" r="3" fill="#00ffcc"/>
+                                </svg>
+                            </div>
+                            <div class="stats">
+                                <div class="stat-item"><span class="stat-label">🚀 实时速度</span><span class="stat-value">2.4 Gbps</span></div>
+                                <div class="stat-item"><span class="stat-label">🎯 嗅探命中率</span><span class="stat-value">99.8%</span></div>
+                                <div class="stat-item"><span class="stat-label">⚡ 响应时间</span><span class="stat-value">0.3ms</span></div>
+                                <div class="stat-item"><span class="stat-label">🔒 加密等级</span><span class="stat-value">AES-256</span></div>
+                            </div>
+                            <div style="margin-top: 15px; font-size: 0.65rem; color:#00ffcc;">[ 量子态在线 ]<br>系统运行中...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心功能卡片 -->
+    <div class="section-title">⚡ 量子级核心功能</div>
+    <div class="features-grid" id="featuresGrid">
+        <div class="feature-card"><div class="feature-icon">🕵️‍♀️</div><h3>AI 智能嗅探</h3><p>神经网络自动识别网页视频、音频、图片及 M3U8 流媒体，量子级解析速度。</p><span class="badge-tag">M3U8 / 4K / 批量下载</span></div>
+        <div class="feature-card"><div class="feature-icon">⚙️</div><h3>银杏果插件系统</h3><p>兼容油猴脚本 + 专属量子插件，AI辅助去广告、自动翻页、解除限制。</p><span class="badge-tag">10000+ 量子插件</span></div>
+        <div class="feature-card"><div class="feature-icon">🚫</div><h3>量子防火墙</h3><p>AI 智能广告过滤，实时更新规则库，网页纯净度提升 300%。</p><span class="badge-tag">AI 实时学习</span></div>
+        <div class="feature-card"><div class="feature-icon">🎨</div><h3>全息定制界面</h3><p>动态主题引擎，手势识别 + 眼球追踪（实验），未来感交互体验。</p><span class="badge-tag">全息 UI · 量子动画</span></div>
+    </div>
+
+    <!-- 特色模块 -->
+    <div class="sniffer-showcase" id="snifferShowcase">
+        <div class="sniffer-info">
+            <h2>🌀 银杏量子嗅探引擎 2.0</h2>
+            <p>基于深度学习的智能资源识别系统，支持 M3U8 合并下载，速度提升 500%。</p>
+            <ul><li>✅ AI 悬浮窗智能分析</li><li>✅ 多线程量子下载</li><li>✅ 自动分类 + 智能命名</li><li>✅ 量子加密传输协议</li></ul>
+        </div>
+    </div>
+
+    <!-- 更多功能板块 -->
+    <div class="section-title">🔮 未来科技 · 现已降临</div>
+    <div class="features-grid">
+        <div class="feature-card"><div class="feature-icon">🔒</div><h3>量子加密舱</h3><p>量子密钥分发，防多任务窥屏，绝对隐私保护模式。</p></div>
+        <div class="feature-card"><div class="feature-icon">📦</div><h3>纳米级内核</h3><p>基于 WebView Quantum，安装包 < 2MB，内存占用降低 80%。</p></div>
+    </div>
+
+    <!-- 下载引导区 -->
+    <div class="download-zone" id="downloadZone">
+        <h2 style="color:#00ffcc; font-size: 1.9rem;">⚡ 即刻体验量子浏览器</h2>
+        <p style="margin: 12px 0 24px; color:#aaccff;">银杏 NEO 版本 · 重新定义移动浏览</p>
+        <a href="https://ginkgobrowser.github.io/browser.apk" class="btn-primary" style="background: linear-gradient(135deg, #00ffcc, #00ccff); color:#0a0a1a; display: inline-flex;" target="_blank" rel="noopener noreferrer">📥 下载银杏 NEO .apk</a>
+        <p style="margin-top: 28px; font-size: 0.75rem; color:#88aaff;">当前版本 v1.0 NEO | 量子开源协议 | 官网 ginkgobrowser.github.io</p>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 银杏浏览器 · 量子未来 | 银杏叶落，极速新生</p>
+        <p style="margin-top: 8px;">📧 反馈: 3820332398@qq.com | Powered by System_VM_D62E | 量子引擎 v1.0</p>
+    </div>
+</div>
+
+<script>
+    // ==================== 火绒式特效实现 ====================
+    
+    // 1. 鼠标跟随光晕
+    const mouseGlow = document.getElementById('mouseGlow');
+    document.addEventListener('mousemove', (e) => {
+        mouseGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    });
+    
+    // 2. 粒子系统 + 视差滚动效果
+    const canvas = document.getElementById('particles-canvas');
+    const ctx = canvas.getContext('2d');
+    let scrollOffset = 0;
+    
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('scroll', () => {
+        scrollOffset = window.scrollY;
+    });
+    
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.3;
+            this.vy = (Math.random() - 0.5) * 0.2;
+            this.size = Math.random() * 2 + 0.5;
+            this.opacity = Math.random() * 0.4 + 0.1;
+            this.color = `rgba(0, ${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, ${this.opacity})`;
+            this.depth = Math.random(); // 视差深度
+        }
+        
+        update() {
+            // 视差效果：滚动时粒子移动速度不同
+            const parallaxFactor = 0.3 + this.depth * 0.4;
+            this.x += this.vx;
+            this.y += this.vy + scrollOffset * 0.002 * parallaxFactor;
+            
+            if (this.x < 0) this.x = canvas.width;
+            if (this.x > canvas.width) this.x = 0;
+            if (this.y < 0) this.y = canvas.height;
+            if (this.y > canvas.height) this.y = 0;
+        }
+        
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+    }
+    
+    const particles = [];
+    for (let i = 0; i < 150; i++) {
+        particles.push(new Particle());
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 绘制连接线（增强科技感）
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(0, 255, 200, ${0.12 * (1 - distance / 80)})`;
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+        
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
+    
+    // 3. 滚动触发的渐显动画（火绒式视差滚动）
+    const observerOptions = {
+        threshold: 0.2,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    // 观察所有需要动画的元素
+    document.querySelectorAll('.feature-card, .sniffer-showcase, .download-zone').forEach(el => {
+        observer.observe(el);
+    });
+    
+    // 立即显示已可见的元素（手动触发一次检查）
+    setTimeout(() => {
+        document.querySelectorAll('.feature-card, .sniffer-showcase, .download-zone').forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight - 100) {
+                el.classList.add('visible');
+            }
+        });
+    }, 100);
+    
+    // 4. 动态数据更新
+    function updateStats() {
+        const speed = (Math.random() * 0.8 + 2.0).toFixed(1);
+        const hitRate = (Math.random() * 0.3 + 99.6).toFixed(1);
+        const responseTime = (Math.random() * 0.25 + 0.2).toFixed(1);
+        
+        const statValues = document.querySelectorAll('.stat-value');
+        if (statValues.length >= 3) {
+            statValues[0].textContent = `${speed} Gbps`;
+            statValues[1].textContent = `${hitRate}%`;
+            statValues[2].textContent = `${responseTime}ms`;
+        }
+    }
+    
+    setInterval(updateStats, 4000);
+    
+    // 5. 视差滚动 - 背景元素轻微移动
+    window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        const heroGraphic = document.querySelector('.hero-graphic');
+        if (heroGraphic) {
+            heroGraphic.style.transform = `translateY(${scrolled * 0.05}px)`;
+        }
+    });
+    
+    // 6. 确保所有下载链接都能正常工作（备用方案，域名已更新）
+    document.querySelectorAll('.btn-primary, .btn-nav').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href && href !== '#' && href !== 'javascript:void(0)') {
+                // 链接有效，不做额外处理，让浏览器正常跳转
+                return true;
+            } else {
+                e.preventDefault();
+                // 如果链接无效，使用备用下载链接（新域名）
+                window.open('https://ginkgobrowser.github.io/browser.apk', '_blank');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
