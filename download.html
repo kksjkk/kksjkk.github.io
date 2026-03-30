@@ -292,7 +292,14 @@
             border-color: #00f3ff;
             box-shadow: 0 0 20px #00f3ff;
         }
-        /* 小提示 */
+        /* 新添加的银杏浏览器按钮与返回链接并列 */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
         .info-note {
             margin-top: 2rem;
             color: #80a0c0;
@@ -400,7 +407,11 @@
                     💡 EXE版本正在内部测试，点击后将获得通知。APK可直接下载。
                 </div>
 
-                <a href="index.html" class="back-link">← 返回主页</a>
+                <!-- 新增按钮组：返回主页 + 银杏浏览器 -->
+                <div class="button-group">
+                    <a href="index.html" class="back-link">← 返回主页</a>
+                    <a href="https://kksjkk.github.io/ginkgobrowser.html" class="back-link" target="_blank">🌿 银杏浏览器</a>
+                </div>
             </div>
         </section>
 
