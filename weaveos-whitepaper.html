@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WeaveOS 64-bit — 完整技术白皮书</title>
+<style>
+@font-face{font-family:'BigShoulders';src:url("data:font/ttf;base64,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");font-weight:700}
+</style>
+<style>
+:root{--bg:#0a0e1a;--bg2:#111827;--bg3:#1e293b;--ink:#e2e8f0;--muted:#94a3b8;--rule:#334155;--accent:#60a5fa;--accent2:#a78bfa;--accent3:#34d399;--danger:#f87171;--warning:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:16px;-webkit-font-smoothing:antialiased}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;background:radial-gradient(ellipse at 20% 20%,rgba(96,165,250,0.15) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(167,139,250,0.15) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(52,211,153,0.08) 0%,transparent 60%),var(--bg)}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(96,165,250,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(96,165,250,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.hero-content{position:relative;z-index:1;max-width:900px;padding:2rem}
+.hero-badge{display:inline-block;padding:0.4rem 1.2rem;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);border-radius:999px;font-size:0.85rem;color:var(--accent);margin-bottom:1.5rem;font-weight:600;letter-spacing:0.05em}
+.hero h1{font-family:'BigShoulders',sans-serif;font-size:clamp(3rem,8vw,6rem);font-weight:700;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#60a5fa 0%,#a78bfa 50%,#34d399 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:0.02em}
+.hero .subtitle{font-size:1.25rem;color:var(--muted);margin-bottom:2.5rem;max-width:600px;margin-left:auto;margin-right:auto}
+.hero-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1.5rem;margin-top:3rem}
+.hero-stat{text-align:center}
+.hero-stat .num{font-family:'BigShoulders',sans-serif;font-size:2.5rem;font-weight:700;color:var(--accent)}
+.hero-stat .label{font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em}
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);color:var(--muted);font-size:0.8rem;animation:bounce 2s infinite}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+.toc{position:sticky;top:0;background:rgba(17,24,39,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);z-index:100;padding:0.75rem 0}
+.toc-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;gap:1.5rem;overflow-x:auto;scrollbar-width:none}
+.toc-inner::-webkit-scrollbar{display:none}
+.toc a{color:var(--muted);text-decoration:none;font-size:0.85rem;font-weight:500;white-space:nowrap;padding:0.25rem 0;border-bottom:2px solid transparent;transition:all 0.2s}
+.toc a:hover,.toc a.active{color:var(--accent);border-bottom-color:var(--accent)}
+.content{max-width:900px;margin:0 auto;padding:4rem 2rem}
+h2{font-family:'BigShoulders',sans-serif;font-size:2.5rem;font-weight:700;margin-top:4rem;margin-bottom:1.5rem;color:var(--ink);position:relative;padding-bottom:0.75rem}
+h2::after{content:'';position:absolute;bottom:0;left:0;width:60px;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px}
+h3{font-size:1.4rem;font-weight:700;margin-top:2.5rem;margin-bottom:1rem;color:var(--accent)}
+h4{font-size:1.1rem;font-weight:600;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--ink)}
+p{margin-bottom:1rem;color:var(--ink)}
+.lead{font-size:1.15rem;color:var(--muted);margin-bottom:2rem;line-height:1.8}
+mark.key{background:none;color:var(--accent);font-weight:600}
+.feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin:2rem 0}
+.feature-card{background:var(--bg2);border:1px solid var(--rule);border-radius:12px;padding:1.5rem;transition:all 0.3s ease}
+.feature-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(96,165,250,0.1)}
+.feature-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1rem;background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(167,139,250,0.2))}
+.feature-card h4{margin:0 0 0.5rem 0;font-size:1rem}
+.feature-card p{font-size:0.875rem;color:var(--muted);margin:0;line-height:1.6}
+.table-wrap{overflow-x:auto;overflow-y:auto;max-height:600px;margin:1.5rem 0;border-radius:8px;border:1px solid var(--rule)}
+table{width:100%;border-collapse:collapse;font-size:0.9rem}
+th{background:var(--bg3);color:var(--ink);font-weight:600;text-align:left;padding:0.875rem 1rem;border-bottom:2px solid var(--rule);position:sticky;top:0;z-index:1}
+td{padding:0.75rem 1rem;border-bottom:1px solid var(--rule);color:var(--muted)}
+tr:hover td{background:rgba(96,165,250,0.05);color:var(--ink)}
+tr:last-child td{border-bottom:none}
+code{font-family:'JetBrains Mono','Cascadia Code','Fira Code',monospace;font-size:0.85em;background:var(--bg2);color:var(--accent3);padding:0.15em 0.4em;border-radius:4px}
+pre{font-family:'JetBrains Mono','Cascadia Code','Fira Code',monospace;font-size:0.85rem;background:var(--bg2);border:1px solid var(--rule);border-radius:8px;padding:1.25rem;overflow-x:auto;margin:1.25rem 0;line-height:1.6}
+pre code{background:none;padding:0;color:var(--ink)}
+.callout{background:var(--bg2);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:1.25rem 1.5rem;margin:1.5rem 0}
+.callout.warning{border-left-color:var(--warning);background:rgba(251,191,36,0.05)}
+.callout.success{border-left-color:var(--accent3);background:rgba(52,211,153,0.05)}
+.callout.danger{border-left-color:var(--danger);background:rgba(248,113,113,0.05)}
+.callout-title{font-weight:700;margin-bottom:0.5rem;color:var(--ink)}
+.callout p{margin:0;color:var(--muted);font-size:0.9rem}
+.steps{counter-reset:step;margin:2rem 0}
+.step{position:relative;padding-left:3.5rem;padding-bottom:2rem;border-left:2px solid var(--rule);margin-left:1rem}
+.step:last-child{border-left-color:transparent;padding-bottom:0}
+.step::before{counter-increment:step;content:counter(step);position:absolute;left:-1.25rem;top:0;width:2.5rem;height:2.5rem;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:var(--bg)}
+.step h4{margin-top:0.5rem;margin-bottom:0.5rem}
+.step p{color:var(--muted);font-size:0.9rem}
+.arch-diagram{background:var(--bg2);border:1px solid var(--rule);border-radius:12px;padding:2rem;margin:2rem 0}
+.arch-layer{text-align:center;padding:1rem;margin:0.5rem 0;border-radius:8px;font-weight:600;border:1px solid var(--rule)}
+.arch-layer.app{background:linear-gradient(135deg,rgba(52,211,153,0.2),rgba(52,211,153,0.1));border-color:rgba(52,211,153,0.3);color:var(--accent3)}
+.arch-layer.desktop{background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.1));border-color:rgba(96,165,250,0.3);color:var(--accent)}
+.arch-layer.kernel{background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(167,139,250,0.1));border-color:rgba(167,139,250,0.3);color:var(--accent2)}
+.arch-layer.hw{background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(251,191,36,0.1));border-color:rgba(251,191,36,0.3);color:var(--warning)}
+.arch-arrow{text-align:center;color:var(--muted);font-size:1.2rem;margin:0.25rem 0}
+.arch-components{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin-top:0.75rem}
+.arch-comp{font-size:0.75rem;padding:0.3rem 0.6rem;background:rgba(255,255,255,0.05);border-radius:4px;font-weight:400;color:var(--muted)}
+.settings-preview{background:var(--bg2);border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:2rem 0}
+.settings-titlebar{background:linear-gradient(90deg,#1a365d,#2563eb);padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.settings-titlebar .title{font-weight:600;color:#fde047;font-size:0.9rem}
+.settings-titlebar .btns{display:flex;gap:0.4rem}
+.settings-titlebar .btn{width:14px;height:14px;border-radius:50%}
+.btn.close{background:#ef4444}
+.btn.min{background:#eab308}
+.btn.max{background:#22c55e}
+.settings-body{display:flex;min-height:300px}
+.settings-cats{width:140px;background:var(--bg3);padding:0.75rem 0;border-right:1px solid var(--rule)}
+.settings-cat{padding:0.5rem 1rem;font-size:0.8rem;color:var(--muted);cursor:pointer}
+.settings-cat.active{background:rgba(96,165,250,0.2);color:var(--accent);font-weight:600}
+.settings-content{flex:1;padding:1rem}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--rule);font-size:0.85rem}
+.setting-row:last-child{border-bottom:none}
+.setting-label{color:var(--ink)}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--accent3);position:relative}
+.toggle.off{background:#475569}
+.toggle::after{content:'';position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:white}
+.toggle.off::after{right:auto;left:2px}
+.kbd{font-family:'JetBrains Mono','Cascadia Code',monospace;font-size:0.8em;background:var(--bg3);color:var(--ink);padding:0.2em 0.5em;border-radius:4px;border:1px solid var(--rule);border-bottom-width:2px;box-shadow:0 1px 0 var(--rule)}
+footer{border-top:1px solid var(--rule);margin-top:4rem;padding-top:2rem}
+.footer-bottom{text-align:center;padding:2rem 0;color:var(--muted);font-size:0.85rem;border-top:1px solid var(--rule)}
+@media(max-width:768px){.hero-stats{grid-template-columns:repeat(2,1fr)}.feature-grid{grid-template-columns:1fr}.settings-body{flex-direction:column}.settings-cats{width:100%;display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid var(--rule)}.settings-cat{white-space:nowrap}h2{font-size:1.8rem}.content{padding:2rem 1rem}}
+@media(max-width:480px){.hero h1{font-size:2.5rem}.hero-stats{grid-template-columns:1fr 1fr;gap:1rem}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">64-BIT MONOLITHIC KERNEL · v0.8</div>
+    <h1>WeaveOS 64-bit</h1>
+    <p class="subtitle">从零构建的 64 位 x86 操作系统——从 Bootloader 到桌面环境，每一行代码都是从零到一的实践</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">135</div><div class="label">源文件</div></div>
+      <div class="hero-stat"><div class="num">43,722</div><div class="label">代码行数</div></div>
+      <div class="hero-stat"><div class="num">26</div><div class="label">系统调用</div></div>
+      <div class="hero-stat"><div class="num">17</div><div class="label">内置应用</div></div>
+      <div class="hero-stat"><div class="num">15</div><div class="label">安全模块</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ 向下滚动探索</div>
+</section>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#overview">项目概览</a>
+    <a href="#arch">系统架构</a>
+    <a href="#desktop">桌面环境</a>
+    <a href="#settings">控制面板</a>
+    <a href="#security">安全机制</a>
+    <a href="#filesystem">文件系统</a>
+    <a href="#hardware">硬件支持</a>
+    <a href="#kernel">内核功能</a>
+    <a href="#apps">应用程序</a>
+    <a href="#build">构建系统</a>
+  </div>
+</nav>
+
+<main class="content">
+
+  <h2 id="overview">项目概览</h2>
+  <p class="lead">WeaveOS 是一个完全自主设计的 64 位 x86 操作系统，采用 Multiboot2 + GRUB 引导，支持 BIOS/UEFI 双模式启动。内核运行在 Ring 0，桌面和应用通过 INT 0x80 系统调用请求服务。</p>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">⚙️</div><h4>内核核心</h4><p>36 个内核模块，12,545 行代码。时间片轮转调度、4 级页表、26 个系统调用。</p></div>
+    <div class="feature-card"><div class="feature-icon">🖥️</div><h4>桌面环境</h4><p>19 个 GUI 模块，7,250 行代码。窗口管理、双缓冲渲染、中文宋体字体。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔧</div><h4>硬件驱动</h4><p>18 个驱动模块，5,746 行代码。PS/2、VGA、ATA、USB、WiFi/BT、GPS。</p></div>
+    <div class="feature-card"><div class="feature-icon">🛡️</div><h4>安全机制</h4><p>15 个安全模块，3,858 行代码。ASLR、CFI、SMEP/SMAP、防火墙、审计。</p></div>
+    <div class="feature-card"><div class="feature-icon">📁</div><h4>文件系统</h4><p>自研 WAFS 文件系统，支持目录、文件、权限、日志、符号链接。</p></div>
+    <div class="feature-card"><div class="feature-icon">🌐</div><h4>网络协议</h4><p>TCP/UDP、HTTP、DNS、WiFi 扫描、蓝牙设备发现、蜂窝网络。</p></div>
+  </div>
+
+  <h2 id="arch">系统架构</h2>
+  <p>WeaveOS 采用经典分层架构设计，从底层硬件抽象到上层应用清晰分离。内核运行在 Ring 0，桌面和应用通过 INT 0x80 系统调用请求服务。</p>
+  <div class="arch-diagram">
+    <div class="arch-layer app">应用层 Applications<div class="arch-components"><span class="arch-comp">mchc 编辑器</span><span class="arch-comp">文件管理器</span><span class="arch-comp">浏览器</span><span class="arch-comp">日历</span><span class="arch-comp">时钟</span><span class="arch-comp">任务管理器</span><span class="arch-comp">系统信息</span><span class="arch-comp">终端</span><span class="arch-comp">控制面板</span><span class="arch-comp">计算器</span></div></div>
+    <div class="arch-arrow">║</div>
+    <div class="arch-layer desktop">桌面环境 Desktop Environment<div class="arch-components"><span class="arch-comp">窗口管理</span><span class="arch-comp">任务栏</span><span class="arch-comp">开始菜单</span><span class="arch-comp">右键菜单</span><span class="arch-comp">图标渲染</span><span class="arch-comp">鼠标驱动</span><span class="arch-comp">双缓冲渲染</span><span class="arch-comp">中文宋体</span></div></div>
+    <div class="arch-arrow">║</div>
+    <div class="arch-layer kernel">内核层 Kernel<div class="arch-components"><span class="arch-comp">内存管理</span><span class="arch-comp">进程调度</span><span class="arch-comp">中断处理</span><span class="arch-comp">系统调用</span><span class="arch-comp">VFS</span><span class="arch-comp">WAFS</span><span class="arch-comp">定时器</span><span class="arch-comp">安全模块</span><span class="arch-comp">eBPF</span><span class="arch-comp">防火墙</span><span class="arch-comp">审计</span></div></div>
+    <div class="arch-arrow">║</div>
+    <div class="arch-layer hw">硬件层 Hardware<div class="arch-components"><span class="arch-comp">CPU x86_64</span><span class="arch-comp">VGA 图形</span><span class="arch-comp">PS/2 键鼠</span><span class="arch-comp">RTC</span><span class="arch-comp">PIT</span><span class="arch-comp">ATA 磁盘</span><span class="arch-comp">USB</span><span class="arch-comp">WiFi/BT</span><span class="arch-comp">GPS</span><span class="arch-comp">智能卡</span><span class="arch-comp">UPS</span></div></div>
+  </div>
+
+  <h2 id="desktop">桌面环境</h2>
+  <p>完整的图形化用户界面，支持窗口拖拽、缩放、最小化、最大化。双模式渲染：VGA 文本 + 图形像素，双缓冲防撕裂。</p>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">🪟</div><h4>窗口管理器</h4><p>拖拽移动、边角缩放、最小化、最大化、关闭按钮。多窗口切换与任务栏集成。</p></div>
+    <div class="feature-card"><div class="feature-icon">📋</div><h4>任务栏</h4><p>底部显示开始按钮、当前窗口、最小化窗口、系统托盘（网络/音量/电池）与时间日期。</p></div>
+    <div class="feature-card"><div class="feature-icon">📂</div><h4>开始菜单</h4><p>两级菜单：主菜单包含程序/设置/文件/计算机，程序子菜单列出所有应用。</p></div>
+    <div class="feature-card"><div class="feature-icon">🖱️</div><h4>右键菜单</h4><p>桌面/文件/文件夹/任务栏各有独立右键菜单，支持新建、复制、粘贴、删除。</p></div>
+    <div class="feature-card"><div class="feature-icon">🖥️</div><h4>桌面图标</h4><p>Computer、Trash、Network 三大系统图标 + 用户桌面文件。.kzx 显示专属图标。</p></div>
+    <div class="feature-card"><div class="feature-icon">🎨</div><h4>双模式渲染</h4><p>VGA 文本 (80x25) + 图形 (800x600) 自动切换。双缓冲防撕裂，渐变背景圆角窗口。</p></div>
+  </div>
+
+  <h2 id="settings">控制面板</h2>
+  <p>五大分类、二十余项可配置项，所有设置均有对应的开关、滑块或下拉选择器。</p>
+  <div class="settings-preview">
+    <div class="settings-titlebar">
+      <div class="title">WeaveOS — Control Panel</div>
+      <div class="btns"><div class="btn min"></div><div class="btn max"></div><div class="btn close"></div></div>
+    </div>
+    <div class="settings-body">
+      <div class="settings-cats">
+        <div class="settings-cat active">🌐 Network</div>
+        <div class="settings-cat">🔒 Security</div>
+        <div class="settings-cat">🖥️ Display</div>
+        <div class="settings-cat">⚙️ System</div>
+        <div class="settings-cat">🔧 Hardware</div>
+      </div>
+      <div class="settings-content">
+        <div class="setting-row"><span class="setting-label">Wi-Fi</span><div class="toggle"></div></div>
+        <div class="setting-row"><span class="setting-label">Bluetooth</span><div class="toggle"></div></div>
+        <div class="setting-row"><span class="setting-label">NFC</span><div class="toggle off"></div></div>
+        <div class="setting-row"><span class="setting-label">Airplane Mode</span><div class="toggle off"></div></div>
+        <div class="setting-row"><span class="setting-label">Firewall</span><div class="toggle"></div></div>
+        <div class="setting-row"><span class="setting-label">Wi-Fi Network</span><span style="color:var(--accent3);font-size:0.8rem">WeaveNet ▾</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="table-wrap"><table>
+    <tr><th>分类</th><th>设置项</th><th>类型</th><th>默认值</th></tr>
+    <tr><td>Network</td><td>Wi-Fi / Bluetooth / NFC / 飞行模式 / 防火墙</td><td>开关 + 选择</td><td>Wi-Fi 开 / NFC 关</td></tr>
+    <tr><td>Security</td><td>ASLR / Stack Protector / SMEP / SMAP / CFI / Secure Boot / Audit</td><td>开关 + 选择</td><td>ASLR/栈保护/SMEP/SMAP 开</td></tr>
+    <tr><td>Display</td><td>亮度 / 壁纸 / 字体大小 / 动画</td><td>滑块 + 选择</td><td>80% / Ocean / Normal / 开</td></tr>
+    <tr><td>System</td><td>自动更新 / 节能模式 / 语言 / 时区</td><td>开关 + 选择</td><td>更新开 / 节能关 / UTC+8</td></tr>
+    <tr><td>Hardware</td><td>音量 / 触摸板 / GPS / 自动亮度 / 传感器</td><td>滑块 + 开关</td><td>音量 70% / GPS 关</td></tr>
+  </table></div>
+
+  <h2 id="security">安全机制</h2>
+  <p>多层安全防护，从内核级到用户级全方位保障。共 15 个安全模块，3,858 行安全代码。</p>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">🎲</div><h4>ASLR</h4><p>地址空间布局随机化。栈(28位)/堆(24位)/mmap(28位)/代码段(24位)随机化。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔒</div><h4>Stack Protector</h4><p>栈金丝雀保护。随机生成金丝雀值，函数返回前校验。</p></div>
+    <div class="feature-card"><div class="feature-icon">🛡️</div><h4>SMEP/SMAP</h4><p>防止内核态执行/访问用户态内存。CPUID 检测，CR4 位操控。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔐</div><h4>CFI</h4><p>控制流完整性。Shadow Stack 验证返回地址，每进程状态。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔑</div><h4>Secure Boot</h4><p>UEFI 安全启动。签名验证、可信密钥库、哈希计算。</p></div>
+    <div class="feature-card"><div class="feature-icon">🧱</div><h4>防火墙</h4><p>内核级包过滤。规则匹配、默认策略、统计追踪。</p></div>
+    <div class="feature-card"><div class="feature-icon">📝</div><h4>审计日志</h4><p>环形缓冲区审计。启动/登录/失败/文件访问/权限拒绝。</p></div>
+    <div class="feature-card"><div class="feature-icon">👤</div><h4>认证与权限</h4><p>认证、密码散列、Set-UID、权限检查、能力模型。</p></div>
+  </div>
+
+  <h2 id="filesystem">文件系统</h2>
+  <p>自研 WAFS 文件系统，支持目录、文件、权限、日志、符号链接。VFS 抽象层支持多文件系统挂载。</p>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">💾</div><h4>WAFS 核心</h4><p>超级块 + 位图 + inode 管理。直接/间接/双重间接块寻址。日志系统保障断电安全。</p></div>
+    <div class="feature-card"><div class="feature-icon">⚡</div><h4>核心操作</h4><p>format / mount / read / write / delete / create_file / create_dir / symlink / lookup_path / read_dir</p></div>
+    <div class="feature-card"><div class="feature-icon">🔄</div><h4>日志系统</h4><p>journal_begin 提交 journal_commit。崩溃恢复时 journal_replay 重放。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔗</div><h4>VFS 抽象层</h4><p>统一文件操作接口，支持 WAFS、procfs、devfs 多文件系统挂载。</p></div>
+  </div>
+  <h3>目录结构</h3>
+  <pre><code>/
+├── bin/          用户应用程序 (.kzx)
+├── sbin/         系统管理程序
+├── boot/         启动文件
+├── dev/          设备文件
+├── etc/          系统配置
+├── lib/          系统库
+├── proc/         进程文件系统
+├── sys/          系统信息
+├── tmp/          临时文件
+├── var/          可变数据
+├── recycle/      回收站
+└── home/user/
+    ├── desktop/    桌面文件
+    ├── documents/  文档
+    ├── downloads/  下载
+    └── pictures/   图片</code></pre>
+  <h3>.kzx 可执行文件</h3>
+  <div class="table-wrap"><table>
+    <tr><th>文件</th><th>路径</th><th>应用</th></tr>
+    <tr><td><code>mchc.kzx</code></td><td>/bin/</td><td>mchc 编辑器</td></tr>
+    <tr><td><code>calendar.kzx</code></td><td>/bin/</td><td>日历</td></tr>
+    <tr><td><code>clock.kzx</code></td><td>/bin/</td><td>时钟</td></tr>
+    <tr><td><code>terminal.kzx</code></td><td>/bin/</td><td>终端</td></tr>
+    <tr><td><code>settings.kzx</code></td><td>/bin/</td><td>控制面板</td></tr>
+    <tr><td><code>filemanager.kzx</code></td><td>/bin/</td><td>文件管理器</td></tr>
+    <tr><td><code>browser.kzx</code></td><td>/bin/</td><td>浏览器</td></tr>
+    <tr><td><code>init.kzx</code></td><td>/sbin/</td><td>初始化进程</td></tr>
+  </table></div>
+
+  <h2 id="hardware">硬件支持</h2>
+  <p>18 个驱动模块，5,746 行驱动代码，覆盖输入、显示、存储、网络、传感器。</p>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">⌨️</div><h4>PS/2 键盘</h4><p>完整扫描码处理，支持所有标准按键。</p></div>
+    <div class="feature-card"><div class="feature-icon">🖱️</div><h4>PS/2 鼠标</h4><p>移动/点击/滚轮，完整鼠标事件支持。</p></div>
+    <div class="feature-card"><div class="feature-icon">🖥️</div><h4>VGA 图形</h4><p>文本 + 图形双模式，EDID 显示器信息。</p></div>
+    <div class="feature-card"><div class="feature-icon">💿</div><h4>ATA 磁盘</h4><p>PIO 模式读写，CD-ROM 光驱支持。</p></div>
+    <div class="feature-card"><div class="feature-icon">🌐</div><h4>E1000 网卡</h4><p>Intel 网卡，32 描述符环形缓冲区。</p></div>
+    <div class="feature-card"><div class="feature-icon">📡</div><h4>WiFi / 蓝牙</h4><p>无线扫描/连接，蓝牙设备发现。</p></div>
+    <div class="feature-card"><div class="feature-icon">📱</div><h4>VirtIO</h4><p>虚拟化块设备 + 网络设备。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔋</div><h4>UPS / 智能卡</h4><p>电池监控，安全认证。</p></div>
+  </div>
+
+  <h2 id="kernel">内核功能</h2>
+  <p>36 个内核模块，12,545 行代码。时间片轮转调度、4 级页表、26 个系统调用。</p>
+  <h3>系统调用 (26 个)</h3>
+  <div class="table-wrap"><table>
+    <tr><th>#</th><th>名称</th><th>说明</th></tr>
+    <tr><td>1</td><td><code>SYS_exit</code></td><td>终止进程</td></tr>
+    <tr><td>2</td><td><code>SYS_fork</code></td><td>分叉进程</td></tr>
+    <tr><td>3</td><td><code>SYS_exec</code></td><td>执行 ELF</td></tr>
+    <tr><td>4</td><td><code>SYS_wait</code></td><td>等待子进程</td></tr>
+    <tr><td>5-7</td><td><code>getpid/yield/sleep</code></td><td>进程控制</td></tr>
+    <tr><td>8</td><td><code>SYS_write</code></td><td>写文件描述符</td></tr>
+    <tr><td>9</td><td><code>SYS_brk</code></td><td>堆管理</td></tr>
+    <tr><td>10-11</td><td><code>dup/dup2</code></td><td>FD 复制</td></tr>
+    <tr><td>12-14</td><td><code>setpgid/getpgid/setsid</code></td><td>进程组/会话</td></tr>
+    <tr><td>15</td><td><code>setnice</code></td><td>优先级 -20~19</td></tr>
+    <tr><td>16-17</td><td><code>chmod/chown</code></td><td>文件权限</td></tr>
+    <tr><td>18-19</td><td><code>fcntl/flock</code></td><td>文件锁</td></tr>
+    <tr><td>20-21</td><td><code>mmap/munmap</code></td><td>内存映射</td></tr>
+    <tr><td>22</td><td><code>ulimit</code></td><td>资源限制</td></tr>
+    <tr><td>23</td><td><code>pstree</code></td><td>进程树</td></tr>
+    <tr><td>24-25</td><td><code>chdir/getcwd</code></td><td>工作目录</td></tr>
+    <tr><td>26</td><td><code>time</code></td><td>系统时间</td></tr>
+  </table></div>
+  <h3>终端 ANSI 转义序列</h3>
+  <div class="table-wrap"><table>
+    <tr><th>序列</th><th>功能</th></tr>
+    <tr><td><code>ESC [ {r};{c} H</code></td><td>光标定位</td></tr>
+    <tr><td><code>ESC [ {n} A/B/C/D</code></td><td>光标上/下/右/左移</td></tr>
+    <tr><td><code>ESC [ {n} J</code></td><td>清屏</td></tr>
+    <tr><td><code>ESC [ {n} K</code></td><td>清行</td></tr>
+    <tr><td><code>ESC [ m</code></td><td>SGR 文本属性 (16色)</td></tr>
+    <tr><td><code>ESC [ s / u</code></td><td>保存/恢复光标</td></tr>
+    <tr><td><code>ESC [ {t};{b} r</code></td><td>滚动区域</td></tr>
+    <tr><td><code>ESC [ {n} L/M</code></td><td>插入/删除行</td></tr>
+    <tr><td><code>ESC [ {n} P/X</code></td><td>删除字符</td></tr>
+    <tr><td><code>ESC [ {n} G</code></td><td>绝对列定位</td></tr>
+    <tr><td><code>ESC c</code></td><td>完整重置</td></tr>
+  </table></div>
+  <h3>高级特性</h3>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">🔬</div><h4>eBPF 虚拟机</h4><p>扩展伯克利包过滤器，内核可编程。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔄</div><h4>kexec</h4><p>内核启动内核，快速重启。</p></div>
+    <div class="feature-card"><div class="feature-icon">🐛</div><h4>kdump</h4><p>内核崩溃转储，事后调试。</p></div>
+    <div class="feature-card"><div class="feature-icon">🖥️</div><h4>Hypervisor</h4><p>虚拟机监控器基础框架。</p></div>
+    <div class="feature-card"><div class="feature-icon">🦀</div><h4>Rust 运行时</h4><p>Rust 语言内核模块支持。</p></div>
+    <div class="feature-card"><div class="feature-icon">📚</div><h4>共享库</h4><p>动态共享对象加载与符号解析。</p></div>
+  </div>
+
+  <h2 id="apps">应用程序</h2>
+  <p>17 个内置桌面应用，13 个应用模块，3,335 行代码。均可通过开始菜单或 .kzx 启动。</p>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">📝</div><h4>mchc 编辑器</h4><p>语法高亮、行号、Ctrl+S/O/N 快捷键。</p></div>
+    <div class="feature-card"><div class="feature-icon">📁</div><h4>文件管理器</h4><p>浏览/复制/粘贴/重命名/删除/回收站。</p></div>
+    <div class="feature-card"><div class="feature-icon">🌐</div><h4>浏览器</h4><p>HTTP/HTTPS、地址栏、书签、ZhiStar Nova 主题。</p></div>
+    <div class="feature-card"><div class="feature-icon">💻</div><h4>终端</h4><p>完整 ANSI、16 色、光标保存恢复、中文宋体。</p></div>
+    <div class="feature-card"><div class="feature-icon">⚙️</div><h4>控制面板</h4><p>五大分类二十余项配置。</p></div>
+    <div class="feature-card"><div class="feature-icon">📊</div><h4>任务管理器</h4><p>进程列表、CPU/内存使用率。</p></div>
+    <div class="feature-card"><div class="feature-icon">📅</div><h4>日历</h4><p>月历视图、日期选择。</p></div>
+    <div class="feature-card"><div class="feature-icon">🕐</div><h4>时钟</h4><p>实时时间显示。</p></div>
+    <div class="feature-card"><div class="feature-icon">🖥️</div><h4>系统信息</h4><p>CPU/内存/磁盘/网络信息。</p></div>
+    <div class="feature-card"><div class="feature-icon">📶</div><h4>网络</h4><p>网络状态、连接信息。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔢</div><h4>计算器</h4><p>基础数学计算。</p></div>
+    <div class="feature-card"><div class="feature-icon">❓</div><h4>帮助</h4><p>使用说明与快捷键。</p></div>
+  </div>
+
+  <h2 id="build">构建系统</h2>
+  <p>Multiboot2 + GRUB 引导，BIOS/UEFI 双模式支持。构建过程：编译所有 .c/.S → 链接 kernel64.elf → grub-mkrescue 生成 weaveos64.iso。</p>
+  <h3>启动流程</h3>
+  <div class="steps">
+    <div class="step"><h4>BIOS/UEFI 引导</h4><p>系统上电，BIOS/UEFI 初始化硬件，从 ISO 或磁盘加载 GRUB。</p></div>
+    <div class="step"><h4>GRUB 加载内核</h4><p>读取 grub.cfg，加载 kernel64.elf 到内存，切换到保护模式。</p></div>
+    <div class="step"><h4>汇编入口</h4><p>bootasm.S 设置栈，初始化分页，进入 64 位长模式。</p></div>
+    <div class="step"><h4>内核初始化</h4><p>初始化内存管理、中断、PIT、键盘鼠标、VGA、文件系统。</p></div>
+    <div class="step"><h4>WAFS 挂载</h4><p>挂载根文件系统，创建默认目录结构。</p></div>
+    <div class="step"><h4>安装检查</h4><p>installer_check_installed() 判断已安装则进入桌面，否则运行安装器。</p></div>
+    <div class="step"><h4>桌面启动</h4><p>初始化桌面组件，进入桌面主循环。</p></div>
+  </div>
+  <h3>构建命令</h3>
+  <pre><code>./run.sh          默认 BIOS 启动
+./run.sh bios     BIOS 模式
+./run.sh uefi     UEFI 模式
+./run.sh nogui    无图形模式
+./run.sh virtio   VirtIO 磁盘</code></pre>
+  <h3>代码组织</h3>
+  <div class="table-wrap"><table>
+    <tr><th>目录</th><th>文件数</th><th>行数</th><th>职责</th></tr>
+    <tr><td><code>kernel/</code></td><td>36</td><td>12,545</td><td>内核核心：启动、中断、panic、EBPF、桌面</td></tr>
+    <tr><td><code>gui/</code></td><td>19</td><td>7,250</td><td>图形界面：桌面、窗口、终端、编辑器</td></tr>
+    <tr><td><code>drivers/</code></td><td>18</td><td>5,746</td><td>硬件驱动：ATA、图形、PCI、USB、WiFi</td></tr>
+    <tr><td><code>security/</code></td><td>15</td><td>3,858</td><td>安全模块：ASLR、CFI、审计、防火墙</td></tr>
+    <tr><td><code>apps/</code></td><td>13</td><td>3,335</td><td>应用程序：文件管理、Shell、用户管理</td></tr>
+    <tr><td><code>fs/</code></td><td>9</td><td>2,995</td><td>文件系统：WAFS、VFS、缓冲区、文件锁</td></tr>
+    <tr><td><code>proc/</code></td><td>13</td><td>2,962</td><td>进程管理：调度器、信号、ELF、管道</td></tr>
+    <tr><td><code>net/</code></td><td>9</td><td>2,958</td><td>网络协议：TCP/UDP、HTTP、DNS、WiFi</td></tr>
+    <tr><td><code>mm/</code></td><td>3</td><td>470</td><td>内存管理：双缓冲、mbuf、slab</td></tr>
+  </table></div>
+
+  <footer>
+    <div class="footer-bottom">
+      <p style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:0.5rem">WeaveOS 64-bit v0.8</p>
+      <p>从零构建的 64 位操作系统 · 技术白皮书</p>
+      <p style="margin-top:0.5rem;font-size:0.75rem">Multiboot2 + GRUB · Monolithic Kernel · x86_64</p>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){var tocLinks=document.querySelectorAll('.toc a');var sections=[];tocLinks.forEach(function(link){var id=link.getAttribute('href');if(id&&id.startsWith('#')){var el=document.querySelector(id);if(el)sections.push({el:el,link:link})}});function updateNav(){var scrollY=window.scrollY+100;var current=null;sections.forEach(function(s){if(s.el.offsetTop<=scrollY)current=s});tocLinks.forEach(function(l){l.classList.remove('active')});if(current)current.link.classList.add('active')}var animEls=document.querySelectorAll('.feature-card,.arch-layer,.settings-preview');function checkAnim(){var trigger=window.innerHeight*0.88;animEls.forEach(function(el){if(el.getBoundingClientRect().top<trigger){el.style.opacity='1';el.style.transform='translateY(0)'}})}animEls.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity 0.4s ease,transform 0.4s ease'});function onScroll(){updateNav();checkAnim()}window.addEventListener('scroll',onScroll,{passive:true});onScroll()});
+</script>
+</body></html>

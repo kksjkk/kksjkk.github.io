@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <title>System_VM_D62E官方网站</title>
+    <link rel="stylesheet" href="css/style-optimized.css">
+    <link rel="stylesheet" href="css/adaptive-card-styles.css">
+    <style>
+        .hamburger-btn {
+            display: none !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            width: 30px !important;
+            height: 24px !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            margin-left: 20px !important;
+            z-index: 1002 !important;
+            position: relative !important;
+        }
+        
+        .hamburger-btn span {
+            display: block !important;
+            width: 100% !important;
+            height: 3px !important;
+            background: #00f3ff !important;
+            border-radius: 3px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .hamburger-btn.active span:nth-child(1) {
+            transform: translateY(10px) rotate(45deg) !important;
+        }
+        
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0 !important;
+        }
+        
+        .hamburger-btn.active span:nth-child(3) {
+            transform: translateY(-10px) rotate(-45deg) !important;
+        }
+        
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 80px;
+            position: relative;
+        }
+        
+        .navbar {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+            margin-right: 0;
+        }
+        
+        .hamburger-wrapper {
+            display: none !important;
+            align-items: center !important;
+            margin-left: 20px !important;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                margin-left: 0;
+            }
+            
+            .nav-menu {
+                position: fixed !important;
+                top: 80px !important;
+                right: -320px !important;
+                width: 280px !important;
+                max-width: 85vw !important;
+                height: auto !important;
+                max-height: calc(100vh - 100px) !important;
+                background: rgba(8, 12, 25, 0.98) !important;
+                backdrop-filter: blur(15px) !important;
+                flex-direction: column !important;
+                padding: 16px !important;
+                transition: right 0.3s ease !important;
+                z-index: 1001 !important;
+                border: 1px solid rgba(0, 243, 255, 0.3) !important;
+                border-radius: 12px 0 0 12px !important;
+                box-shadow: -5px 5px 30px rgba(0, 212, 255, 0.3) !important;
+                margin: 0 !important;
+                list-style: none !important;
+                display: flex !important;
+                gap: 8px !important;
+                overflow-y: auto !important;
+            }
+            
+            .nav-menu.active {
+                right: 0 !important;
+            }
+            
+            .nav-menu li {
+                width: 100% !important;
+                margin: 4px 0 !important;
+            }
+            
+            .nav-menu li a,
+            .nav-menu li button {
+                width: 100% !important;
+                text-align: left !important;
+                padding: 12px 16px !important;
+                border-radius: 8px !important;
+                border: 1px solid rgba(0, 243, 255, 0.15) !important;
+                background: rgba(0, 0, 0, 0.2) !important;
+                color: #e0e0e0 !important;
+                font-size: 0.95rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 12px !important;
+                transition: all 0.2s ease !important;
+                min-height: 44px !important;
+            }
+            
+            .nav-menu li a:hover,
+            .nav-menu li button:hover {
+                background: rgba(0, 243, 255, 0.15) !important;
+                border-color: rgba(0, 243, 255, 0.5) !important;
+                color: #00f3ff !important;
+                transform: translateX(4px) !important;
+            }
+            
+            .nav-menu li a .btn-icon,
+            .nav-menu li button .btn-icon {
+                font-size: 1.1rem !important;
+                min-width: 24px !important;
+                text-align: center !important;
+            }
+            
+            .nav-menu li .download-btn-main {
+                background: rgba(0, 243, 255, 0.12) !important;
+                border-color: rgba(0, 243, 255, 0.4) !important;
+            }
+            
+            .hamburger-wrapper {
+                display: flex !important;
+            }
+            
+            .hamburger-btn {
+                display: flex !important;
+            }
+            
+            .menu-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(2px);
+                z-index: 1000;
+            }
+            
+            .menu-overlay.active {
+                display: block;
+            }
+            
+            .nav-menu::before {
+                content: '菜单';
+                display: block;
+                padding: 8px 16px;
+                margin-bottom: 8px;
+                font-size: 0.85rem;
+                color: rgba(0, 243, 255, 0.7);
+                border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .hamburger-wrapper {
+                display: none !important;
+            }
+            .hamburger-btn {
+                display: none !important;
+            }
+            .menu-overlay {
+                display: none !important;
+            }
+            .nav-menu::before {
+                display: none !important;
+            }
+        }
+        
+        #current-time {
+            color: #00f3ff;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 480px) {
+            .nav-menu {
+                width: 260px !important;
+                padding: 14px !important;
+            }
+            
+            .nav-menu li a,
+            .nav-menu li button {
+                padding: 10px 14px !important;
+                font-size: 0.9rem !important;
+            }
+        }
+    </style>
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8b2ef22ebf44b853c35b229b952c593e";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+</head>
+
+<body data-main-script-initialized="false">
+    <div class="scifi-bg">
+        <div class="grid-lines"></div>
+        <div class="floating-particles"></div>
+    </div>
+    
+    <div class="menu-overlay" id="menu-overlay"></div>
+    
+    <header>
+        <div class="header-container">
+            <h1 class="scifi-title">System_VM_D62E</h1>
+            
+            <nav class="navbar">
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="#about" class="scifi-button nav-btn">关于UP</a></li>
+                    <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" rel="noopener" class="scifi-button nav-btn">作者信息</a></li>
+                    <li>
+                        <a href="download.html" 
+                           class="scifi-button download-btn-main" 
+                           id="download-btn">
+                            下载客户端
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="hamburger-wrapper">
+                    <button class="hamburger-btn" id="hamburger-btn">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+        <div class="progress-bar"></div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <div class="logo-container">
+                    <img src="assets/logo.png" data-src="assets/logo.png" alt="System_VM_D62E Logo" class="logo lazy-load">
+                    <div class="logo-glow"></div>
+                </div>
+                
+                <h2 class="scifi-heading">欢迎来到 <span class="highlight">System_VM_D62E</span> 官方网页</h2>
+                <p class="scifi-text">探索技术与创意的无限可能</p>
+                
+                <div class="progress-container">
+                    <label for="system-progress" class="scifi-label">系统加载进度:</label>
+                    <div class="progress-wrapper">
+                        <progress id="system-progress" value="75" max="100">75%</progress>
+                        <div class="progress-glow" style="width: 75%;"></div>
+                    </div>
+                    <span class="progress-text">75%</span>
+                </div>
+                
+                <div class="download-section">
+                    <a href="download.html" 
+                       class="scifi-button download-btn-large hero-download-btn" 
+                       id="hero-download-btn">
+                        <span class="btn-icon">⬇️</span>
+                        <span class="btn-text">下载</span>
+                        <span class="btn-subtext">WeaveOS / ZhiStar Nova / GinkgoAI</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <section id="about" class="about-section">
+            <div class="container">
+                <h2 class="scifi-heading">关于UP主</h2>
+                <p class="scifi-text">根据 2026年2月9日晚上统计，up的粉丝是2456人，视频播放17.6万，177条弹幕，4155条评论，7826个点赞。代表作：《全网最全的Windows网页版，你值得拥有！！！》，最新稿件：《什么才是真正好的工具？这五个应用才是真的装机必备！好用到爆！！！》，粉丝团名称：D云团。</p>
+                
+                <div class="features">
+                    <div class="feature-card" tabindex="0" data-card-type="tech">
+                        <div class="card-icon">💻</div>
+                        <h3>WeaveOS</h3>
+                        <p>64位操作系统，全新架构体验</p>
+                        <div class="card-glow"></div>
+                    </div>
+                    
+                    <div class="feature-card" tabindex="0" data-card-type="creative">
+                        <div class="card-icon">🌐</div>
+                        <h3>ZhiStar Nova</h3>
+                        <p>基于 WebKitGTK 的现代桌面浏览器</p>
+                        <div class="card-glow"></div>
+                    </div>
+                    
+                    <div class="feature-card" tabindex="0" data-card-type="ai">
+                        <div class="card-icon">🤖</div>
+                        <h3>GinkgoAI</h3>
+                        <p>AI 智能助手，探索人工智能</p>
+                        <div class="card-glow"></div>
+                    </div>
+                    
+                    <div class="feature-card" tabindex="0" data-card-type="community">
+                        <div class="card-icon">👥</div>
+                        <h3>社区互动</h3>
+                        <p>与粉丝交流分享心得</p>
+                        <div class="card-glow"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="hint-section" style="padding: 1rem; text-align: center; opacity: 0.7;">
+            <p class="scifi-text" style="font-size: 0.9rem;">
+                💡 提示：点击卡片体验特效，点击其他地方恢复原状
+            </p>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="footer-container">
+            <p class="scifi-text">&copy; 2026 System_VM_D62E 版权所有</p>
+            <p class="scifi-text">联系邮箱: <a href="mailto:3820332398@qq.com" class="scifi-link">3820332398@qq.com</a></p>
+            <p class="scifi-text" style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.4;">
+                当前时间：<span id="current-time"></span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/performance.js" defer></script>
+    <script src="js/adaptive-card-system.js" defer></script>
+    <script src="js/script.js" defer></script>
+    
+    <script>
+        (function() {
+            'use strict';
+            
+            function initHamburgerMenu() {
+                const hamburgerBtn = document.getElementById('hamburger-btn');
+                const navMenu = document.getElementById('nav-menu');
+                const menuOverlay = document.getElementById('menu-overlay');
+                
+                if (!hamburgerBtn || !navMenu || !menuOverlay) {
+                    console.error('菜单元素未找到');
+                    return;
+                }
+                
+                hamburgerBtn.classList.remove('active');
+                navMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                
+                function toggleMenu() {
+                    const isActive = hamburgerBtn.classList.contains('active');
+                    
+                    if (isActive) {
+                        hamburgerBtn.classList.remove('active');
+                        navMenu.classList.remove('active');
+                        menuOverlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                    } else {
+                        hamburgerBtn.classList.add('active');
+                        navMenu.classList.add('active');
+                        menuOverlay.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+                
+                function closeMenu() {
+                    hamburgerBtn.classList.remove('active');
+                    navMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                
+                hamburgerBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleMenu();
+                });
+                
+                menuOverlay.addEventListener('click', closeMenu);
+                
+                navMenu.querySelectorAll('a, button').forEach(function(item) {
+                    item.addEventListener('click', closeMenu);
+                });
+                
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        closeMenu();
+                    }
+                });
+                
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && hamburgerBtn.classList.contains('active')) {
+                        closeMenu();
+                    }
+                });
+            }
+            
+            function init() {
+                initHamburgerMenu();
+                
+                function updateTime() {
+                    const el = document.getElementById('current-time');
+                    if (el) {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        el.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                    }
+                }
+                updateTime();
+                setInterval(updateTime, 1000);
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+</html>

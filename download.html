@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <title>System_VM_D62E - 下载</title>
+    <link rel="stylesheet" href="css/style-optimized.css">
+    <style>
+        .download-container {
+            min-height: calc(100vh - 160px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .download-cards {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .download-card {
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            min-width: 280px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #e0e0e0;
+        }
+        
+        .download-card:hover {
+            background: rgba(0, 243, 255, 0.15);
+            border-color: rgba(0, 243, 255, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: #00f3ff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-desc {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 1rem;
+        }
+        
+        .card-btn {
+            display: inline-block;
+            background: rgba(0, 243, 255, 0.2);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            color: #00f3ff;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            margin: 0.3rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card-btn:hover {
+            background: rgba(0, 243, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .card-btn.secondary {
+            background: rgba(148, 0, 211, 0.2);
+            border-color: rgba(148, 0, 211, 0.4);
+            color: #a78bfa;
+        }
+        
+        .card-btn.secondary:hover {
+            background: rgba(148, 0, 211, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="scifi-bg">
+        <div class="grid-lines"></div>
+        <div class="floating-particles"></div>
+    </div>
+
+    <header>
+        <div class="header-container">
+            <h1 class="scifi-title">System_VM_D62E</h1>
+            <nav class="navbar">
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="index.html" class="scifi-button nav-btn">返回首页</a></li>
+                    <li><a href="https://m.bilibili.com/space/3546812044544535" target="_blank" rel="noopener" class="scifi-button nav-btn">作者信息</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="download-container">
+            <div class="download-cards">
+                <div class="download-card">
+                    <div class="card-icon">💻</div>
+                    <div class="card-title">WeaveOS</div>
+                    <div class="card-desc">64位操作系统</div>
+                    <a href="#" class="card-btn">下载</a>
+                    <a href="weaveos-whitepaper.html" class="card-btn secondary">技术白皮书</a>
+                </div>
+                
+                <div class="download-card">
+                    <div class="card-icon">🌐</div>
+                    <div class="card-title">ZhiStar Nova</div>
+                    <div class="card-desc">基于 WebKitGTK 的现代桌面浏览器</div>
+                    <a href="#" class="card-btn">下载</a>
+                    <a href="zhistarnova-whitepaper.html" class="card-btn secondary">技术白皮书</a>
+                </div>
+                
+                <div class="download-card">
+                    <div class="card-icon">🤖</div>
+                    <div class="card-title">GinkgoAI</div>
+                    <div class="card-desc">AI 智能助手</div>
+                    <a href="#" class="card-btn">下载</a>
+                    <a href="ginkgo-ai-whitepaper.html" class="card-btn secondary">技术白皮书</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2026 System_VM_D62E 版权所有</p>
+            <p>联系邮箱: <a href="mailto:3820332398@qq.com">3820332398@qq.com</a></p>
+        </div>
+    </footer>
+</body>
+</html>

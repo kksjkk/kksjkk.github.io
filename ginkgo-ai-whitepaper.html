@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GinkgoAI - 完整技术白皮书</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Big+Shoulders:wght@400;700&display=swap');
+
+:root {
+      --bg: #0a0e1a;
+      --bg2: #111827;
+      --bg3: #1e293b;
+      --ink: #e2e8f0;
+      --muted: #94a3b8;
+      --rule: #334155;
+      --accent: #f59e0b;
+      --accent2: #f97316;
+      --accent3: #34d399;
+      --danger: #f87171;
+      --warning: #fbbf24;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.7;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(52, 211, 153, 0.08) 0%, transparent 60%),
+        var(--bg);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image:
+        linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      padding: 2rem;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 0.4rem 1.2rem;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .hero h1 {
+      font-family: 'Big Shoulders', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.02em;
+    }
+
+    .hero .subtitle {
+      font-size: 1.25rem;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat .num {
+      font-family: 'Big Shoulders', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .hero-stat .label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-size: 0.8rem;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+
+    .toc {
+      position: sticky;
+      top: 0;
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--rule);
+      z-index: 100;
+      padding: 0.75rem 0;
+    }
+
+    .toc-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .toc-inner::-webkit-scrollbar { display: none; }
+
+    .toc a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 0.25rem 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .toc a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    h2 {
+      font-family: 'Big Shoulders', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-top: 4rem;
+      margin-bottom: 1.5rem;
+      color: var(--ink);
+      position: relative;
+      padding-bottom: 0.75rem;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--ink);
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--ink);
+    }
+
+    .lead {
+      font-size: 1.15rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      line-height: 1.8;
+    }
+
+    mark.key {
+      background: none;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+      margin: 2rem 0;
+    }
+
+    .feature-card {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.1);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(249, 115, 22, 0.2));
+    }
+
+    .feature-card h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+
+    .table-wrap {
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 600px;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+      border: 1px solid var(--rule);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: var(--bg3);
+      color: var(--ink);
+      font-weight: 600;
+      text-align: left;
+      padding: 0.875rem 1rem;
+      border-bottom: 2px solid var(--rule);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--rule);
+      color: var(--muted);
+    }
+
+    tr:hover td {
+      background: rgba(245, 158, 11, 0.05);
+      color: var(--ink);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background: var(--bg2);
+      color: var(--accent3);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+    }
+
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin: 1.25rem 0;
+      line-height: 1.6;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: var(--ink);
+    }
+
+    .code-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: rgba(245, 158, 11, 0.1);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px 4px 0 0;
+      border: 1px solid var(--rule);
+      border-bottom: none;
+      margin-bottom: -1px;
+    }
+
+
+    .callout {
+      background: var(--bg2);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout.warning {
+      border-left-color: var(--warning);
+      background: rgba(251, 191, 36, 0.05);
+    }
+
+    .callout.success {
+      border-left-color: var(--accent3);
+      background: rgba(52, 211, 153, 0.05);
+    }
+
+    .callout.danger {
+      border-left-color: var(--danger);
+      background: rgba(248, 113, 113, 0.05);
+    }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--ink);
+    }
+
+    .callout p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+
+    .steps {
+      counter-reset: step;
+      margin: 2rem 0;
+    }
+
+    .step {
+      position: relative;
+      padding-left: 3.5rem;
+      padding-bottom: 2rem;
+      border-left: 2px solid var(--rule);
+      margin-left: 1rem;
+    }
+
+    .step:last-child {
+      border-left-color: transparent;
+      padding-bottom: 0;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: -1.25rem;
+      top: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--bg);
+    }
+
+    .step h4 {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+
+    kbd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8em;
+      background: var(--bg3);
+      color: var(--ink);
+      padding: 0.2em 0.5em;
+      border-radius: 4px;
+      border: 1px solid var(--rule);
+      border-bottom-width: 2px;
+      box-shadow: 0 1px 0 var(--rule);
+    }
+
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--bg2);
+      border-radius: 6px;
+      border: 1px solid var(--rule);
+    }
+
+    .shortcut-item .desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    .shortcut-item .keys {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+
+    .arch-diagram {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .arch-layer {
+      text-align: center;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      font-weight: 600;
+      border: 1px solid var(--rule);
+    }
+
+    .arch-layer.app { background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(52, 211, 153, 0.1)); border-color: rgba(52, 211, 153, 0.3); color: var(--accent3); }
+    .arch-layer.desktop { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1)); border-color: rgba(245, 158, 11, 0.3); color: var(--accent); }
+    .arch-layer.kernel { background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(249, 115, 22, 0.1)); border-color: rgba(249, 115, 22, 0.3); color: var(--accent2); }
+    .arch-layer.hw { background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1)); border-color: rgba(251, 191, 36, 0.3); color: var(--warning); }
+
+    .arch-arrow {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.2rem;
+      margin: 0.25rem 0;
+    }
+
+    .arch-components {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.75rem;
+    }
+
+    .arch-comp {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+
+    .settings-preview {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+
+    .settings-titlebar {
+      background: linear-gradient(90deg, #92400e, #b45309);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .settings-titlebar .title {
+      font-weight: 600;
+      color: #fef3c7;
+      font-size: 0.9rem;
+    }
+
+    .settings-titlebar .btns {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .settings-titlebar .btn {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    .btn.close { background: #ef4444; }
+    .btn.min { background: #eab308; }
+    .btn.max { background: #22c55e; }
+
+    .settings-body {
+      display: flex;
+      min-height: 300px;
+    }
+
+    .settings-cats {
+      width: 140px;
+      background: var(--bg3);
+      padding: 0.75rem 0;
+      border-right: 1px solid var(--rule);
+    }
+
+    .settings-cat {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .settings-cat.active {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .settings-content {
+      flex: 1;
+      padding: 1rem;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 0.85rem;
+    }
+
+    .setting-row:last-child { border-bottom: none; }
+
+    .setting-label { color: var(--ink); }
+
+    .toggle {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--accent3);
+      position: relative;
+    }
+
+    .toggle.off { background: #475569; }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .toggle.off::after {
+      right: auto;
+      left: 2px;
+    }
+
+    .slider-val {
+      color: var(--accent3);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+
+    footer {
+      border-top: 1px solid var(--rule);
+      margin-top: 4rem;
+      padding-top: 2rem;
+    }
+
+    footer .sources {
+      margin-bottom: 2rem;
+    }
+
+    footer h2 {
+      font-size: 1.5rem;
+      margin-top: 0;
+    }
+
+    footer .sources ol {
+      padding-left: 1.2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    footer .sources li {
+      margin-bottom: 0.5rem;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+
+    footer .sources .src-title {
+      color: var(--ink);
+      word-break: normal;
+    }
+
+    footer .sources .src-url {
+      display: block;
+      margin-top: 0.15rem;
+      font-size: 0.82rem;
+      color: var(--accent);
+      word-break: break-all;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding: 2rem 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--rule);
+    }
+
+    sup a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.75em;
+      font-weight: 600;
+    }
+
+
+    @media (max-width: 768px) {
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .feature-grid { grid-template-columns: 1fr; }
+      .shortcut-grid { grid-template-columns: 1fr; }
+      .settings-body { flex-direction: column; }
+      .settings-cats { width: 100%; display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--rule); }
+      .settings-cat { white-space: nowrap; }
+      h2 { font-size: 1.8rem; }
+      .content { padding: 2rem 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 2.5rem; }
+      .hero-stats { grid-template-columns: 1fr 1fr; gap: 1rem; }
+    }
+
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">多模态 AI 助手平台 &middot; v1.0</div>
+    <p style="margin-top:1rem;"><a href="https://github.com/kksjkk/GinkgoAI/" target="_blank" style="color:var(--accent);text-decoration:none;font-size:0.9rem;">完整信息见 GitHub &rarr;</a></p>
+    <h1>GinkgoAI</h1>
+    <p class="subtitle">
+      一个基于智谱GLM-4-Flash与Agnes多模态引擎的全栈AI助手平台&mdash;&mdash;
+      文本对话、视觉识别、图像生成、视频创作、联网搜索，一站集成。
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">7</div><div class="label">核心模块</div></div>
+      <div class="hero-stat"><div class="num">1500+</div><div class="label">行 Python 代码</div></div>
+      <div class="hero-stat"><div class="num">4</div><div class="label">AI 引擎集成</div></div>
+      <div class="hero-stat"><div class="num">12+</div><div class="label">内置工具</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint">&darr; 向下滚动探索</div>
+</section>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#overview">项目概览</a>
+    <a href="#architecture">系统架构</a>
+    <a href="#chat">智能对话</a>
+    <a href="#vision">视觉识别</a>
+    <a href="#image">图像生成</a>
+    <a href="#video">视频生成</a>
+    <a href="#search">联网搜索</a>
+    <a href="#tools">实用工具</a>
+    <a href="#conversation">会话管理</a>
+    <a href="#deploy">部署指南</a>
+  </div>
+</nav>
+
+<main class="content">
+
+  <h2 id="overview">项目概览</h2>
+  <p class="lead">
+    银杏AI 是一个完全自主设计的多模态AI助手平台，基于智谱 GLM-4-Flash 大语言模型驱动，
+    集成 Agnes 多模态引擎实现视觉识别、图像生成与视频创作。全栈 Python/Flask 实现，
+    前后端一体化，开箱即用。
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h4>GLM-4-Flash 大脑</h4>
+      <p>智谱GLM-4-Flash驱动，128K上下文，支持深度思考与多轮对话</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👁️</div>
+      <h4>Agnes 视觉引擎</h4>
+      <p>Agnes-2.0-Flash多模态模型，支持图片识别、描述、问答</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <h4>图像生成引擎</h4>
+      <p>Agnes-Image-2.1-Flash驱动，文生图与图生图双模式</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎬</div>
+      <h4>视频生成引擎</h4>
+      <p>Agnes-Video-V2.0驱动，文生视频与图生视频创作能力</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h4>智能联网搜索</h4>
+      <p>DuckDuckGo集成，AI自动判断是否需要联网搜索最新信息</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔧</div>
+      <h4>实用工具集</h4>
+      <p>时间、日期、天气、计算、密码生成、倒计时等12+内置工具</p>
+    </div>
+  </div>
+
+  <h2 id="architecture">系统架构</h2>
+  <p>
+    银杏AI 采用分层微服务架构设计，从底层AI模型API到上层Web界面清晰分离。
+    Flask后端通过RESTful API与前端通信，多引擎调度器根据用户意图路由到对应处理模块。
+  </p>
+
+  <div class="arch-diagram">
+    <div class="arch-layer app">
+      应用层 (Application)
+      <div class="arch-components">
+        <span class="arch-comp">Flask Web 服务</span>
+        <span class="arch-comp">RESTful API</span>
+        <span class="arch-comp">前端界面</span>
+        <span class="arch-comp">会话管理</span>
+        <span class="arch-comp">历史记录</span>
+      </div>
+    </div>
+    <div class="arch-arrow">║</div>
+    <div class="arch-layer core">
+      核心引擎层 (Core Engine)
+      <div class="arch-components">
+        <span class="arch-comp">GinkgoAI 引擎</span>
+        <span class="arch-comp">意图识别</span>
+        <span class="arch-comp">工具调度</span>
+        <span class="arch-comp">深度思考</span>
+        <span class="arch-comp">搜索判断</span>
+      </div>
+    </div>
+    <div class="arch-arrow">║</div>
+    <div class="arch-layer service">
+      服务模块层 (Service Modules)
+      <div class="arch-components">
+        <span class="arch-comp">ConvManager</span>
+        <span class="arch-comp">ImageGenerator</span>
+        <span class="arch-comp">VideoGenerator</span>
+        <span class="arch-comp">WebSearch</span>
+        <span class="arch-comp">ToolKit</span>
+      </div>
+    </div>
+    <div class="arch-arrow">║</div>
+    <div class="arch-layer api">
+      外部API层 (External APIs)
+      <div class="arch-components">
+        <span class="arch-comp">智谱 GLM-4-Flash</span>
+        <span class="arch-comp">Agnes Vision</span>
+        <span class="arch-comp">Agnes Image</span>
+        <span class="arch-comp">Agnes Video</span>
+        <span class="arch-comp">DuckDuckGo</span>
+        <span class="arch-comp">wttr.in</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="chat">智能对话系统</h2>
+  <p>
+    银杏AI 的核心是基于智谱 GLM-4-Flash 的智能对话引擎，支持多轮对话、
+    上下文记忆、深度思考模式，以及自动化的搜索判断与工具调用。
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <h4>多轮对话</h4>
+      <p>完整对话历史记录，AI自动维护上下文连贯性</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤔</div>
+      <h4>深度思考模式</h4>
+      <p>开启后AI展示完整推理过程，先"思考"后"回答"</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h4>意图识别引擎</h4>
+      <p>正则+关键词混合匹配，自动路由到对应工具或AI对话</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔄</div>
+      <h4>会话持久化</h4>
+      <p>所有对话记录持久存储，支持历史浏览、重命名、导出</p>
+    </div>
+  </div>
+
+  <h3>对话流程</h3>
+  <div class="steps">
+    <div class="step">
+      <h4>用户输入接收</h4>
+      <p>Flask后端接收前端发送的文本消息，包含会话ID和深度思考标记</p>
+    </div>
+    <div class="step">
+      <h4>意图识别与路由</h4>
+      <p>GinkgoAI引擎通过正则匹配识别工具命令，自动路由到对应处理器</p>
+    </div>
+    <div class="step">
+      <h4>智能搜索判断</h4>
+      <p>对于非工具类问题，AI自动判断是否需要联网搜索最新信息</p>
+    </div>
+    <div class="step">
+      <h4>GLM-4-Flash 调用</h4>
+      <p>构造包含系统提示词和对话历史的Messages，调用智谱API</p>
+    </div>
+    <div class="step">
+      <h4>响应解析与返回</h4>
+      <p>解析AI响应，提取思考过程和最终答案，返回前端展示</p>
+    </div>
+  </div>
+
+  <h3>系统提示词设计</h3>
+  <p>
+    银杏AI 使用精心设计的系统提示词（System Prompt）定义AI的身份、能力边界和回答规范。
+    128K的超长上下文窗口确保复杂对话也能保持连贯性。
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>提示词模块</th><th>功能</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>身份定义</td><td>AI身份声明</td><td>当被问及身份时，第一句话回答"我是银杏AI，基于智谱GLM-4-Flash模型"</td></tr>
+        <tr><td>能力声明</td><td>功能列表</td><td>明确列出视觉识别、图像生成、视频生成等所有能力</td></tr>
+        <tr><td>回答纪律</td><td>行为约束</td><td>遇到视频生成指令时，必须直接调用工具而非建议其他平台</td></tr>
+        <tr><td>深度思考格式</td><td>输出格式</td><td>深度模式下必须包含"思考："和"回答："两部分</td></tr>
+        <tr><td>技术参数</td><td>模型参数</td><td>上下文128K tokens，单次生成最大4000 tokens</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="vision">视觉识别能力</h2>
+  <p>
+    银杏AI 集成 <mark class="key">Agnes-2.0-Flash</mark> 多模态视觉模型，
+    支持用户上传图片后进行智能识别、描述和问答，实现"看图说话"能力。
+  </p>
+
+  <h3>视觉处理流程</h3>
+  <div class="steps">
+    <div class="step">
+      <h4>图片上传</h4>
+      <p>用户通过前端界面上传图片，前端将图片转为Base64编码</p>
+    </div>
+    <div class="step">
+      <h4>图片存储</h4>
+      <p>Flask后端接收Base64数据，解码后保存到static/uploads/目录</p>
+    </div>
+    <div class="step">
+      <h4>Agnes API 调用</h4>
+      <p>将图片Base64和用户文本发送到Agnes视觉模型API</p>
+    </div>
+    <div class="step">
+      <h4>智能分析返回</h4>
+      <p>视觉模型返回图片分析结果，前端以Markdown格式渲染展示</p>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <div class="callout-title">多模态融合</div>
+    <p>
+      视觉识别与文本对话无缝融合——用户可以在发送图片的同时附带文字提问，
+      AI会综合图片内容和文字问题给出精准回答。
+    </p>
+  </div>
+
+  <h2 id="image">图像生成引擎</h2>
+  <p>
+    银杏AI 集成 <mark class="key">Agnes-Image-2.1-Flash</mark> 图像生成模型，
+    支持文生图（Text-to-Image）和图生图（Image-to-Image）两种创作模式。
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">✏️</div>
+      <h4>文生图模式</h4>
+      <p>输入文字描述即可生成高质量图片，支持自定义尺寸</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🖼️</div>
+      <h4>图生图模式</h4>
+      <p>上传参考图片+文字描述，AI基于参考图进行二次创作</p>
+    </div>
+  </div>
+
+  <h3>图像生成参数</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>model</code></td><td>字符串</td><td>agnes-image-2.1-flash</td><td>图像生成模型</td></tr>
+        <tr><td><code>prompt</code></td><td>字符串</td><td>—</td><td>图像描述文本</td></tr>
+        <tr><td><code>size</code></td><td>字符串</td><td>1024x768</td><td>输出图片尺寸</td></tr>
+        <tr><td><code>image</code></td><td>数组</td><td>—</td><td>图生图模式的参考图片</td></tr>
+        <tr><td><code>response_format</code></td><td>字符串</td><td>url</td><td>返回格式（url/b64_json）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="video">视频生成引擎</h2>
+  <p>
+    银杏AI 集成 <mark class="key">Agnes-Video-V2.0</mark> 视频生成模型，
+    支持文生视频与图生视频，采用异步任务模式，生成完成后自动通知用户。
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📹</div>
+      <h4>文生视频</h4>
+      <p>输入文字描述，AI自动生成1-3分钟的短视频</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎞️</div>
+      <h4>图生视频</h4>
+      <p>上传一张图片作为起始帧，AI将其动画化为视频</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚙️</div>
+      <h4>异步任务管理</h4>
+      <p>视频生成采用异步模式，前端自动轮询状态，完成后推送结果</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎛️</div>
+      <h4>参数可调</h4>
+      <p>支持帧数、帧率、分辨率、种子值等参数自定义</p>
+    </div>
+  </div>
+
+  <h3>视频生成参数</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>model</code></td><td>字符串</td><td>agnes-video-v2.0</td><td>视频生成模型</td></tr>
+        <tr><td><code>prompt</code></td><td>字符串</td><td>—</td><td>视频描述文本</td></tr>
+        <tr><td><code>num_frames</code></td><td>整数</td><td>121</td><td>生成帧数（约5秒@24fps）</td></tr>
+        <tr><td><code>frame_rate</code></td><td>整数</td><td>24</td><td>帧率（fps）</td></tr>
+        <tr><td><code>width</code></td><td>整数</td><td>1152</td><td>视频宽度（像素）</td></tr>
+        <tr><td><code>height</code></td><td>整数</td><td>768</td><td>视频高度（像素）</td></tr>
+        <tr><td><code>image</code></td><td>字符串</td><td>—</td><td>图生视频的起始帧URL</td></tr>
+        <tr><td><code>seed</code></td><td>整数</td><td>随机</td><td>随机种子（可复现生成）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>视频生成流程</h3>
+  <div class="steps">
+    <div class="step">
+      <h4>任务创建</h4>
+      <p>用户提交视频描述，后端向Agnes API创建异步生成任务</p>
+    </div>
+    <div class="step">
+      <h4>状态轮询</h4>
+      <p>前端每3秒自动查询任务状态，展示生成进度百分比</p>
+    </div>
+    <div class="step">
+      <h4>生成完成</h4>
+      <p>任务完成后返回视频URL，前端自动播放并保存到会话记录</p>
+    </div>
+  </div>
+
+  <div class="callout warning">
+    <div class="callout-title">本地环境限制</div>
+    <p>
+      图生视频模式需要公网可访问的图片地址。在本地开发环境（127.0.0.1/localhost）中，
+      请改用文生视频模式，或使用内网穿透工具（如 ngrok）将本地服务暴露到公网。
+    </p>
+  </div>
+
+  <h2 id="search">智能联网搜索</h2>
+  <p>
+    银杏AI 内建 <mark class="key">智能搜索判断引擎</mark>，
+    AI会自动分析用户问题是否需要联网搜索最新信息，无需用户手动触发。
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h4>AI 自动判断</h4>
+      <p>GLM-4-Flash分析用户问题，判断是否包含时效性信息需求</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔎</div>
+      <h4>DuckDuckGo 集成</h4>
+      <p>使用DuckDuckGo即时搜索API获取最新信息，保护用户隐私</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📰</div>
+      <h4>关键词触发</h4>
+      <p>包含"搜索"、"最新"、"新闻"等关键词时自动触发搜索</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📎</div>
+      <h4>搜索结果引用</h4>
+      <p>AI基于搜索结果回答问题，并标注信息来源</p>
+    </div>
+  </div>
+
+  <h3>搜索触发策略</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>触发方式</th><th>条件</th><th>示例</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>关键词触发</td><td>包含搜索/最新/新闻/天气等</td><td>"搜索一下最新的AI新闻"</td></tr>
+        <tr><td>AI判断触发</td><td>GLM分析认为需要最新信息</td><td>"今天有什么重要事件？"</td></tr>
+        <tr><td>跳过搜索</td><td>常识性问题或工具查询</td><td>"现在几点了？"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="tools">实用工具集</h2>
+  <p>
+    银杏AI 内置 12+ 实用工具，覆盖日常查询、计算、安全等场景，
+    通过自然语言命令即可触发，无需记忆复杂指令。
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⏰</div>
+      <h4>时间查询</h4>
+      <p>输入"时间"/"几点了"获取当前时间</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📅</div>
+      <h4>日期查询</h4>
+      <p>输入"日期"/"今天几号"获取当前日期</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌤️</div>
+      <h4>天气查询</h4>
+      <p>输入"天气 北京"查询指定城市天气</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧮</div>
+      <h4>数学计算</h4>
+      <p>输入"计算 2+3*4"进行数学运算</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h4>密码生成</h4>
+      <p>输入"密码 16"生成指定长度的安全密码</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📆</div>
+      <h4>倒计时</h4>
+      <p>输入"倒计时 2026-12-31"计算距离目标日期天数</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">😂</div>
+      <h4>笑话</h4>
+      <p>输入"笑话"/"讲个笑话"获取程序员幽默</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💻</div>
+      <h4>系统信息</h4>
+      <p>输入"系统信息"查看操作系统版本</p>
+    </div>
+  </div>
+
+  <h3>工具调用架构</h3>
+  <p>
+    每个工具以Python方法实现，注册到<code>self.tools</code>字典中。
+    意图识别模块通过正则表达式匹配用户输入，自动路由到对应工具函数，
+    返回结果后由前端以Markdown格式渲染。
+  </p>
+
+  <pre><code># 工具注册示例
+self.tools = {
+    "time": self.get_time,
+    "date": self.get_date,
+    "calc": self.calculate,
+    "weather": self.get_weather,
+    "画图": self.generate_image_tool,
+    "生成视频": self.generate_video_tool,
+    # ... 更多工具
+}
+
+# 意图识别示例
+weather_patterns = [
+    (r'^天气\\s+(.+)$', 'weather'),
+    (r'^(.+?)天气怎么样$', 'weather'),
+]
+for pattern, intent in weather_patterns:
+    match = re.match(pattern, lower)
+    if match:
+        return intent, match.group(1)</code></pre>
+
+  <h2 id="conversation">会话管理系统</h2>
+  <p>
+    银杏AI 使用 <mark class="key">ConvManager</mark> 模块管理所有对话会话，
+    支持多会话切换、历史浏览、重命名、删除和导出功能。
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📝</div>
+      <h4>多会话管理</h4>
+      <p>同时创建、切换和管理多个对话会话</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h4>历史浏览</h4>
+      <p>浏览所有历史对话，显示时间戳和标题</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✏️</div>
+      <h4>重命名与删除</h4>
+      <p>重命名会话以便整理，删除不再需要的会话</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📤</div>
+      <h4>导出为TXT</h4>
+      <p>将任意对话导出为格式化文本文件，UTF-8编码</p>
+    </div>
+  </div>
+
+  <h3>API 端点</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>端点</th><th>方法</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>/api/send</code></td><td>POST</td><td>发送消息并接收AI回复</td></tr>
+        <tr><td><code>/api/history</code></td><td>GET</td><td>列出所有对话会话</td></tr>
+        <tr><td><code>/api/load</code></td><td>POST</td><td>加载指定会话的消息</td></tr>
+        <tr><td><code>/api/new</code></td><td>POST</td><td>创建新的对话会话</td></tr>
+        <tr><td><code>/api/rename</code></td><td>POST</td><td>重命名会话</td></tr>
+        <tr><td><code>/api/delete</code></td><td>POST</td><td>删除会话</td></tr>
+        <tr><td><code>/api/export</code></td><td>POST</td><td>导出会话为文本文件</td></tr>
+        <tr><td><code>/api/upload_image</code></td><td>POST</td><td>上传图片用于视觉/生成</td></tr>
+        <tr><td><code>/api/generate_image</code></td><td>POST</td><td>从文本或图片生成图像</td></tr>
+        <tr><td><code>/api/generate_video</code></td><td>POST</td><td>从文本或图片生成视频</td></tr>
+        <tr><td><code>/api/video_status</code></td><td>GET</td><td>查询视频生成进度</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="deploy">部署指南</h2>
+  <p>
+    银杏AI 是标准的 Python Flask 应用，使用 pip + python 即可部署，无需编译。
+  </p>
+
+  <h3>环境要求</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>依赖</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Python 3.8+</code></td><td>运行环境</td></tr>
+        <tr><td><code>Flask</code></td><td>Web框架</td></tr>
+        <tr><td><code>flask-cors</code></td><td>CORS跨域支持</td></tr>
+        <tr><td><code>requests</code></td><td>HTTP客户端，用于API调用</td></tr>
+        <tr><td><code>智谱 API Key</code></td><td>GLM-4-Flash 模型访问</td></tr>
+        <tr><td><code>Agnes API Key</code></td><td>视觉/图像/视频模型访问</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>快速启动</h3>
+  <pre><code># 1. 克隆仓库
+git clone https://github.com/kksjkk/GinkgoAI.git
+cd GinkgoAI
+
+# 2. 安装依赖
+pip install flask flask-cors requests
+
+# 3. 在 config.py 中配置 API 密钥
+ZHIPU_API_KEY = "your-zhipu-key"
+AGNES_API_KEY = "your-agnes-key"
+AGNES_BASE_URL = "https://apihub.agnes-ai.cn"
+
+# 4. 运行应用
+python app.py
+# 浏览器自动打开 http://127.0.0.1:5000</code></pre>
+
+  <h3>项目结构</h3>
+  <pre><code>GinkgoAI/
+├── app.py              # Flask应用，API路由
+├── ginkgo_core.py      # GinkgoAI引擎，意图识别，对话
+├── config.py           # API密钥和配置
+├── image_gen.py        # 图像生成（Agnes Image API）
+├── video_gen.py        # 视频生成（Agnes Video API）
+├── web_search.py       # DuckDuckGo搜索集成
+├── conv_manager.py     # 对话会话管理
+├── static/             # 静态资源（CSS、JS、上传文件）
+│   └── uploads/        # 上传图片存储
+└── templates/          # HTML模板
+    ├── index.html      # 主聊天界面
+    ├── about.html      # 关于页面
+    ├── terms.html      # 服务条款
+    └── privacy.html    # 隐私政策</code></pre>
+
+  <footer>
+    <div class="footer-bottom">
+      <p style="font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem;">GinkgoAI v1.0</p>
+      <p>多模态 AI 助手平台 &middot; 智谱 GLM-4-Flash + Agnes 引擎</p>
+      <p style="margin-top: 0.5rem; font-size: 0.75rem;">
+        GinkgoAI 项目 &middot; 全栈 Python AI 平台
+      </p>
+      <p style="margin-top:0.5rem;font-size:0.8rem;"><a href="https://github.com/kksjkk/GinkgoAI/" target="_blank" style="color:var(--accent);text-decoration:none;">完整信息见 GitHub</a></p>
+    </div>
+  </footer>
+
+</main>
+
+</body></html>
